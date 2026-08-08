@@ -1,6 +1,6 @@
 [Unit]
 Description=likekiri core (NestJS)
-After=network-online.target postgresql.service redis-server.service
+After=network-online.target postgresql.service
 Wants=network-online.target
 
 [Service]
