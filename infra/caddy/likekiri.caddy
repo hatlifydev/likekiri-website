@@ -12,6 +12,11 @@ likekiri.com, www.likekiri.com {
 		header Cache-Control "public, max-age=31536000, immutable"
 	}
 
+	# Estáticos federados de módulos: /modules/<id>/* → servidor del módulo.
+	handle_path /modules/hello/* {
+		reverse_proxy 127.0.0.1:4001
+	}
+
 	handle {
 		reverse_proxy 127.0.0.1:3000
 	}

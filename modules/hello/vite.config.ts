@@ -1,19 +1,32 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { federation } from '@module-federation/vite';
 
-// Fase 6: este build pasa a Module Federation (@module-federation/vite) y
-// expone ./HelloIsland y ./HelloAdminPage vía remoteEntry.js. Mientras tanto,
-// un build de librería mantiene el paquete compilable y tipado.
+// Build federado: expone los componentes vía remoteEntry.js. Los shells los
+// cargan en runtime con @module-federation/runtime; el core jamás importa esto.
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    federation({
+      name: 'hello',
+      filename: 'remoteEntry.js',
+      exposes: {
+        './HelloIsland': './src/HelloIsland.tsx',
+        './HelloAdminPage': './src/HelloAdminPage.tsx',
+      },
+      shared: {
+        react: { singleton: true },
+        'react-dom': { singleton: true },
+      },
+    }),
+  ],
   build: {
-    lib: {
-      entry: 'src/index.ts',
-      formats: ['es'],
-      fileName: 'index',
-    },
+    outDir: 'dist',
+    // Module Federation emite top-level await; requiere targets modernos.
+    target: 'chrome89',
     rollupOptions: {
-      external: ['react', 'react-dom', 'react/jsx-runtime'],
+      // Entrada nominal: lo que importa del build es remoteEntry.js.
+      input: 'src/index.ts',
     },
   },
 });
