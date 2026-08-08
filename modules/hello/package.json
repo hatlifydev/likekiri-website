@@ -1,0 +1,22 @@
+{
+  "name": "@likekiri/module-hello",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Módulo de ejemplo que valida el contrato módulo↔core de punta a punta",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "6.0.5",
+    "typescript": "5.9.3",
+    "vite": "8.2.1"
+  }
+}
