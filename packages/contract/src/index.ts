@@ -1,14 +1,27 @@
 /**
- * Versión del contrato módulo↔core.
+ * Contrato módulo↔core de likekiri. Este paquete es lo que consumen los
+ * equipos que construyen módulos: esquemas del manifest, tipos y validación.
  *
- * Este paquete es el artefacto más importante del proyecto: es lo que consumen
- * los equipos que construyen módulos. Todo cambio incompatible del manifest
- * sube la major del paquete y este valor.
+ * Los helpers HMAC viven en el subpath '@likekiri/contract/hmac' (usan
+ * node:crypto y no deben llegar a bundles de navegador).
  */
-export const CONTRACT_VERSION = '1';
-
-/** Superficies de render que expone la plataforma. */
-export type Surface = 'web' | 'admin';
-
-// Fase 2: aquí viven los esquemas zod del manifest (ModuleManifestSchema),
-// los tipos derivados y las reglas de validación de namespace.
+export {
+  CONTRACT_VERSION,
+  SUPPORTED_CONTRACT_VERSIONS,
+  MENU_SLOTS,
+  SurfaceSchema,
+  RouteSchema,
+  MenuEntrySchema,
+  PermissionDefSchema,
+  ModuleManifestSchema,
+} from './manifest';
+export type {
+  MenuSlot,
+  Surface,
+  ModuleRoute,
+  MenuEntry,
+  PermissionDef,
+  ModuleManifest,
+} from './manifest';
+export { validateManifest, isWithinNamespace } from './validate';
+export type { ValidateManifestOptions, ManifestValidation } from './validate';
