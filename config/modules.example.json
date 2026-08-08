@@ -1,0 +1,9 @@
+{
+  "modules": [
+    {
+      "moduleId": "hello",
+      "baseUrl": "http://127.0.0.1:4001",
+      "hmacKey": "genera-una-clave-unica-para-este-modulo-min-32-chars"
+    }
+  ]
+}

@@ -8,6 +8,9 @@ coverage/
 .env.*
 !.env.example
 
+# config real del registry (contiene claves HMAC); se versiona solo el example
+config/modules.json
+
 # artefactos locales
 *.local
 *.log
