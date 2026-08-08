@@ -11,6 +11,9 @@ coverage/
 # config real del registry (contiene claves HMAC); se versiona solo el example
 config/modules.json
 
+# cliente Prisma generado (se regenera en cada build)
+apps/core/src/generated/
+
 # artefactos locales
 *.local
 *.log

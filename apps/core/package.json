@@ -1,11 +1,12 @@
 {
-  "name": "@likekiri/core",
+  "name": "core",
   "version": "0.1.0",
   "private": true,
   "description": "Core NestJS de likekiri: API, registry de módulos, auth y SSR del shell",
   "type": "commonjs",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "prisma generate && tsc -p tsconfig.json",
+    "seed:admin": "tsx src/cli/seed-admin.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "dev": "tsx watch src/main.ts",
     "start": "node dist/main.js",
@@ -16,6 +17,9 @@
     "@nestjs/common": "11.1.28",
     "@nestjs/core": "11.1.28",
     "@nestjs/platform-express": "11.1.28",
+    "@prisma/adapter-pg": "7.9.1",
+    "@prisma/client": "7.9.1",
+    "argon2": "0.45.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "zod": "4.4.3"
@@ -23,6 +27,8 @@
   "devDependencies": {
     "@types/express": "5.0.6",
     "@types/node": "^22.18.0",
+    "dotenv": "^17.4.2",
+    "prisma": "7.9.1",
     "tsx": "4.23.11",
     "typescript": "5.9.3"
   }
