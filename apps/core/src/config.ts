@@ -10,6 +10,9 @@ const EnvSchema = z.object({
   ADMIN_BASE_URL: z.url().default('https://admin.likekiri.com'),
   WEB_DIST_DIR: z.string().default('./apps/web-shell/dist'),
   ADMIN_DIST_DIR: z.string().default('./apps/admin-shell/dist'),
+  DATABASE_URL: z.string().default(''),
+  INVITE_TTL_HOURS: z.coerce.number().int().min(1).default(72),
+  SESSION_TTL_HOURS: z.coerce.number().int().min(1).default(168),
 });
 
 export interface CoreConfig {
@@ -26,6 +29,9 @@ export interface CoreConfig {
   adminHost: string;
   webDistDir: string;
   adminDistDir: string;
+  databaseUrl: string;
+  inviteTtlHours: number;
+  sessionTtlHours: number;
 }
 
 /** Token de inyección para la config del core. */
@@ -48,5 +54,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): CoreConfig {
     adminHost,
     webDistDir: parsed.WEB_DIST_DIR,
     adminDistDir: parsed.ADMIN_DIST_DIR,
+    databaseUrl: parsed.DATABASE_URL,
+    inviteTtlHours: parsed.INVITE_TTL_HOURS,
+    sessionTtlHours: parsed.SESSION_TTL_HOURS,
   };
 }

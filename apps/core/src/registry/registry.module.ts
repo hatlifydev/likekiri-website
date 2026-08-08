@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 
 import { CORE_CONFIG, loadConfig, type CoreConfig } from '../config';
 import { RegistryService } from './registry.service';
-import { ShellManifestController } from './shell-manifest.controller';
 
 @Module({
   providers: [
@@ -13,7 +12,6 @@ import { ShellManifestController } from './shell-manifest.controller';
       inject: [CORE_CONFIG],
     },
   ],
-  controllers: [ShellManifestController],
   exports: [RegistryService, CORE_CONFIG],
 })
 export class RegistryModule {}

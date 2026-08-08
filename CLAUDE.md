@@ -34,7 +34,7 @@ La especificación completa vive en el brief del proyecto; las decisiones en `do
 
 - `pnpm install` — instala todo el workspace (Node ≥22.13, pnpm 11).
 - `pnpm build` / `pnpm test` / `pnpm typecheck` — recursivos sobre el workspace.
-- `pnpm --filter @likekiri/core dev` — core en modo watch.
+- `pnpm --filter core dev` — core en modo watch.
 
 ## Convenciones
 
