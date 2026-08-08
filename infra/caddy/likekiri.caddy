@@ -1,0 +1,44 @@
+# Bloques de Caddy para likekiri. NO se aplican solos: en la Fase 7 se añaden
+# al final de /etc/caddy/Caddyfile (no hay import en esa instalación, ADR 001),
+# siempre con backup fechado previo + `caddy validate` antes de recargar.
+# Puerto interno del core: 3000 (ADR 001).
+
+likekiri.com, www.likekiri.com {
+	encode zstd gzip
+
+	handle /assets/* {
+		root * /srv/likekiri/public
+		file_server
+		header Cache-Control "public, max-age=31536000, immutable"
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:3000
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+
+	log {
+		output file /var/log/caddy/likekiri.access.log
+	}
+}
+
+admin.likekiri.com {
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:3000
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "no-referrer"
+	}
+
+	log {
+		output file /var/log/caddy/likekiri-admin.access.log
+	}
+}

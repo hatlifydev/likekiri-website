@@ -1,0 +1,30 @@
+[Unit]
+Description=likekiri core (NestJS)
+After=network-online.target postgresql.service redis-server.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Usuario dedicado sin shell; se crea en la Fase 7:
+#   useradd --system --home /srv/likekiri --shell /usr/sbin/nologin likekiri
+User=likekiri
+Group=likekiri
+WorkingDirectory=/srv/likekiri/app
+# Variables (DATABASE_URL, SESSION_SECRET, …) fuera del repo, permisos 600 root:root
+EnvironmentFile=/etc/likekiri/core.env
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node apps/core/dist/main.js
+Restart=on-failure
+RestartSec=3
+
+# Endurecimiento
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+
+[Install]
+WantedBy=multi-user.target
