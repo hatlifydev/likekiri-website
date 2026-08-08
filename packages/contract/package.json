@@ -1,0 +1,21 @@
+{
+  "name": "@likekiri/contract",
+  "version": "0.1.0",
+  "description": "Contrato módulo↔core de likekiri: esquemas del manifest, tipos y CONTRACT_VERSION",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --import tsx --test test/*.test.ts"
+  },
+  "dependencies": {
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "tsx": "4.23.11",
+    "typescript": "5.9.3"
+  }
+}
