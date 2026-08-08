@@ -1,0 +1,14 @@
+# dependencias y builds
+node_modules/
+dist/
+coverage/
+
+# secretos: .env jamás entra al historial
+.env
+.env.*
+!.env.example
+
+# artefactos locales
+*.local
+*.log
+.DS_Store
