@@ -64,6 +64,7 @@ export function CuentasAdminPage(): ReactElement {
             <thead>
               <tr>
                 <th>Cliente</th>
+                <th>Tipo</th>
                 <th>Plan</th>
                 <th>Estado</th>
                 <th>Facturas</th>
@@ -77,6 +78,11 @@ export function CuentasAdminPage(): ReactElement {
                   <td>
                     <strong>{cuenta.nombre}</strong>
                     <div className="muted">{cuenta.email}</div>
+                  </td>
+                  <td>
+                    <span className="chip neutro">
+                      {cuenta.tipo === 'empresa' ? 'empresa' : 'persona'}
+                    </span>
                   </td>
                   <td>
                     <select

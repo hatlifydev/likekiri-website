@@ -32,3 +32,25 @@ export const PLANES: Plan[] = [
 export function formatoCLP(monto: number): string {
   return monto === 0 ? 'Gratis' : `$${monto.toLocaleString('es-CL')} /mes`;
 }
+
+/** Login único; el TIPO de cuenta diferencia la oferta que ve cada quien. */
+export type TipoCuenta = 'persona' | 'empresa';
+
+export const TIPOS: Array<{ id: TipoCuenta; nombre: string; descripcion: string }> = [
+  {
+    id: 'persona',
+    nombre: 'Persona',
+    descripcion: 'Profesional independiente o equipo pequeño.',
+  },
+  {
+    id: 'empresa',
+    nombre: 'Empresa',
+    descripcion: 'Organización con procesos y datos regulados.',
+  },
+];
+
+/** Planes sugeridos según el tipo (el server acepta cualquiera del catálogo). */
+export const PLANES_POR_TIPO: Record<TipoCuenta, PlanId[]> = {
+  persona: ['gratis', 'profesional'],
+  empresa: ['profesional', 'empresa'],
+};

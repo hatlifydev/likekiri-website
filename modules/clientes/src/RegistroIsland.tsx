@@ -1,13 +1,14 @@
 import { useState, type CSSProperties, type FormEvent, type ReactElement } from 'react';
 
 import { api, ApiError } from './api';
-import { PLANES, formatoCLP, type PlanId } from './planes';
+import { PLANES, PLANES_POR_TIPO, TIPOS, formatoCLP, type PlanId, type TipoCuenta } from './planes';
 
 /** Isla pública: alta de una cuenta de cliente con elección de plan. */
 export function RegistroIsland(): ReactElement {
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [tipo, setTipo] = useState<TipoCuenta>('persona');
   const [plan, setPlan] = useState<PlanId>('gratis');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -18,7 +19,7 @@ export function RegistroIsland(): ReactElement {
     setBusy(true);
     setError(null);
     try {
-      await api.registro({ nombre, email, password, plan });
+      await api.registro({ nombre, email, password, plan, tipo });
       setCreada(true);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'no se pudo crear la cuenta');
@@ -83,9 +84,42 @@ export function RegistroIsland(): ReactElement {
         </label>
 
         <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
+          <legend style={{ marginBottom: '0.5rem' }}>Tipo de cuenta</legend>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
+            {TIPOS.map((opcion) => (
+              <label
+                key={opcion.id}
+                style={{
+                  border: `1px solid ${tipo === opcion.id ? 'var(--lk-color-brand)' : 'var(--lk-color-border)'}`,
+                  borderRadius: 'var(--lk-radius-md)',
+                  padding: '0.75rem 1rem',
+                  cursor: 'pointer',
+                }}
+              >
+                <input
+                  type="radio"
+                  name="tipo"
+                  checked={tipo === opcion.id}
+                  onChange={() => {
+                    setTipo(opcion.id);
+                    const sugeridos = PLANES_POR_TIPO[opcion.id];
+                    if (!sugeridos.includes(plan)) setPlan(sugeridos[0] ?? 'gratis');
+                  }}
+                  style={{ marginRight: '0.5rem' }}
+                />
+                <strong>{opcion.nombre}</strong>
+                <div style={{ color: 'var(--lk-color-textMuted)', fontSize: '0.88rem' }}>
+                  {opcion.descripcion}
+                </div>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
           <legend style={{ marginBottom: '0.5rem' }}>Plan</legend>
           <div style={{ display: 'grid', gap: '0.6rem' }}>
-            {PLANES.map((opcion) => (
+            {PLANES.filter((p) => PLANES_POR_TIPO[tipo].includes(p.id)).map((opcion) => (
               <label
                 key={opcion.id}
                 style={{

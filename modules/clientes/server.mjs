@@ -80,6 +80,16 @@ db.exec(`
   );
 `);
 
+// Migración aditiva: cuentas antiguas quedan como 'persona'.
+{
+  const columnas = db.prepare('pragma table_info(cuentas)').all();
+  if (!columnas.some((col) => col.name === 'tipo')) {
+    db.exec("alter table cuentas add column tipo text not null default 'persona'");
+  }
+}
+
+const TIPOS = new Set(['persona', 'empresa']);
+
 const PLANES = {
   gratis: { nombre: 'Gratis', precio: 0 },
   profesional: { nombre: 'Profesional', precio: 29_990 },
@@ -181,6 +191,7 @@ const publicarCuenta = (fila) => ({
   nombre: fila.nombre,
   email: fila.email,
   plan: fila.plan,
+  tipo: fila.tipo ?? 'persona',
   activo: fila.activo === 1,
   creadaEn: fila.creadaEn,
 });
@@ -223,7 +234,13 @@ async function handleApi(req, res, pathname) {
     const email = String(body.email ?? '').trim().toLowerCase();
     const password = String(body.password ?? '');
     const plan = String(body.plan ?? '');
-    if (nombre.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !(plan in PLANES)) {
+    const tipo = String(body.tipo ?? 'persona');
+    if (
+      nombre.length < 2 ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+      !(plan in PLANES) ||
+      !TIPOS.has(tipo)
+    ) {
       return sendJson(res, 400, { message: 'datos inválidos' });
     }
     if (password.length < 12) {
@@ -232,8 +249,8 @@ async function handleApi(req, res, pathname) {
     const id = randomUUID();
     try {
       db.prepare(
-        'insert into cuentas (id, nombre, email, passwordHash, plan, activo, creadaEn) values (?, ?, ?, ?, ?, 1, ?)',
-      ).run(id, nombre, email, hashPassword(password), plan, new Date().toISOString());
+        'insert into cuentas (id, nombre, email, passwordHash, plan, tipo, activo, creadaEn) values (?, ?, ?, ?, ?, ?, 1, ?)',
+      ).run(id, nombre, email, hashPassword(password), plan, tipo, new Date().toISOString());
     } catch {
       // email duplicado u otro fallo: mensaje genérico, no filtra existencia
       return sendJson(res, 400, { message: 'no se pudo crear la cuenta' });

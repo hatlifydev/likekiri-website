@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, type ReactElement } from 'react';
 
 import { api, ApiError, type MiCuenta } from './api';
-import { PLANES, formatoCLP, type PlanId } from './planes';
+import { PLANES, TIPOS, formatoCLP, type PlanId } from './planes';
 
 type Estado =
   | { fase: 'cargando' }
@@ -74,7 +74,9 @@ export function PortalIsland(): ReactElement {
     <section style={{ maxWidth: '40rem' }}>
       <h1 style={{ letterSpacing: '-0.02em' }}>Hola, {cuenta.nombre}</h1>
       <p style={{ color: 'var(--lk-color-textMuted)', margin: '0.5rem 0 1.5rem' }}>
-        {cuenta.email} · cliente desde {new Date(cuenta.creadaEn).toLocaleDateString('es-CL')}
+        {cuenta.email} · cuenta{' '}
+        <strong>{TIPOS.find((t) => t.id === cuenta.tipo)?.nombre ?? cuenta.tipo}</strong> · cliente
+        desde {new Date(cuenta.creadaEn).toLocaleDateString('es-CL')}
       </p>
 
       <div

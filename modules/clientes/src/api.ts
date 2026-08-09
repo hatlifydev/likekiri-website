@@ -1,4 +1,4 @@
-import type { PlanId } from './planes';
+import type { PlanId, TipoCuenta } from './planes';
 
 /**
  * Cliente HTTP del módulo. La API es DEL MÓDULO (server.mjs), no del core:
@@ -13,6 +13,7 @@ export interface Cuenta {
   nombre: string;
   email: string;
   plan: PlanId;
+  tipo: TipoCuenta;
   activo: boolean;
   creadaEn: string;
 }
@@ -72,7 +73,7 @@ const post = <T>(path: string, body: unknown): Promise<T> =>
 
 export const api = {
   // — cliente (superficie web, sesión propia del módulo) —
-  registro: (datos: { nombre: string; email: string; password: string; plan: PlanId }) =>
+  registro: (datos: { nombre: string; email: string; password: string; plan: PlanId; tipo: TipoCuenta }) =>
     post<{ ok: true }>('/registro', datos),
   acceso: (email: string, password: string) => post<{ ok: true }>('/acceso', { email, password }),
   salir: () => post<{ ok: true }>('/salir', {}),
