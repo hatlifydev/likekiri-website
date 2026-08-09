@@ -25,9 +25,9 @@ export function Login({ onLogin }: { onLogin: () => void }): ReactElement {
   return (
     <div className="centrado">
       <div className="tarjeta-login">
-        <div className="marca">
-          <img src="/admin-assets/marca.png" alt="" />
-          Like<span>Kiri</span>&nbsp;admin
+        <div className="marca-login">
+          <img src="/admin-assets/logo.webp" alt="LikeKiri" />
+          <span>admin</span>
         </div>
         <form className="apilada" onSubmit={(e) => void submit(e)}>
           <div>

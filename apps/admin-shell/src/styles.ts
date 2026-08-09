@@ -32,11 +32,13 @@ button { font: inherit; cursor: pointer; }
   display: flex; flex-direction: column; padding: 1.25rem 0;
 }
 .sidebar .marca {
-  font-weight: 700; font-size: 1.1rem; padding: 0 1.25rem 1.25rem; color: #fff;
-  display: flex; align-items: center; gap: 0.55rem;
+  padding: 0 1.25rem 1.25rem; display: flex; align-items: center; gap: 0.5rem;
 }
-.sidebar .marca img { width: 30px; height: 30px; }
-.sidebar .marca span { color: var(--lk-color-brand); }
+.sidebar .marca .logo { height: 60px; width: auto; display: block; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+.sidebar .marca .etiqueta-admin {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+  color: #12181f; background: var(--lk-color-accent); padding: 0.1rem 0.45rem; border-radius: 999px;
+}
 .sidebar nav { display: flex; flex-direction: column; gap: 2px; }
 .sidebar .grupo { display: flex; flex-direction: column; }
 .sidebar .grupo-cabecera {
@@ -127,8 +129,15 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--lk-color-br
   border: 1px solid var(--lk-color-border); border-radius: 20px; padding: 2rem;
   box-shadow: 0 12px 40px rgba(18,24,31,0.1);
 }
-.tarjeta-login .marca { font-weight: 700; font-size: 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.6rem; color: var(--lk-dark); }
-.tarjeta-login .marca img { width: 38px; height: 38px; }
-.tarjeta-login .marca span { color: var(--lk-color-brand); }
+/* franja oscura para que el logo de letras blancas se vea sobre la tarjeta clara */
+.tarjeta-login .marca-login {
+  background: var(--lk-dark); border-radius: 14px; padding: 1.1rem 1.25rem; margin-bottom: 1.5rem;
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+}
+.tarjeta-login .marca-login img { height: 64px; width: auto; display: block; }
+.tarjeta-login .marca-login span {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+  color: #12181f; background: var(--lk-color-accent); padding: 0.1rem 0.45rem; border-radius: 999px; align-self: flex-start;
+}
 .muted { color: var(--lk-color-textMuted); font-size: 0.9rem; }
 `;
