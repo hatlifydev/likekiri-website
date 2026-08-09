@@ -1,0 +1,25 @@
+{
+  "name": "@likekiri/module-clientes",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Módulo de cuentas de cliente: registro, acceso, plan y facturación — con API y almacenamiento propios",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "serve": "node server.mjs"
+  },
+  "dependencies": {
+    "@likekiri/contract": "workspace:*",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@module-federation/vite": "1.20.5",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "6.0.5",
+    "typescript": "5.9.3",
+    "vite": "8.2.1"
+  }
+}
