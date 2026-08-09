@@ -41,7 +41,7 @@ Estado: aceptado
 ## Despliegue (Fase 7)
 
 - `/srv/likekiri/app` = copia rsync del workspace (incluye node_modules de
-  pnpm, symlinks relativos intactos); `/srv/likekiri/public` = assets cliente
+  pnpm, symlinks relativos intactos); `/srv/likekiri/public/assets` = assets cliente
   del web-shell servidos directo por Caddy.
 - Config en `/etc/likekiri/`: `core.env` y `module-hello.env` (root:root 600,
   systemd los lee como root) y `modules.json` (likekiri:likekiri 600 — lo lee
