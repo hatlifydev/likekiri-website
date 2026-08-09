@@ -20,6 +20,7 @@ const BASE_PERMISSIONS: Array<{ key: string; label: string }> = [
   { key: 'users.manage', label: 'Activar y desactivar usuarios' },
   { key: 'sessions.revoke', label: 'Revocar sesiones de otros' },
   { key: 'registry.read', label: 'Ver el registry de módulos' },
+  { key: 'shell.manage', label: 'Gestionar la estructura del sitio público' },
 ];
 
 function argValue(name: string): string | null {

@@ -6,6 +6,8 @@ import type { Response } from 'express';
 
 import type { RouteMatch } from '../registry/registry.service';
 import type { CoreConfig } from '../config';
+import type { ShellConfigService } from './shell-config.service';
+import type { WebShellConfig } from './shell-config';
 
 interface RenderIsland {
   moduleId: string;
@@ -18,6 +20,8 @@ interface RenderRequest {
   path: string;
   baseUrl: string;
   island: RenderIsland | null;
+  /** Estructura del sitio administrada desde el admin (server-driven UI). */
+  site: WebShellConfig;
 }
 
 interface RenderStream {
@@ -48,7 +52,10 @@ export class ShellService {
   private entryPromise: Promise<EntryServerModule> | null = null;
   private adminHtmlCache: string | null = null;
 
-  constructor(private readonly config: CoreConfig) {}
+  constructor(
+    private readonly config: CoreConfig,
+    private readonly shellConfig: ShellConfigService,
+  ) {}
 
   private loadEntry(): Promise<EntryServerModule> {
     if (this.entryPromise === null) {
@@ -92,6 +99,8 @@ export class ShellService {
     const request: RenderRequest = {
       path,
       baseUrl: this.config.publicBaseUrl,
+      // El back decide la estructura del front en cada render.
+      site: await this.shellConfig.getWebConfig(),
       island:
         match === null
           ? null

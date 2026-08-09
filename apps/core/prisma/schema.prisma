@@ -89,6 +89,14 @@ model UserRole {
   @@id([userId, roleId])
 }
 
+// Configuración server-driven del shell (estructura del sitio público que el
+// admin edita y el SSR aplica). Genérica: el core no interpreta dominios.
+model ShellSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
 model AuditLog {
   id        String   @id @default(uuid())
   actorId   String?
