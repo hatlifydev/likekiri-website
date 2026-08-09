@@ -37,7 +37,7 @@ export interface ShellRouteDto {
   path: string;
   component: string;
   remoteEntry: string;
-  ssr: 'shell' | null;
+  ssr: 'shell' | 'server' | null;
 }
 
 export interface ShellMenuChildDto {
@@ -99,6 +99,8 @@ interface SyncFailure {
 }
 
 const FETCH_TIMEOUT_MS = 5000;
+/** Presupuesto del SSR delegado: si el módulo no responde, se degrada a shell. */
+const RENDER_TIMEOUT_MS = 400;
 
 @Injectable()
 export class RegistryService implements OnModuleInit, OnModuleDestroy {
@@ -280,6 +282,46 @@ export class RegistryService implements OnModuleInit, OnModuleDestroy {
     menu.sort((a, b) => a.order - b.order);
 
     return { contractVersion: CONTRACT_VERSION, surface, routes, menu };
+  }
+
+  /**
+   * SSR delegado: pide al SERVIDOR DEL MÓDULO el HTML de un componente
+   * (POST /render firmado con la clave del módulo). El código del módulo
+   * jamás se ejecuta aquí. Cualquier fallo o timeout devuelve null y la
+   * página degrada al placeholder de isla.
+   */
+  async renderRemote(
+    moduleId: string,
+    component: string,
+    props: Record<string, unknown>,
+  ): Promise<string | null> {
+    const synced = this.modules.get(moduleId);
+    if (synced === undefined) return null;
+    try {
+      const body = JSON.stringify({ component, props });
+      const headers = buildSignedHeaders(
+        synced.registration.hmacKey,
+        moduleId,
+        body,
+      );
+      const response = await fetch(
+        new URL('/render', synced.registration.baseUrl),
+        {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', ...headers },
+          body,
+          signal: AbortSignal.timeout(RENDER_TIMEOUT_MS),
+        },
+      );
+      if (!response.ok) return null;
+      const data = (await response.json()) as { html?: unknown };
+      return typeof data.html === 'string' && data.html.length > 0 ? data.html : null;
+    } catch (error) {
+      this.logger.warn(
+        `SSR delegado de "${moduleId}" falló (${String(error)}); se degrada a shell`,
+      );
+      return null;
+    }
   }
 
   /** Estado del registry para la vista de administración. */

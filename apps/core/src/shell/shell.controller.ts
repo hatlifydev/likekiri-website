@@ -41,6 +41,11 @@ export class ShellController {
     }
 
     const match = this.registry.match('web', req.path);
-    await this.shell.streamWeb(match, req.path, res);
+    // SSR delegado: el HTML lo produce el servidor del módulo, no este proceso.
+    const islandHtml =
+      match !== null && match.route.ssr === 'server'
+        ? await this.registry.renderRemote(match.moduleId, match.route.component, match.params)
+        : null;
+    await this.shell.streamWeb(match, req.path, res, islandHtml);
   }
 }

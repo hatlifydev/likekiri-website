@@ -6,7 +6,7 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { buildSignedHeaders } from '@likekiri/contract/hmac';
+import { buildSignedHeaders, verifySignature } from '@likekiri/contract/hmac';
 
 import { RegistryService } from '../src/registry/registry.service';
 import type { CoreConfig } from '../src/config';
@@ -274,6 +274,64 @@ describe('RegistryService', () => {
     // Sin permisos: el grupo entero desaparece.
     const nada = registry.shellManifest('admin', new Set());
     assert.equal(nada.menu.length, 0);
+  });
+
+  test('SSR delegado: renderRemote firma la petición y devuelve el HTML del módulo', async () => {
+    let origin = '';
+    const server = createServer((req, res) => {
+      if (req.url?.startsWith('/.well-known/module-manifest')) {
+        const body = JSON.stringify(helloManifest(origin));
+        res.writeHead(200, {
+          'content-type': 'application/json',
+          ...buildSignedHeaders(KEY_HELLO, 'hello', body),
+        });
+        res.end(body);
+        return;
+      }
+      if (req.url === '/render' && req.method === 'POST') {
+        let raw = '';
+        req.on('data', (chunk: Buffer) => {
+          raw += chunk.toString();
+        });
+        req.on('end', () => {
+          // El módulo verifica la firma del core sobre el cuerpo.
+          const verdict = verifySignature({
+            key: KEY_HELLO,
+            moduleId: 'hello',
+            body: raw,
+            timestamp: String(req.headers['x-likekiri-timestamp'] ?? ''),
+            signature: String(req.headers['x-likekiri-signature'] ?? ''),
+          });
+          if (!verdict.ok) {
+            res.writeHead(401).end();
+            return;
+          }
+          const payload = JSON.parse(raw) as { props: { slug: string } };
+          res.writeHead(200, { 'content-type': 'application/json' });
+          res.end(JSON.stringify({ html: `<section>ssr:${payload.props.slug}</section>` }));
+        });
+        return;
+      }
+      res.writeHead(404).end();
+    });
+    servers.push(server);
+    await new Promise<void>((resolveListen) => {
+      server.listen(0, '127.0.0.1', () => resolveListen());
+    });
+    const address = server.address();
+    if (address === null || typeof address === 'string') throw new Error('sin puerto');
+    origin = `http://127.0.0.1:${address.port}`;
+
+    const configPath = writeRegistryConfig([
+      { moduleId: 'hello', baseUrl: origin, hmacKey: KEY_HELLO },
+    ]);
+    const registry = new RegistryService(makeConfig(configPath, [origin]));
+    await registry.syncAll();
+
+    const html = await registry.renderRemote('hello', './HelloIsland', { slug: 'demo' });
+    assert.equal(html, '<section>ssr:demo</section>');
+    // Módulo desconocido → null (la página degrada a placeholder, no muere).
+    assert.equal(await registry.renderRemote('fantasma', './X', {}), null);
   });
 
   test('sin archivo de config, el registry queda vacío y el core arranca sano', async () => {

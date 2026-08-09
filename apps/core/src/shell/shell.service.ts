@@ -14,6 +14,8 @@ interface RenderIsland {
   component: string;
   remoteEntry: string;
   props: Record<string, unknown>;
+  /** HTML pre-renderizado por el servidor del módulo (ssr: 'server'), o null. */
+  html: string | null;
 }
 
 interface RenderRequest {
@@ -86,7 +88,12 @@ export class ShellService {
   }
 
   /** SSR del shell web; si match es null, el shell decide (página estática o 404). */
-  async streamWeb(match: RouteMatch | null, path: string, res: Response): Promise<void> {
+  async streamWeb(
+    match: RouteMatch | null,
+    path: string,
+    res: Response,
+    islandHtml: string | null = null,
+  ): Promise<void> {
     let entry: EntryServerModule;
     try {
       entry = await this.loadEntry();
@@ -109,6 +116,7 @@ export class ShellService {
               component: match.route.component,
               remoteEntry: match.remoteEntry,
               props: match.params,
+              html: islandHtml,
             },
     };
 
