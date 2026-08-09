@@ -19,6 +19,9 @@ likekiri.com, www.likekiri.com {
 	handle_path /modules/ejemplo-web/* {
 		reverse_proxy 127.0.0.1:4004
 	}
+	handle_path /modules/clientes/* {
+		reverse_proxy 127.0.0.1:4006
+	}
 
 	handle {
 		reverse_proxy 127.0.0.1:3000
@@ -47,6 +50,9 @@ admin.likekiri.com {
 	}
 	handle_path /modules/ejemplo-admin/* {
 		reverse_proxy 127.0.0.1:4005
+	}
+	handle_path /modules/clientes/* {
+		reverse_proxy 127.0.0.1:4006
 	}
 
 	handle {

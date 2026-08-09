@@ -198,6 +198,24 @@ console.log(validateManifest(require('./mi-manifest.json'),
 #    Si algo del core o del resto del sitio se rompe, tu módulo está mal acoplado.
 ```
 
+## ¿Tu módulo necesita datos y API propios?
+
+Un módulo puede traer su dominio completo: pantallas en ambas superficies,
+su propia API y su propio almacenamiento. El patrón canónico es
+**`modules/clientes`** (registro/portal en el front, gestión y facturación en
+el admin):
+
+- La API vive en el server del módulo, expuesta por Caddy bajo
+  `/modules/<id>/api/...` en los orígenes que la necesiten — misma ruta
+  relativa desde el front y desde el admin, sin CORS.
+- Sesiones de usuarios finales: propias del módulo (cookie propia).
+- Autorización de administradores: el módulo NO inventa admins; reenvía la
+  cookie de la sesión admin al core (`GET /api/auth/me`) y exige sus permisos
+  (`<ns>.read` / `<ns>.write`).
+- Almacenamiento propio (SQLite embebido en el ejemplo; el que quieras en el
+  tuyo). Si escribe a disco, su unidad systemd necesita `ReadWritePaths`.
+- CSRF: valida el header `Origin` en todo método mutante, igual que el core.
+
 ## Errores comunes
 
 | Síntoma | Causa probable |

@@ -32,6 +32,8 @@ La especificación completa vive en el brief del proyecto; las decisiones en `do
 - `modules/registry` — vista del registry (submenú "Plataforma", modo toggle).
 - `modules/ejemplo-web` / `modules/ejemplo-admin` — PLANTILLAS comentadas para
   crear módulos nuevos (una por superficie); parte de la guía de integración.
+- `modules/clientes` — módulo con DOMINIO PROPIO (API + SQLite): registro y
+  portal de clientes en el front, cuentas/planes/facturación en el admin.
 - `packages/contract` — esquemas zod + tipos del manifest, `CONTRACT_VERSION`.
 - `packages/tokens` — design tokens compartidos.
 - `infra/` — plantillas de Caddy, systemd y docker-compose (dev).
