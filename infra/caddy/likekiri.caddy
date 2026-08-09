@@ -34,7 +34,18 @@ likekiri.com, www.likekiri.com {
 
 admin.likekiri.com {
 	encode zstd gzip
-	reverse_proxy 127.0.0.1:3000
+
+	# Estáticos federados de módulos del admin (mismo origen, sin CORS).
+	handle_path /modules/cuentas/* {
+		reverse_proxy 127.0.0.1:4002
+	}
+	handle_path /modules/registry/* {
+		reverse_proxy 127.0.0.1:4003
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:3000
+	}
 
 	header {
 		Strict-Transport-Security "max-age=31536000; includeSubDomains"
