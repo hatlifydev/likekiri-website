@@ -1,0 +1,1 @@
+export { SimuladorIsland } from './SimuladorIsland';
