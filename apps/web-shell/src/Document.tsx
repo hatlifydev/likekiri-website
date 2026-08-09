@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 
 import { shellCss } from './styles';
+import { FigurasFooter, animationScript } from './decor';
 import { DEFAULT_SITE_CONFIG, type SiteConfig } from './site-config';
 
 export interface PageMeta {
@@ -36,6 +37,7 @@ function SiteHeader({ site }: { site: SiteConfig }): ReactElement {
 function SiteFooter({ site }: { site: SiteConfig }): ReactElement {
   return (
     <footer className="site">
+      <FigurasFooter />
       <div className="container">
         <div className="marca-pie">
           <img src="/assets/marca/logo.webp" alt="LikeKiri" />
@@ -90,6 +92,7 @@ export function Document({
         <SiteHeader site={site} />
         <main>{children}</main>
         <SiteFooter site={site} />
+        <script dangerouslySetInnerHTML={{ __html: animationScript }} />
       </body>
     </html>
   );
