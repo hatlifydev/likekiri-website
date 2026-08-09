@@ -12,6 +12,8 @@ interface Mensaje {
   id: string;
   autor: 'visitante' | 'agente' | 'bot';
   texto: string;
+  autorNombre?: string | null;
+  autorCargo?: string | null;
   creadoEn: string;
 }
 

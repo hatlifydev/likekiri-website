@@ -4,6 +4,8 @@ interface Mensaje {
   id: string;
   autor: 'visitante' | 'agente' | 'bot';
   texto: string;
+  autorNombre?: string | null;
+  autorCargo?: string | null;
   creadoEn: string;
 }
 
@@ -114,8 +116,13 @@ export function ChatWidgetIsland(): ReactElement {
               </p>
             ) : (
               mensajes.map((m) => (
-                <div key={m.id} style={{ ...burbuja, ...(m.autor === 'visitante' ? propia : ajena) }}>
-                  {m.texto}
+                <div key={m.id} style={{ display: 'flex', flexDirection: 'column', alignItems: m.autor === 'visitante' ? 'flex-end' : 'flex-start' }}>
+                  {m.autor !== 'visitante' && m.autorNombre != null && (
+                    <span style={{ fontSize: '0.72rem', color: '#5b6674', margin: '0 0.3rem 2px' }}>
+                      {m.autorNombre}{m.autorCargo != null ? ` · ${m.autorCargo}` : ''}
+                    </span>
+                  )}
+                  <div style={{ ...burbuja, ...(m.autor === 'visitante' ? propia : ajena) }}>{m.texto}</div>
                 </div>
               ))
             )}

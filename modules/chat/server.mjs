@@ -72,6 +72,11 @@ db.exec(`
   );
   create index if not exists idx_mensajes_conv on mensajes(convId, creadoEn);
 `);
+{
+  const cols = db.prepare('pragma table_info(mensajes)').all();
+  if (!cols.some((c) => c.name === 'autorNombre')) db.exec('alter table mensajes add column autorNombre text');
+  if (!cols.some((c) => c.name === 'autorCargo')) db.exec('alter table mensajes add column autorCargo text');
+}
 
 const sha256 = (v) => createHash('sha256').update(v).digest('hex');
 
@@ -118,6 +123,14 @@ async function agenteAuth(cookie, permiso) {
   }
 }
 
+/** Firma para el chat: primer nombre + cargo del agente (o genérico). */
+function firmaAgente(me) {
+  return {
+    nombre: me?.firstName ?? me?.displayName ?? 'Equipo LikeKiri',
+    cargo: me?.title ?? null,
+  };
+}
+
 /**
  * Identidad del visitante (mejor esfuerzo): si trae la cookie de cliente,
  * se consulta el módulo clientes. Si clientes está caído, se degrada a
@@ -146,12 +159,16 @@ const publicarConv = (c) => ({
   actualizadaEn: c.actualizadaEn,
 });
 const mensajesDe = (convId) =>
-  db.prepare('select id, autor, texto, canal, creadoEn from mensajes where convId = ? order by creadoEn').all(convId);
+  db.prepare('select id, autor, texto, canal, autorNombre, autorCargo, creadoEn from mensajes where convId = ? order by creadoEn').all(convId);
 
-function guardarMensaje(convId, autor, texto, canal = 'web') {
-  const msg = { id: randomUUID(), convId, autor, texto, canal, creadoEn: new Date().toISOString() };
-  db.prepare('insert into mensajes (id, convId, autor, texto, canal, creadoEn) values (?, ?, ?, ?, ?, ?)').run(
-    msg.id, convId, autor, texto, canal, msg.creadoEn,
+function guardarMensaje(convId, autor, texto, canal = 'web', firma = null) {
+  const msg = {
+    id: randomUUID(), convId, autor, texto, canal,
+    autorNombre: firma?.nombre ?? null, autorCargo: firma?.cargo ?? null,
+    creadoEn: new Date().toISOString(),
+  };
+  db.prepare('insert into mensajes (id, convId, autor, texto, canal, autorNombre, autorCargo, creadoEn) values (?, ?, ?, ?, ?, ?, ?, ?)').run(
+    msg.id, convId, autor, texto, canal, msg.autorNombre, msg.autorCargo, msg.creadoEn,
   );
   db.prepare('update conversaciones set actualizadaEn = ? where id = ?').run(msg.creadoEn, convId);
   return msg;
@@ -184,6 +201,7 @@ async function onConnection(ws, req) {
       return;
     }
     ws.rol = 'agente';
+    ws.firma = firmaAgente(me);
     agentes.add(ws);
     ws.on('close', () => agentes.delete(ws));
     ws.on('message', (raw) => onAgenteMensaje(ws, raw));
@@ -245,7 +263,7 @@ function onAgenteMensaje(ws, raw) {
     if (texto === '') return;
     const conv = db.prepare('select * from conversaciones where id = ?').get(ev.convId);
     if (conv === undefined) return;
-    const msg = guardarMensaje(ev.convId, 'agente', texto);
+    const msg = guardarMensaje(ev.convId, 'agente', texto, 'web', ws.firma);
     aVisitantes(ev.convId, { tipo: 'mensaje', mensaje: msg });
     aAgentes({ tipo: 'mensaje', convId: ev.convId, mensaje: msg });
   }
@@ -295,7 +313,8 @@ async function handleApi(req, res, pathname, url) {
     if (method !== 'GET' && req.headers.origin !== ADMIN_ORIGIN) {
       return sendJson(res, 403, { message: 'origen no permitido' });
     }
-    if ((await agenteAuth(cookie, permiso)) === null) {
+    const meAgente = await agenteAuth(cookie, permiso);
+    if (meAgente === null) {
       return sendJson(res, 401, { message: 'sesión de agente requerida' });
     }
     if (pathname === '/api/admin/conversaciones' && method === 'GET') {
@@ -318,7 +337,7 @@ async function handleApi(req, res, pathname, url) {
       const body = await readBody(req);
       const texto = String(body.texto ?? '').trim().slice(0, 4000);
       if (texto === '') return sendJson(res, 400, { message: 'mensaje vacío' });
-      const msg = guardarMensaje(resp[1], 'agente', texto);
+      const msg = guardarMensaje(resp[1], 'agente', texto, 'web', firmaAgente(meAgente));
       aVisitantes(resp[1], { tipo: 'mensaje', mensaje: msg });
       aAgentes({ tipo: 'mensaje', convId: resp[1], mensaje: msg });
       return sendJson(res, 200, { mensaje: msg });
