@@ -170,6 +170,31 @@ describe('validateManifest', () => {
     expectRejected(m, 'contractVersion');
   });
 
+  test('acepta ssr "server" (SSR delegado al módulo) en rutas web', () => {
+    const m = baseManifest();
+    (m.routes as Record<string, unknown>[])[0] = {
+      surface: 'web',
+      path: '/hello/:slug',
+      component: './HelloIsland',
+      ssr: 'server',
+      permissions: [],
+    };
+    const result = validateManifest(m, ALLOWED);
+    assert.equal(result.ok, true, JSON.stringify(result));
+  });
+
+  test('rechaza modos de ssr desconocidos', () => {
+    const m = baseManifest();
+    (m.routes as Record<string, unknown>[])[0] = {
+      surface: 'web',
+      path: '/hello/:slug',
+      component: './HelloIsland',
+      ssr: 'magico',
+      permissions: [],
+    };
+    expectRejected(m, 'routes');
+  });
+
   test('acepta un submenú con children y mode toggle', () => {
     const m = baseManifest();
     (m.menu as Record<string, unknown>[])[0] = {

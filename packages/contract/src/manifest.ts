@@ -32,8 +32,16 @@ export const RouteSchema = z.strictObject({
   surface: SurfaceSchema,
   path: z.string().regex(PATH_PATTERN, 'ruta inválida (segmentos /literal o /:param)'),
   component: z.string().startsWith('./'),
-  /** 'shell': el core hace SSR del layout y emite un placeholder de isla. */
-  ssr: z.literal('shell').optional(),
+  /**
+   * Modo de SSR de la ruta (solo superficie web):
+   *  - 'shell': el core renderiza el layout y emite un placeholder; la isla
+   *    se monta en el cliente.
+   *  - 'server': SSR delegado — el core pide el HTML al SERVIDOR DEL MÓDULO
+   *    (POST /render firmado, con timeout) y lo incrusta; el cliente hidrata.
+   *    Si el módulo no responde a tiempo, degrada a 'shell' solo.
+   *  El código del módulo jamás se ejecuta en el proceso del core.
+   */
+  ssr: z.enum(['shell', 'server']).optional(),
   permissions: z.array(z.string().min(1)).default([]),
 });
 export type ModuleRoute = z.infer<typeof RouteSchema>;
