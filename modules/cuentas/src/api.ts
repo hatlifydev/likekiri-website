@@ -3,6 +3,16 @@
  * comparte código con el shell: solo el contrato y las APIs del core.
  */
 
+export interface Ficha {
+  displayName: string | null;
+  firstName: string | null;
+  title: string | null;
+  bio: string | null;
+  initials: string | null;
+  enEquipo: boolean;
+  teamOrder: number;
+}
+
 export interface AdminUser {
   id: string;
   email: string;
@@ -11,6 +21,7 @@ export interface AdminUser {
   lastLoginAt: string | null;
   createdAt: string;
   activeSessions: number;
+  ficha: Ficha;
 }
 
 export interface AdminInvitation {
@@ -72,6 +83,8 @@ export const api = {
   enableUser: (id: string) => post<{ ok: true }>(`/api/admin/users/${id}/enable`, {}),
   revokeSessions: (id: string) =>
     post<{ ok: true; revoked: number }>(`/api/admin/users/${id}/revoke-sessions`, {}),
+  guardarFicha: (id: string, ficha: Ficha) =>
+    post<{ ok: true }>(`/api/admin/users/${id}/ficha`, ficha),
   roles: () => request<RoleOption[]>('/api/admin/roles'),
   invitations: () => request<AdminInvitation[]>('/api/admin/invitations'),
   createInvitation: (email: string, roleId: string) =>
