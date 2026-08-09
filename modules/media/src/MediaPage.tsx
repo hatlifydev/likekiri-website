@@ -8,7 +8,54 @@ import {
   type ReactElement,
 } from 'react';
 
-import { api, ApiError, type Archivo } from './api';
+import { api, ApiError, subirConProgreso, type Archivo } from './api';
+
+interface Subida {
+  nombre: string;
+  bytes: number;
+  pct: number;
+  estado: 'en cola' | 'subiendo' | 'procesando' | 'listo' | 'error';
+  mensaje?: string;
+}
+
+/** Barra de progreso con estado por archivo. */
+function BarraSubida({ subida }: { subida: Subida }): ReactElement {
+  const color =
+    subida.estado === 'error'
+      ? 'var(--lk-color-danger)'
+      : subida.estado === 'listo'
+        ? '#16a34a'
+        : 'var(--lk-color-brand)';
+  const etiqueta =
+    subida.estado === 'subiendo'
+      ? `subiendo… ${subida.pct}%`
+      : subida.estado === 'procesando'
+        ? 'procesando en el servidor…'
+        : subida.estado === 'listo'
+          ? 'listo ✓'
+          : subida.estado === 'error'
+            ? `falló: ${subida.mensaje ?? 'error'}`
+            : 'en cola';
+  return (
+    <div style={{ marginTop: '0.75rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.25rem' }}>
+        <span style={{ fontWeight: 600, wordBreak: 'break-all' }}>{subida.nombre}</span>
+        <span style={{ color, whiteSpace: 'nowrap', marginLeft: '0.75rem' }}>{etiqueta}</span>
+      </div>
+      <div style={{ height: '8px', borderRadius: '999px', background: 'var(--lk-color-border)', overflow: 'hidden' }}>
+        <div
+          style={{
+            height: '100%',
+            width: `${subida.estado === 'listo' || subida.estado === 'procesando' ? 100 : subida.pct}%`,
+            background: color,
+            borderRadius: '999px',
+            transition: 'width 0.3s ease',
+          }}
+        />
+      </div>
+    </div>
+  );
+}
 
 /** Fondo ajedrez para que la transparencia se vea. */
 const AJEDREZ: CSSProperties = {
@@ -139,6 +186,7 @@ export function MediaPage(): ReactElement {
   const [archivos, setArchivos] = useState<Archivo[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [subiendo, setSubiendo] = useState(false);
+  const [subidas, setSubidas] = useState<Subida[]>([]);
   const [recortando, setRecortando] = useState<Archivo | null>(null);
   const [copiado, setCopiado] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -156,19 +204,35 @@ export function MediaPage(): ReactElement {
 
   const subir = async (files: FileList | null): Promise<void> => {
     if (files === null || files.length === 0) return;
+    const lista = Array.from(files);
     setSubiendo(true);
     setError(null);
-    try {
-      for (const file of Array.from(files)) {
-        await api.subir(file);
+    setSubidas(
+      lista.map((file) => ({ nombre: file.name, bytes: file.size, pct: 0, estado: 'en cola' })),
+    );
+    const actualizar = (index: number, cambios: Partial<Subida>): void => {
+      setSubidas((prev) => prev.map((s, i) => (i === index ? { ...s, ...cambios } : s)));
+    };
+    // Secuencial: cada archivo con su barra; la lista se refresca por archivo,
+    // así lo ya subido aparece aunque el siguiente falle.
+    for (let i = 0; i < lista.length; i += 1) {
+      const file = lista[i] as File;
+      actualizar(i, { estado: 'subiendo', pct: 0 });
+      try {
+        await subirConProgreso(file, (pct) => {
+          actualizar(i, { pct, estado: pct >= 100 ? 'procesando' : 'subiendo' });
+        });
+        actualizar(i, { estado: 'listo', pct: 100 });
+        reload();
+      } catch (err) {
+        actualizar(i, {
+          estado: 'error',
+          mensaje: err instanceof ApiError ? err.message : 'no se pudo subir',
+        });
       }
-      reload();
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'no se pudo subir');
-    } finally {
-      setSubiendo(false);
-      if (inputRef.current !== null) inputRef.current.value = '';
     }
+    setSubiendo(false);
+    if (inputRef.current !== null) inputRef.current.value = '';
   };
 
   const accion = async (fn: () => Promise<unknown>): Promise<void> => {
@@ -225,6 +289,18 @@ export function MediaPage(): ReactElement {
           <span className="muted" style={{ marginLeft: '0.75rem' }}>
             PNG, JPG, WEBP, SVG o ICO — máx. 15 MB.
           </span>
+          {subidas.map((subida, index) => (
+            <BarraSubida key={`${subida.nombre}-${index}`} subida={subida} />
+          ))}
+          {!subiendo && subidas.length > 0 && (
+            <button
+              className="boton mini suave"
+              style={{ marginTop: '0.6rem' }}
+              onClick={() => setSubidas([])}
+            >
+              Limpiar
+            </button>
+          )}
         </div>
       )}
 
