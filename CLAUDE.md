@@ -33,7 +33,10 @@ La especificación completa vive en el brief del proyecto; las decisiones en `do
 - `modules/ejemplo-web` / `modules/ejemplo-admin` — PLANTILLAS comentadas para
   crear módulos nuevos (una por superficie); parte de la guía de integración.
 - `modules/clientes` — módulo con DOMINIO PROPIO (API + SQLite): registro y
-  portal de clientes en el front, cuentas/planes/facturación en el admin.
+  portal de clientes en el front (tipo persona/empresa, login único),
+  cuentas/planes/facturación en el admin.
+- `modules/sitio` — server-driven UI: edita la estructura del sitio público
+  (anuncio, menú, pie) que el core inyecta en cada render del SSR (ADR 006).
 - `packages/contract` — esquemas zod + tipos del manifest, `CONTRACT_VERSION`.
 - `packages/tokens` — design tokens compartidos.
 - `infra/` — plantillas de Caddy, systemd y docker-compose (dev).

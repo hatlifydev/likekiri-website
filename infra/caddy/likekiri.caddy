@@ -51,6 +51,9 @@ admin.likekiri.com {
 	handle_path /modules/ejemplo-admin/* {
 		reverse_proxy 127.0.0.1:4005
 	}
+	handle_path /modules/sitio/* {
+		reverse_proxy 127.0.0.1:4007
+	}
 	handle_path /modules/clientes/* {
 		reverse_proxy 127.0.0.1:4006
 	}

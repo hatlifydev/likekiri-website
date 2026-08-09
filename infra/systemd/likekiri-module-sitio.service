@@ -1,0 +1,25 @@
+[Unit]
+Description=likekiri módulo sitio (manifest + estáticos federados)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=likekiri
+Group=likekiri
+WorkingDirectory=/srv/likekiri/app/modules/sitio
+EnvironmentFile=/etc/likekiri/module-sitio.env
+ExecStart=/usr/bin/node server.mjs
+Restart=on-failure
+RestartSec=3
+
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+
+[Install]
+WantedBy=multi-user.target
