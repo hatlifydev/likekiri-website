@@ -24,8 +24,12 @@ La especificación completa vive en el brief del proyecto; las decisiones en `do
 
 - `apps/core` — NestJS: API, registry, auth, SSR del shell. CommonJS, decoradores.
 - `apps/web-shell` — React shell del website público (SSR en core + hidratación).
-- `apps/admin-shell` — SPA del panel de administración.
+- `apps/admin-shell` — shell de la SPA de admin: login, aceptar invitación y
+  cargador de micro-frontends. SIN pantallas de negocio: el sidebar se
+  construye 100% desde el manifest (ADR 005).
 - `modules/hello` — módulo de ejemplo que valida el contrato de punta a punta.
+- `modules/cuentas` — usuarios, invitaciones y contraseña (submenú "Cuentas").
+- `modules/registry` — vista del registry (submenú "Plataforma", modo toggle).
 - `packages/contract` — esquemas zod + tipos del manifest, `CONTRACT_VERSION`.
 - `packages/tokens` — design tokens compartidos.
 - `infra/` — plantillas de Caddy, systemd y docker-compose (dev).
