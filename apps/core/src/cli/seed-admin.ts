@@ -70,6 +70,23 @@ async function main(): Promise<void> {
       update: {},
     });
 
+    // Ficha inicial del owner (editable luego desde el admin): Pedro Miguras.
+    // Solo se aplica si el usuario ya existe y aún no tiene ficha.
+    const existente = await prisma.user.findUnique({ where: { email } });
+    if (existente !== null && existente.displayName === null) {
+      await prisma.user.update({
+        where: { email },
+        data: {
+          displayName: 'Pedro Miguras',
+          firstName: 'Pedro',
+          title: 'Socio fundador · Dirección de tecnología',
+          initials: 'PM',
+          enEquipo: true,
+          teamOrder: 1,
+        },
+      });
+    }
+
     const auth = new AuthService(prisma, config);
     const invitations = new InvitationsService(prisma, auth, config);
     const invitation = await invitations.create(email, role.id, null, null);

@@ -45,6 +45,38 @@ export class ShellConfigService {
     }
   }
 
+  /** Miembros del equipo (usuarios con enEquipo=true) para la página pública. */
+  async getTeam(): Promise<
+    Array<{ displayName: string; title: string; bio: string; initials: string }>
+  > {
+    try {
+      const users = await this.prisma.user.findMany({
+        where: { enEquipo: true },
+        orderBy: [{ teamOrder: 'asc' }, { createdAt: 'asc' }],
+        select: { displayName: true, firstName: true, title: true, bio: true, initials: true, email: true },
+      });
+      return users.map((u) => {
+        const nombre = u.displayName ?? u.firstName ?? u.email;
+        return {
+          displayName: nombre,
+          title: u.title ?? '',
+          bio: u.bio ?? '',
+          initials:
+            u.initials ??
+            nombre
+              .split(' ')
+              .map((p) => p[0])
+              .slice(0, 2)
+              .join('')
+              .toUpperCase(),
+        };
+      });
+    } catch (error) {
+      this.logger.warn(`no se pudo leer el equipo: ${String(error)}`);
+      return [];
+    }
+  }
+
   async setWebConfig(input: unknown): Promise<WebShellConfig> {
     const parsed = WebShellConfigSchema.safeParse(input);
     if (!parsed.success) {

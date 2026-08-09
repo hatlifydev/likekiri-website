@@ -23,6 +23,16 @@ const CreateInvitationSchema = z.strictObject({
   roleId: z.string().min(1),
 });
 
+const FichaSchema = z.strictObject({
+  displayName: z.string().max(120).nullable(),
+  firstName: z.string().max(60).nullable(),
+  title: z.string().max(120).nullable(),
+  bio: z.string().max(2000).nullable(),
+  initials: z.string().max(4).nullable(),
+  enEquipo: z.boolean(),
+  teamOrder: z.number().int().min(0).max(999),
+});
+
 @Controller('api/admin')
 @UseGuards(SessionGuard, PermissionsGuard)
 export class AdminController {
@@ -62,7 +72,32 @@ export class AdminController {
       lastLoginAt: user.lastLoginAt,
       createdAt: user.createdAt,
       activeSessions: user.sessions.length,
+      ficha: {
+        displayName: user.displayName,
+        firstName: user.firstName,
+        title: user.title,
+        bio: user.bio,
+        initials: user.initials,
+        enEquipo: user.enEquipo,
+        teamOrder: user.teamOrder,
+      },
     }));
+  }
+
+  @Post('users/:id/ficha')
+  @RequirePermissions('users.manage')
+  async updateFicha(
+    @Param('id') id: string,
+    @Body() body: unknown,
+    @Req() req: AuthedRequest,
+  ): Promise<{ ok: true }> {
+    const parsed = FichaSchema.safeParse(body);
+    if (!parsed.success) {
+      throw new BadRequestException('ficha inválida');
+    }
+    await this.prisma.user.update({ where: { id }, data: parsed.data });
+    await this.auth.audit(req.auth?.userId ?? null, 'ficha.updated', id, {}, null);
+    return { ok: true };
   }
 
   @Post('users/:id/disable')

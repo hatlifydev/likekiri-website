@@ -19,6 +19,10 @@ export interface AuthContext {
   sessionId: string;
   isSuperadmin: boolean;
   permissions: ReadonlySet<string>;
+  /** Ficha de la persona (para firmar el chat y mostrar en el admin). */
+  firstName: string | null;
+  title: string | null;
+  displayName: string | null;
 }
 
 /** Mensaje único para credenciales malas: no revela si la cuenta existe. */
@@ -154,6 +158,9 @@ export class AuthService {
       sessionId: session.id,
       isSuperadmin,
       permissions,
+      firstName: session.user.firstName,
+      title: session.user.title,
+      displayName: session.user.displayName,
     };
   }
 

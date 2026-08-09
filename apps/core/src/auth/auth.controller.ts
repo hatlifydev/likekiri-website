@@ -78,6 +78,9 @@ export class AuthController {
     userId: string;
     isSuperadmin: boolean;
     permissions: string[];
+    firstName: string | null;
+    title: string | null;
+    displayName: string | null;
   } {
     const auth = req.auth;
     if (!auth) throw new BadRequestException();
@@ -86,6 +89,9 @@ export class AuthController {
       userId: auth.userId,
       isSuperadmin: auth.isSuperadmin,
       permissions: auth.isSuperadmin ? ['*'] : [...auth.permissions],
+      firstName: auth.firstName,
+      title: auth.title,
+      displayName: auth.displayName,
     };
   }
 

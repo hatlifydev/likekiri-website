@@ -22,6 +22,13 @@ model User {
   lockedUntil  DateTime?
   createdAt    DateTime   @default(now())
   lastLoginAt  DateTime?
+  displayName  String?
+  firstName    String?
+  title        String?
+  bio          String?
+  initials     String?
+  enEquipo     Boolean    @default(false)
+  teamOrder    Int        @default(100)
   roles        UserRole[]
   sessions     Session[]
 }

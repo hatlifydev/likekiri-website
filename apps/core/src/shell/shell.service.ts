@@ -24,6 +24,13 @@ interface RenderWidget {
   remoteEntry: string;
 }
 
+interface TeamMember {
+  displayName: string;
+  title: string;
+  bio: string;
+  initials: string;
+}
+
 interface RenderRequest {
   path: string;
   baseUrl: string;
@@ -32,6 +39,8 @@ interface RenderRequest {
   site: WebShellConfig;
   /** Widgets globales (islas flotantes) de los módulos, en cada render. */
   widgets: RenderWidget[];
+  /** Equipo (fichas de usuarios) para la página pública, desde el admin. */
+  team: TeamMember[];
 }
 
 interface RenderStream {
@@ -117,6 +126,7 @@ export class ShellService {
       baseUrl: this.config.publicBaseUrl,
       // El back decide la estructura del front en cada render.
       site: await this.shellConfig.getWebConfig(),
+      team: await this.shellConfig.getTeam(),
       widgets,
       island:
         match === null
