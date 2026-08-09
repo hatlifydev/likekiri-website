@@ -125,6 +125,40 @@ importers:
         specifier: 8.2.1
         version: 8.2.1(@types/node@22.20.1)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.11)
 
+  modules/chat:
+    dependencies:
+      '@likekiri/contract':
+        specifier: workspace:*
+        version: link:../../packages/contract
+      react:
+        specifier: 19.2.8
+        version: 19.2.8
+      react-dom:
+        specifier: 19.2.8
+        version: 19.2.8(react@19.2.8)
+      ws:
+        specifier: 8.21.3
+        version: 8.21.3
+    devDependencies:
+      '@module-federation/vite':
+        specifier: 1.20.5
+        version: 1.20.5(typescript@5.9.3)(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.11))
+      '@types/react':
+        specifier: ^19.2.0
+        version: 19.2.18
+      '@types/react-dom':
+        specifier: ^19.2.0
+        version: 19.2.4(@types/react@19.2.18)
+      '@vitejs/plugin-react':
+        specifier: 6.0.5
+        version: 6.0.5(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.11))
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vite:
+        specifier: 8.2.1
+        version: 8.2.1(@types/node@22.20.1)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.11)
+
   modules/clientes:
     dependencies:
       '@likekiri/contract':
@@ -2166,6 +2200,18 @@ packages:
       utf-8-validate:
         optional: true
 
+  ws@8.21.3:
+    resolution: {integrity: sha512-201TZ/kPWxoPr/OKWjquZR1SWKXcvxdH+e1xrx89b3YbmzLMFCLfnaG1HFIgWzJOEWZ7MvpK++odZufgYR50Rw==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
   xtend@4.0.2:
     resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
     engines: {node: '>=0.4'}
@@ -3796,6 +3842,8 @@ snapshots:
   wrappy@1.0.2: {}
 
   ws@8.21.0: {}
+
+  ws@8.21.3: {}
 
   xtend@4.0.2: {}
 

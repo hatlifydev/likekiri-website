@@ -1,0 +1,26 @@
+{
+  "name": "@likekiri/module-chat",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Chat en vivo por WebSocket: widget en el sitio, panel de agente en el admin, persistencia propia",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "serve": "node server.mjs"
+  },
+  "dependencies": {
+    "@likekiri/contract": "workspace:*",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "ws": "8.21.3"
+  },
+  "devDependencies": {
+    "@module-federation/vite": "1.20.5",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "6.0.5",
+    "typescript": "5.9.3",
+    "vite": "8.2.1"
+  }
+}
