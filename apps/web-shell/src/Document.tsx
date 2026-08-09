@@ -15,7 +15,11 @@ function SiteHeader({ site }: { site: SiteConfig }): ReactElement {
     <header className="site">
       <div className="container">
         <a className="brand" href="/">
-          Like<span>Kiri</span>
+          <img
+            src="/assets/marca/logo.webp"
+            alt="LikeKiri — Software · Automation · Consulting"
+            style={{ height: '52px', display: 'block' }}
+          />
         </a>
         <nav className="main" aria-label="principal">
           {site.header.links.map((link) => (
@@ -75,6 +79,9 @@ export function Document({
         <meta property="og:description" content={meta.description} />
         <meta property="og:url" content={canonical} />
         <meta property="og:locale" content="es_CL" />
+        <meta property="og:image" content={new URL('/assets/marca/logo.webp', meta.baseUrl).toString()} />
+        <link rel="icon" type="image/png" href="/assets/favicon.png" />
+        <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
         <style dangerouslySetInnerHTML={{ __html: shellCss }} />
       </head>
       <body>

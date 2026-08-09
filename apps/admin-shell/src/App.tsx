@@ -79,7 +79,8 @@ function Layout({
     <div className="layout">
       <aside className="sidebar">
         <div className="marca">
-          Like<span>Kiri</span> admin
+          <img src="/admin-assets/marca.png" alt="" />
+          Like<span>Kiri</span>&nbsp;admin
         </div>
         <nav>
           {entradas.map((entry) =>
