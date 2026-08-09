@@ -63,6 +63,9 @@ export function validateManifest(
     if (!exposed.has(route.component)) {
       errors.push(`routes: el componente "${route.component}" no está en exposes`);
     }
+    if (route.widget === true && route.surface !== 'web') {
+      errors.push(`routes: "${route.path}" marca widget pero no es de superficie web`);
+    }
     for (const key of route.permissions) {
       // Un módulo solo puede DECLARAR permisos de su namespace, pero puede
       // CONSUMIR (exigir para visibilidad) permisos de la plataforma u otros

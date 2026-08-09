@@ -42,6 +42,12 @@ export const RouteSchema = z.strictObject({
    *  El código del módulo jamás se ejecuta en el proceso del core.
    */
   ssr: z.enum(['shell', 'server']).optional(),
+  /**
+   * Widget global (solo superficie web): en vez de ser una página, el
+   * componente se monta como isla flotante en TODAS las páginas del sitio
+   * (p. ej. un chat). El core lo emite en cada render.
+   */
+  widget: z.boolean().optional(),
   permissions: z.array(z.string().min(1)).default([]),
 });
 export type ModuleRoute = z.infer<typeof RouteSchema>;
