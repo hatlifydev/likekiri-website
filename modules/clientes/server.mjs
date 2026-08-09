@@ -222,6 +222,61 @@ async function adminAuth(req, permiso) {
   }
 }
 
+// ——— SSR delegado (ssr: 'server') ———
+let ssrRender = null;
+try {
+  const entry = await import(new URL('./dist-ssr/entry-ssr.js', import.meta.url).href);
+  ssrRender = entry.render;
+} catch (error) {
+  console.warn('sin bundle SSR (dist-ssr); las islas degradarán a shell:', String(error));
+}
+
+function readRawBody(req) {
+  return new Promise((resolveBody, rejectBody) => {
+    let data = '';
+    req.on('data', (chunk) => {
+      data += chunk;
+      if (data.length > 50_000) rejectBody(new Error('cuerpo demasiado grande'));
+    });
+    req.on('end', () => resolveBody(data));
+    req.on('error', rejectBody);
+  });
+}
+
+/** El core firma la petición con la clave de ESTE módulo; se verifica. */
+async function handleRender(req, res) {
+  const body = await readRawBody(req);
+  const verdict = verifySignature({
+    key: KEY,
+    moduleId: MODULE_ID,
+    body,
+    timestamp: req.headers[HEADER_TIMESTAMP] ?? '',
+    signature: req.headers[HEADER_SIGNATURE] ?? '',
+  });
+  if (req.headers[HEADER_MODULE] !== MODULE_ID || !verdict.ok) {
+    return sendJson(res, 401, { message: 'firma inválida' });
+  }
+  if (ssrRender === null) {
+    return sendJson(res, 503, { message: 'SSR no disponible' });
+  }
+  let payload;
+  try {
+    payload = JSON.parse(body);
+  } catch {
+    return sendJson(res, 400, { message: 'JSON inválido' });
+  }
+  const component = String(payload.component ?? '');
+  const props = payload.props && typeof payload.props === 'object' ? payload.props : {};
+  try {
+    const html = ssrRender(component, props);
+    if (html === null) return sendJson(res, 404, { message: 'componente desconocido' });
+    return sendJson(res, 200, { html });
+  } catch (error) {
+    console.error('fallo en renderToString:', error);
+    return sendJson(res, 500, { message: 'error de render' });
+  }
+}
+
 // ——— API del dominio ———
 async function handleApi(req, res, pathname) {
   const method = req.method ?? 'GET';
@@ -395,9 +450,9 @@ const manifest = {
     './FacturacionAdminPage',
   ],
   routes: [
-    { surface: 'web', path: '/clientes/registro', component: './RegistroIsland', ssr: 'shell', permissions: [] },
-    { surface: 'web', path: '/clientes/acceso', component: './AccesoIsland', ssr: 'shell', permissions: [] },
-    { surface: 'web', path: '/clientes/portal', component: './PortalIsland', ssr: 'shell', permissions: [] },
+    { surface: 'web', path: '/clientes/registro', component: './RegistroIsland', ssr: 'server', permissions: [] },
+    { surface: 'web', path: '/clientes/acceso', component: './AccesoIsland', ssr: 'server', permissions: [] },
+    { surface: 'web', path: '/clientes/portal', component: './PortalIsland', ssr: 'server', permissions: [] },
     { surface: 'admin', path: '/clientes', component: './CuentasAdminPage', permissions: ['clientes.read'] },
     { surface: 'admin', path: '/clientes/facturacion', component: './FacturacionAdminPage', permissions: ['clientes.read'] },
   ],
@@ -473,6 +528,13 @@ const server = createServer((req, res) => {
   if (pathname.startsWith('/api/')) {
     handleApi(req, res, pathname).catch((error) => {
       console.error('error en la API:', error);
+      if (!res.headersSent) sendJson(res, 500, { message: 'error interno' });
+    });
+    return;
+  }
+  if (pathname === '/render' && req.method === 'POST') {
+    handleRender(req, res).catch((error) => {
+      console.error('error en /render:', error);
       if (!res.headersSent) sendJson(res, 500, { message: 'error interno' });
     });
     return;
