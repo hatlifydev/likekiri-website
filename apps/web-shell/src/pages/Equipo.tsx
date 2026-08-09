@@ -15,7 +15,7 @@ const equipo: Miembro[] = [
     iniciales: 'PM',
   },
   {
-    nombre: 'Germán Ávila',
+    nombre: 'Germán Alvarez',
     rol: 'Socio · Dirección de consultoría',
     bio: 'Especialista en rediseño de procesos y gestión del cambio. Antes de LikeKiri lideró la oficina de automatización de una aseguradora regional. Traduce problemas de negocio a proyectos que se pueden ejecutar.',
     iniciales: 'GA',

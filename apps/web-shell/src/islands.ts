@@ -2,7 +2,7 @@ import { init, loadRemote } from '@module-federation/runtime';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { createElement, type ComponentType } from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, hydrateRoot } from 'react-dom/client';
 
 /**
  * Runtime cliente de islas: escanea los placeholders emitidos por el SSR,
@@ -59,7 +59,13 @@ async function mount(spec: IslandSpec): Promise<void> {
       throw new Error(`el remoto no exporta un componente "${spec.exposed}"`);
     }
     const Component = candidate as ComponentType<Record<string, unknown>>;
-    createRoot(spec.el).render(createElement(Component, spec.props));
+    const element = createElement(Component, spec.props);
+    if (spec.el.dataset['hydrate'] === '1') {
+      // El servidor del módulo ya pintó el HTML (ssr: 'server'): se hidrata.
+      hydrateRoot(spec.el, element);
+    } else {
+      createRoot(spec.el).render(element);
+    }
   } catch (error) {
     console.error(`[likekiri] la isla ${spec.moduleId}/${spec.exposed} falló:`, error);
     markFailed(spec.el);

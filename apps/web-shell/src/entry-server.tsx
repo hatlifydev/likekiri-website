@@ -18,6 +18,11 @@ export interface IslandDescriptor {
   component: string;
   remoteEntry: string;
   props: Record<string, unknown>;
+  /**
+   * HTML pre-renderizado por el SERVIDOR DEL MÓDULO (ssr: 'server'), o null.
+   * Con HTML el cliente hidrata; sin él, monta sobre el placeholder.
+   */
+  html?: string | null;
 }
 
 export interface RenderRequest {
@@ -37,18 +42,32 @@ export interface RenderHooks {
 }
 
 function IslandPlaceholder({ island }: { island: IslandDescriptor }): ReactElement {
+  const attrs = {
+    'data-likekiri-island': `${island.moduleId}/${island.component}`,
+    'data-remote': island.remoteEntry,
+    'data-props': serializePropsForAttribute(island.props),
+  };
+  const conHtml = island.html != null && island.html !== '';
   return (
-    <div
-      data-likekiri-island={`${island.moduleId}/${island.component}`}
-      data-remote={island.remoteEntry}
-      data-props={serializePropsForAttribute(island.props)}
-    >
+    <>
       {/* React 19 los iza al <head>: el navegador precarga el runtime y el
           remoto en paralelo con el HTML, sin esperar la cascada de scripts. */}
       <link rel="modulepreload" href="/assets/islands.js" />
       <link rel="modulepreload" href={island.remoteEntry} />
-      <div className="isla-cargando">Cargando componente…</div>
-    </div>
+      {conHtml ? (
+        // SSR delegado: el HTML lo produjo el servidor del módulo; el cliente
+        // hidrata este subárbol (data-hydrate) en lugar de montarlo de cero.
+        <div
+          {...attrs}
+          data-hydrate="1"
+          dangerouslySetInnerHTML={{ __html: island.html as string }}
+        />
+      ) : (
+        <div {...attrs}>
+          <div className="isla-cargando">Cargando componente…</div>
+        </div>
+      )}
+    </>
   );
 }
 
