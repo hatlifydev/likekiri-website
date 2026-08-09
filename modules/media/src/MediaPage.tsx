@@ -189,6 +189,7 @@ export function MediaPage(): ReactElement {
   const [subidas, setSubidas] = useState<Subida[]>([]);
   const [recortando, setRecortando] = useState<Archivo | null>(null);
   const [copiado, setCopiado] = useState<string | null>(null);
+  const [tolerancia, setTolerancia] = useState(8);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const reload = useCallback((): void => {
@@ -289,6 +290,18 @@ export function MediaPage(): ReactElement {
           <span className="muted" style={{ marginLeft: '0.75rem' }}>
             PNG, JPG, WEBP, SVG o ICO — máx. 15 MB.
           </span>
+          <label className="muted" style={{ marginLeft: '1.25rem', fontSize: '0.85rem' }}>
+            Tolerancia del quitar-fondo:{' '}
+            <input
+              type="number"
+              min={1}
+              max={60}
+              value={tolerancia}
+              onChange={(e) => setTolerancia(Math.min(60, Math.max(1, Number(e.target.value) || 8)))}
+              style={{ width: '4.5rem', display: 'inline-block' }}
+              title="1 = solo blanco casi puro (seguro para letras claras); más alto = come tonos más grises"
+            />
+          </label>
           {subidas.map((subida, index) => (
             <BarraSubida key={`${subida.nombre}-${index}`} subida={subida} />
           ))}
@@ -341,12 +354,46 @@ export function MediaPage(): ReactElement {
                     </button>
                     <button
                       className="boton mini suave"
-                      title="Quita el fondo blanco conectado a los bordes (respeta blancos interiores)"
-                      onClick={() => void accion(() => api.transparentar(archivo.id))}
+                      title={`Quita el blanco conectado a los bordes con tolerancia ${tolerancia} (respeta blancos interiores)`}
+                      onClick={() => void accion(() => api.transparentar(archivo.id, tolerancia))}
                     >
                       Fondo transparente
                     </button>
+                    <button
+                      className="boton mini suave"
+                      title="Recomprime en el mismo formato para reducir peso"
+                      onClick={() => void accion(() => api.optimizar(archivo.id))}
+                    >
+                      Reducir peso
+                    </button>
+                    {!archivo.mime.includes('webp') && (
+                      <button
+                        className="boton mini suave"
+                        title="Convierte a WebP (mejor peso, conserva transparencia)"
+                        onClick={() => void accion(() => api.convertir(archivo.id))}
+                      >
+                        → WebP
+                      </button>
+                    )}
                   </>
+                )}
+                {archivo.tienePrev && (
+                  <button
+                    className="boton mini suave"
+                    title="Deshace la última operación (recorte, fondo, optimización o conversión)"
+                    onClick={() => void accion(() => api.deshacer(archivo.id))}
+                  >
+                    ↩ Deshacer
+                  </button>
+                )}
+                {archivo.tieneOrig && (
+                  <button
+                    className="boton mini suave"
+                    title="Vuelve al archivo tal como se subió"
+                    onClick={() => void accion(() => api.original(archivo.id))}
+                  >
+                    Original
+                  </button>
                 )}
                 <button
                   className="boton mini peligro"

@@ -10,6 +10,8 @@ export interface Archivo {
   creadoEn: string;
   actualizadoEn: string;
   url: string;
+  tienePrev: boolean;
+  tieneOrig: boolean;
 }
 
 export class ApiError extends Error {
@@ -90,13 +92,27 @@ export const api = {
       }),
     ),
 
-  transparentar: async (id: string): Promise<Archivo> =>
+  transparentar: async (id: string, tolerancia: number): Promise<Archivo> =>
     parse(
       await fetch(`${BASE}/archivos/${id}/transparentar`, {
         method: 'POST',
         credentials: 'same-origin',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ tolerancia }),
       }),
     ),
+
+  deshacer: async (id: string): Promise<Archivo> =>
+    parse(await fetch(`${BASE}/archivos/${id}/deshacer`, { method: 'POST', credentials: 'same-origin' })),
+
+  original: async (id: string): Promise<Archivo> =>
+    parse(await fetch(`${BASE}/archivos/${id}/original`, { method: 'POST', credentials: 'same-origin' })),
+
+  optimizar: async (id: string): Promise<Archivo> =>
+    parse(await fetch(`${BASE}/archivos/${id}/optimizar`, { method: 'POST', credentials: 'same-origin' })),
+
+  convertir: async (id: string): Promise<Archivo> =>
+    parse(await fetch(`${BASE}/archivos/${id}/convertir`, { method: 'POST', credentials: 'same-origin' })),
 
   borrar: async (id: string): Promise<void> => {
     await parse(

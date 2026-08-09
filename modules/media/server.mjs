@@ -53,6 +53,12 @@ db.exec(`
     actualizadoEn text not null
   );
 `);
+// Migración aditiva: respaldos para deshacer/restaurar.
+{
+  const columnas = db.prepare('pragma table_info(archivos)').all();
+  if (!columnas.some((c) => c.name === 'prevExt')) db.exec('alter table archivos add column prevExt text');
+  if (!columnas.some((c) => c.name === 'origExt')) db.exec('alter table archivos add column origExt text');
+}
 
 const MIME_EXT = {
   'image/png': 'png',
@@ -114,6 +120,8 @@ const filaPublica = (fila) => ({
   creadoEn: fila.creadoEn,
   actualizadoEn: fila.actualizadoEn,
   url: `/modules/media/files/${fila.id}.${fila.ext}`,
+  tienePrev: fila.prevExt != null,
+  tieneOrig: fila.origExt != null,
 });
 
 function rutaArchivo(fila) {
@@ -133,16 +141,49 @@ async function actualizarDimensiones(fila) {
   );
 }
 
+import { copyFileSync } from 'node:fs';
+
+/**
+ * Antes de cada operación destructiva: guarda el estado actual como .prev
+ * (un nivel de deshacer) y, la primera vez, como .orig (restaurable siempre).
+ */
+function respaldar(fila) {
+  const actual = rutaArchivo(fila);
+  if (fila.origExt == null) {
+    copyFileSync(actual, join(FILES_DIR, `${fila.id}.orig.${fila.ext}`));
+    db.prepare('update archivos set origExt = ? where id = ?').run(fila.ext, fila.id);
+  }
+  if (fila.prevExt != null && fila.prevExt !== fila.ext) {
+    try { unlinkSync(join(FILES_DIR, `${fila.id}.prev.${fila.prevExt}`)); } catch {}
+  }
+  copyFileSync(actual, join(FILES_DIR, `${fila.id}.prev.${fila.ext}`));
+  db.prepare('update archivos set prevExt = ? where id = ?').run(fila.ext, fila.id);
+}
+
+function restaurarDesde(fila, sufijo, ext) {
+  const respaldo = join(FILES_DIR, `${fila.id}.${sufijo}.${ext}`);
+  if (!existsSync(respaldo)) return false;
+  // el estado actual pasa a ser el nuevo .prev (poder deshacer el deshacer)
+  copyFileSync(rutaArchivo(fila), join(FILES_DIR, `${fila.id}.prev.${fila.ext}`));
+  const prevExt = fila.ext;
+  if (fila.ext !== ext) { try { unlinkSync(rutaArchivo(fila)); } catch {} }
+  copyFileSync(respaldo, join(FILES_DIR, `${fila.id}.${ext}`));
+  const MIMES = { png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp', svg: 'image/svg+xml', ico: 'image/x-icon' };
+  db.prepare('update archivos set ext = ?, mime = ?, prevExt = ? where id = ?').run(ext, MIMES[ext] ?? fila.mime, prevExt, fila.id);
+  return true;
+}
+
 /**
  * Fondo transparente por flood-fill: parte de TODOS los píxeles del borde que
  * sean casi blancos y avanza solo por vecinos casi blancos. Los blancos
  * interiores (letras, brillos) no se tocan porque no conectan con el borde.
  */
-async function transparentarFondo(fila, tolerancia = 12) {
+async function transparentarFondo(fila, tolerancia = 8) {
   const origen = rutaArchivo(fila);
   const { data, info } = await sharp(origen).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   const { width, height, channels } = info;
-  const umbral = 255 - tolerancia * 3;
+  // tolerancia 1..60: umbral por canal (255 - tolerancia). 1 = solo blanco casi puro.
+  const umbral = 255 - Math.min(Math.max(tolerancia, 1), 60);
   const esCasiBlanco = (i) => data[i] >= umbral && data[i + 1] >= umbral && data[i + 2] >= umbral;
   const visitado = new Uint8Array(width * height);
   const cola = [];
@@ -230,7 +271,7 @@ async function handleApi(req, res, pathname, searchParams) {
     return sendJson(res, 200, filaPublica(db.prepare('select * from archivos where id = ?').get(id)));
   }
 
-  const accion = pathname.match(/^\/api\/archivos\/([0-9a-f-]{36})(?:\/(recortar|transparentar))?$/);
+  const accion = pathname.match(/^\/api\/archivos\/([0-9a-f-]{36})(?:\/(recortar|transparentar|deshacer|original|optimizar|convertir))?$/);
   if (accion !== null) {
     const fila = db.prepare('select * from archivos where id = ?').get(accion[1]);
     if (fila === undefined) return sendJson(res, 404, { message: 'no existe' });
@@ -243,6 +284,24 @@ async function handleApi(req, res, pathname, searchParams) {
       }
       db.prepare('delete from archivos where id = ?').run(fila.id);
       return sendJson(res, 200, { ok: true });
+    }
+
+    if (accion[2] === 'deshacer' && method === 'POST') {
+      if (fila.prevExt == null || !restaurarDesde(fila, 'prev', fila.prevExt)) {
+        return sendJson(res, 400, { message: 'no hay operación que deshacer' });
+      }
+      const tras = db.prepare('select * from archivos where id = ?').get(fila.id);
+      try { await actualizarDimensiones(tras); } catch {}
+      return sendJson(res, 200, filaPublica(db.prepare('select * from archivos where id = ?').get(fila.id)));
+    }
+
+    if (accion[2] === 'original' && method === 'POST') {
+      if (fila.origExt == null || !restaurarDesde(fila, 'orig', fila.origExt)) {
+        return sendJson(res, 400, { message: 'no hay original guardado (se crea con la primera edición)' });
+      }
+      const tras = db.prepare('select * from archivos where id = ?').get(fila.id);
+      try { await actualizarDimensiones(tras); } catch {}
+      return sendJson(res, 200, filaPublica(db.prepare('select * from archivos where id = ?').get(fila.id)));
     }
 
     if (fila.ext === 'svg' || fila.ext === 'ico') {
@@ -263,6 +322,7 @@ async function handleApi(req, res, pathname, searchParams) {
       if (!Number.isFinite(width) || !Number.isFinite(height) || width < 8 || height < 8) {
         return sendJson(res, 400, { message: 'recorte inválido (mínimo 8×8)' });
       }
+      respaldar(fila);
       const origen = rutaArchivo(fila);
       const temporal = `${origen}.tmp`;
       try {
@@ -276,11 +336,54 @@ async function handleApi(req, res, pathname, searchParams) {
     }
 
     if (accion[2] === 'transparentar' && method === 'POST') {
+      let tolerancia = 8;
       try {
-        await transparentarFondo(fila);
+        const payload = JSON.parse((await readRawBody(req, 10_000)).toString() || '{}');
+        if (Number.isFinite(Number(payload.tolerancia))) tolerancia = Number(payload.tolerancia);
+      } catch {
+        // sin cuerpo: tolerancia por defecto
+      }
+      respaldar(fila);
+      try {
+        await transparentarFondo(fila, tolerancia);
       } catch (error) {
         return sendJson(res, 500, { message: `no se pudo transparentar: ${String(error)}` });
       }
+      return sendJson(res, 200, filaPublica(db.prepare('select * from archivos where id = ?').get(fila.id)));
+    }
+
+    if (accion[2] === 'optimizar' && method === 'POST') {
+      respaldar(fila);
+      const origen = rutaArchivo(fila);
+      const temporal = `${origen}.tmp`;
+      try {
+        const base = sharp(origen);
+        if (fila.ext === 'png') await base.png({ palette: true, quality: 80, compressionLevel: 9 }).toFile(temporal);
+        else if (fila.ext === 'jpg') await base.jpeg({ quality: 80, mozjpeg: true }).toFile(temporal);
+        else await base.webp({ quality: 80 }).toFile(temporal);
+      } catch (error) {
+        return sendJson(res, 500, { message: `no se pudo optimizar: ${String(error)}` });
+      }
+      await rename(temporal, origen);
+      await actualizarDimensiones(fila);
+      return sendJson(res, 200, filaPublica(db.prepare('select * from archivos where id = ?').get(fila.id)));
+    }
+
+    if (accion[2] === 'convertir' && method === 'POST') {
+      // A WebP: mejor peso con alfa incluido. (Raster→SVG requiere
+      // vectorización manual; no es una conversión automática fiable.)
+      if (fila.ext === 'webp') return sendJson(res, 400, { message: 'ya es WebP' });
+      respaldar(fila);
+      const destino = join(FILES_DIR, `${fila.id}.webp`);
+      try {
+        await sharp(rutaArchivo(fila)).webp({ quality: 90 }).toFile(destino);
+      } catch (error) {
+        return sendJson(res, 500, { message: `no se pudo convertir: ${String(error)}` });
+      }
+      try { unlinkSync(rutaArchivo(fila)); } catch {}
+      db.prepare("update archivos set ext = 'webp', mime = 'image/webp' where id = ?").run(fila.id);
+      const tras = db.prepare('select * from archivos where id = ?').get(fila.id);
+      await actualizarDimensiones(tras);
       return sendJson(res, 200, filaPublica(db.prepare('select * from archivos where id = ?').get(fila.id)));
     }
   }
