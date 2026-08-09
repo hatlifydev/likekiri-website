@@ -46,6 +46,7 @@ export class ShellController {
       match !== null && match.route.ssr === 'server'
         ? await this.registry.renderRemote(match.moduleId, match.route.component, match.params)
         : null;
-    await this.shell.streamWeb(match, req.path, res, islandHtml);
+    // Widgets globales (chat, etc.): islas flotantes en todas las páginas.
+    await this.shell.streamWeb(match, req.path, res, islandHtml, this.registry.webWidgets());
   }
 }

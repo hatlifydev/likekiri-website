@@ -343,6 +343,17 @@ export class RegistryService implements OnModuleInit, OnModuleDestroy {
     return out.sort((a, b) => a.moduleId.localeCompare(b.moduleId));
   }
 
+  /** Widgets globales de la superficie web (islas flotantes en todas las páginas). */
+  webWidgets(): Array<{ moduleId: string; component: string; remoteEntry: string }> {
+    return this.tables.web
+      .filter((compiled) => compiled.route.widget === true)
+      .map((compiled) => ({
+        moduleId: compiled.moduleId,
+        component: compiled.route.component,
+        remoteEntry: compiled.remoteEntry,
+      }));
+  }
+
   /** Rutas web sin parámetros, para el sitemap. */
   staticWebPaths(): string[] {
     return this.tables.web

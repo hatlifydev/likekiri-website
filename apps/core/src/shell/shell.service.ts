@@ -18,12 +18,20 @@ interface RenderIsland {
   html: string | null;
 }
 
+interface RenderWidget {
+  moduleId: string;
+  component: string;
+  remoteEntry: string;
+}
+
 interface RenderRequest {
   path: string;
   baseUrl: string;
   island: RenderIsland | null;
   /** Estructura del sitio administrada desde el admin (server-driven UI). */
   site: WebShellConfig;
+  /** Widgets globales (islas flotantes) de los módulos, en cada render. */
+  widgets: RenderWidget[];
 }
 
 interface RenderStream {
@@ -93,6 +101,7 @@ export class ShellService {
     path: string,
     res: Response,
     islandHtml: string | null = null,
+    widgets: RenderWidget[] = [],
   ): Promise<void> {
     let entry: EntryServerModule;
     try {
@@ -108,6 +117,7 @@ export class ShellService {
       baseUrl: this.config.publicBaseUrl,
       // El back decide la estructura del front en cada render.
       site: await this.shellConfig.getWebConfig(),
+      widgets,
       island:
         match === null
           ? null
