@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 
 import { shellCss } from './styles';
+import { DEFAULT_SITE_CONFIG, type SiteConfig } from './site-config';
 
 export interface PageMeta {
   title: string;
@@ -9,7 +10,7 @@ export interface PageMeta {
   baseUrl: string;
 }
 
-function SiteHeader(): ReactElement {
+function SiteHeader({ site }: { site: SiteConfig }): ReactElement {
   return (
     <header className="site">
       <div className="container">
@@ -17,17 +18,18 @@ function SiteHeader(): ReactElement {
           Like<span>Kiri</span>
         </a>
         <nav className="main" aria-label="principal">
-          <a href="/personas">Personas</a>
-          <a href="/empresas">Empresas</a>
-          <a href="/equipo">Equipo</a>
-          <a href="/contacto">Contacto</a>
+          {site.header.links.map((link) => (
+            <a key={link.path} href={link.path}>
+              {link.label}
+            </a>
+          ))}
         </nav>
       </div>
     </header>
   );
 }
 
-function SiteFooter(): ReactElement {
+function SiteFooter({ site }: { site: SiteConfig }): ReactElement {
   return (
     <footer className="site">
       <div className="container">
@@ -37,10 +39,12 @@ function SiteFooter(): ReactElement {
             <a href="mailto:contacto@likekiri.com">contacto@likekiri.com</a>
           </div>
         </div>
-        <nav aria-label="legal">
-          <a href="/clientes/acceso">Portal de clientes</a>
-          <a href="/terminos">Términos del servicio</a>
-          <a href="/privacidad">Privacidad</a>
+        <nav aria-label="secundaria">
+          {site.footer.links.map((link) => (
+            <a key={link.path} href={link.path}>
+              {link.label}
+            </a>
+          ))}
         </nav>
       </div>
     </footer>
@@ -49,9 +53,11 @@ function SiteFooter(): ReactElement {
 
 export function Document({
   meta,
+  site = DEFAULT_SITE_CONFIG,
   children,
 }: {
   meta: PageMeta;
+  site?: SiteConfig;
   children: ReactNode;
 }): ReactElement {
   const canonical = new URL(meta.path, meta.baseUrl).toString();
@@ -72,9 +78,10 @@ export function Document({
         <style dangerouslySetInnerHTML={{ __html: shellCss }} />
       </head>
       <body>
-        <SiteHeader />
+        {site.anuncio !== null && <div className="anuncio">{site.anuncio}</div>}
+        <SiteHeader site={site} />
         <main>{children}</main>
-        <SiteFooter />
+        <SiteFooter site={site} />
       </body>
     </html>
   );

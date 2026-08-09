@@ -15,6 +15,15 @@ a { color: var(--lk-color-brand); text-decoration: none; }
 a:hover { text-decoration: underline; }
 .container { max-width: 1080px; margin: 0 auto; padding: 0 1.25rem; }
 
+.anuncio {
+  background: var(--lk-color-brand);
+  color: var(--lk-color-brandContrast);
+  text-align: center;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
 header.site {
   border-bottom: 1px solid var(--lk-color-border);
   background: var(--lk-color-background);

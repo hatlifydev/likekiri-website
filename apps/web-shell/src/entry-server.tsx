@@ -5,6 +5,7 @@ import { Document, type PageMeta } from './Document';
 import { findPage, staticPages } from './pages/index';
 import { NotFound, ServerError } from './pages/errors';
 import { serializePropsForAttribute } from './serialize';
+import type { SiteConfig } from './site-config';
 
 /**
  * Contrato de render entre el core y este shell. El core hace SSR únicamente
@@ -23,6 +24,8 @@ export interface RenderRequest {
   path: string;
   baseUrl: string;
   island: IslandDescriptor | null;
+  /** Estructura del sitio administrada desde el admin; opcional por resiliencia. */
+  site?: SiteConfig;
 }
 
 export interface RenderHooks {
@@ -61,7 +64,7 @@ function pickPage(request: RenderRequest): {
       status: 200,
       withIslands: true,
       element: (
-        <Document meta={meta}>
+        <Document meta={meta} site={request.site}>
           <section className="bloque">
             <div className="container">
               <IslandPlaceholder island={request.island} />
@@ -84,7 +87,7 @@ function pickPage(request: RenderRequest): {
       status: 200,
       withIslands: false,
       element: (
-        <Document meta={meta}>
+        <Document meta={meta} site={request.site}>
           <page.Component />
         </Document>
       ),
@@ -101,7 +104,7 @@ function pickPage(request: RenderRequest): {
     status: 404,
     withIslands: false,
     element: (
-      <Document meta={meta}>
+      <Document meta={meta} site={request.site}>
         <NotFound />
       </Document>
     ),
