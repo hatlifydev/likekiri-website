@@ -36,7 +36,16 @@ case "${1:-}" in
     ;;
   push)
     git remote get-url origin >/dev/null 2>&1 || { echo "SIN_REMOTO" >&2; exit 3; }
-    git push origin HEAD 2>&1
+    # El token llega por STDIN (no por argv ni disco). Se usa vía un credential
+    # helper efímero; el remoto NO contiene el token y no se persiste.
+    read -r GH_TOKEN || true
+    if [ -n "${GH_TOKEN:-}" ]; then
+      export GH_TOKEN
+      git -c credential.helper='!f() { echo username=x-access-token; echo "password=$GH_TOKEN"; }; f' \
+          push origin HEAD 2>&1
+    else
+      git push origin HEAD 2>&1
+    fi
     ;;
   set-remote)
     url="${2:-}"

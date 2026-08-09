@@ -29,6 +29,7 @@ model User {
   initials     String?
   enEquipo     Boolean    @default(false)
   teamOrder    Int        @default(100)
+  lang         String     @default("es")
   roles        UserRole[]
   sessions     Session[]
 }

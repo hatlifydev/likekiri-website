@@ -1,0 +1,21 @@
+{
+  "name": "@likekiri/i18n",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cadenas de texto ES/EN de la plataforma y helper de traducción",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./es": { "types": "./dist/es.d.ts", "default": "./dist/es.js" },
+    "./en": { "types": "./dist/en.d.ts", "default": "./dist/en.js" }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}
