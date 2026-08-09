@@ -3,8 +3,10 @@
 Guía para equipos que construyen módulos. Un módulo es un paquete independiente
 que se integra a la plataforma **solo** mediante su manifest: el core jamás
 importa tu código, y si tu módulo desaparece, el sitio y el panel siguen sanos.
-Ejemplos vivos: `modules/hello` (web + admin), `modules/cuentas` (admin con
-submenú), `modules/registry` (admin con submenú toggle).
+Plantillas para copiar: **`modules/ejemplo-web`** (superficie pública, isla
+interactiva) y **`modules/ejemplo-admin`** (superficie admin, submenú toggle +
+permiso propio). Otros ejemplos vivos: `modules/hello` (web + admin),
+`modules/cuentas` (admin con permisos consumidos), `modules/registry` (admin).
 
 Hay dos superficies y puedes usar una o ambas desde el mismo módulo:
 
@@ -212,6 +214,8 @@ console.log(validateManifest(require('./mi-manifest.json'),
 
 - Contrato y validación: `packages/contract` (`CONTRACT_VERSION`, esquemas, HMAC).
 - Decisiones: ADR 004 (SSR e islas), ADR 005 (admin por módulos y submenús).
-- Ejemplos: `modules/hello` (isla web + página admin), `modules/cuentas`
-  (submenú, permisos consumidos), `modules/registry` (submenú toggle,
-  permiso declarado).
+- Plantillas: `modules/ejemplo-web` (isla web comentada, en producción en
+  `/ejemplo-web/demo`), `modules/ejemplo-admin` (submenú toggle + permiso
+  declarado + llamada a la API del core).
+- Otros ejemplos: `modules/hello` (isla web + página admin), `modules/cuentas`
+  (submenú, permisos consumidos), `modules/registry` (submenú toggle).

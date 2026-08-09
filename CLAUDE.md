@@ -30,6 +30,8 @@ La especificación completa vive en el brief del proyecto; las decisiones en `do
 - `modules/hello` — módulo de ejemplo que valida el contrato de punta a punta.
 - `modules/cuentas` — usuarios, invitaciones y contraseña (submenú "Cuentas").
 - `modules/registry` — vista del registry (submenú "Plataforma", modo toggle).
+- `modules/ejemplo-web` / `modules/ejemplo-admin` — PLANTILLAS comentadas para
+  crear módulos nuevos (una por superficie); parte de la guía de integración.
 - `packages/contract` — esquemas zod + tipos del manifest, `CONTRACT_VERSION`.
 - `packages/tokens` — design tokens compartidos.
 - `infra/` — plantillas de Caddy, systemd y docker-compose (dev).
