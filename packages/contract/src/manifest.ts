@@ -38,13 +38,32 @@ export const RouteSchema = z.strictObject({
 });
 export type ModuleRoute = z.infer<typeof RouteSchema>;
 
+export const MenuChildSchema = z.strictObject({
+  label: z.string().min(1),
+  path: z.string().regex(PATH_PATTERN, 'ruta inválida'),
+  icon: z.string().min(1).optional(),
+  order: z.number().int().min(0).default(0),
+});
+export type MenuChild = z.infer<typeof MenuChildSchema>;
+
+/**
+ * Entrada de menú. Dos formas:
+ *  - hoja: `path` y sin `children` — un enlace directo.
+ *  - grupo: `children` (submenú) y sin `path` — el módulo registra un submenú
+ *    completo. `mode` controla su presentación: 'expanded' (siempre abierto,
+ *    por defecto) o 'toggle' (plegable).
+ * La exclusión path/children y el namespace de los hijos se validan en
+ * validateManifest.
+ */
 export const MenuEntrySchema = z.strictObject({
   surface: SurfaceSchema,
   slot: z.enum(MENU_SLOTS),
   label: z.string().min(1),
   icon: z.string().min(1).optional(),
   order: z.number().int().min(0),
-  path: z.string().regex(PATH_PATTERN, 'ruta inválida'),
+  path: z.string().regex(PATH_PATTERN, 'ruta inválida').optional(),
+  mode: z.enum(['expanded', 'toggle']).optional(),
+  children: z.array(MenuChildSchema).min(1).optional(),
 });
 export type MenuEntry = z.infer<typeof MenuEntrySchema>;
 

@@ -1,6 +1,6 @@
 {
   "name": "@likekiri/contract",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Contrato módulo↔core de likekiri: esquemas del manifest, tipos y CONTRACT_VERSION",
   "type": "commonjs",
   "main": "dist/index.js",

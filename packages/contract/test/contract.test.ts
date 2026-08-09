@@ -169,4 +169,82 @@ describe('validateManifest', () => {
     delete m.contractVersion;
     expectRejected(m, 'contractVersion');
   });
+
+  test('acepta un submenú con children y mode toggle', () => {
+    const m = baseManifest();
+    (m.menu as Record<string, unknown>[])[0] = {
+      surface: 'admin',
+      slot: 'sidebar',
+      label: 'Hello',
+      order: 10,
+      mode: 'toggle',
+      children: [
+        { label: 'Panel', path: '/hello', order: 1 },
+        { label: 'Detalle', path: '/hello/detalle', order: 2 },
+      ],
+    };
+    const result = validateManifest(m, ALLOWED);
+    assert.equal(result.ok, true, JSON.stringify(result));
+  });
+
+  test('rechaza una entrada de menú con path y children a la vez', () => {
+    const m = baseManifest();
+    (m.menu as Record<string, unknown>[])[0] = {
+      surface: 'admin',
+      slot: 'sidebar',
+      label: 'Hello',
+      order: 10,
+      path: '/hello',
+      children: [{ label: 'Panel', path: '/hello' }],
+    };
+    expectRejected(m, 'path y children');
+  });
+
+  test('rechaza mode en una entrada hoja', () => {
+    const m = baseManifest();
+    (m.menu as Record<string, unknown>[])[0] = {
+      surface: 'admin',
+      slot: 'sidebar',
+      label: 'Hello',
+      order: 10,
+      path: '/hello',
+      mode: 'toggle',
+    };
+    expectRejected(m, 'mode');
+  });
+
+  test('rechaza hijos de submenú fuera del namespace', () => {
+    const m = baseManifest();
+    (m.menu as Record<string, unknown>[])[0] = {
+      surface: 'admin',
+      slot: 'sidebar',
+      label: 'Hello',
+      order: 10,
+      children: [{ label: 'Colado', path: '/usuarios' }],
+    };
+    expectRejected(m, 'fuera del namespace');
+  });
+
+  test('permite CONSUMIR permisos de otro namespace en rutas', () => {
+    const m = baseManifest();
+    (m.routes as Record<string, unknown>[])[1] = {
+      surface: 'admin',
+      path: '/hello',
+      component: './HelloAdminPage',
+      permissions: ['users.read'],
+    };
+    const result = validateManifest(m, ALLOWED);
+    assert.equal(result.ok, true, JSON.stringify(result));
+  });
+
+  test('sigue exigiendo declarar los permisos del propio namespace', () => {
+    const m = baseManifest();
+    (m.routes as Record<string, unknown>[])[1] = {
+      surface: 'admin',
+      path: '/hello',
+      component: './HelloAdminPage',
+      permissions: ['hello.inexistente'],
+    };
+    expectRejected(m, 'no declara');
+  });
 });

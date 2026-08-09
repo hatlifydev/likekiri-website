@@ -64,7 +64,10 @@ export function validateManifest(
       errors.push(`routes: el componente "${route.component}" no está en exposes`);
     }
     for (const key of route.permissions) {
-      if (!declaredPermissions.has(key)) {
+      // Un módulo solo puede DECLARAR permisos de su namespace, pero puede
+      // CONSUMIR (exigir para visibilidad) permisos de la plataforma u otros
+      // namespaces: exigir solo restringe, nunca amplía.
+      if (key.startsWith(`${manifest.namespace}.`) && !declaredPermissions.has(key)) {
         errors.push(
           `routes: "${route.path}" exige el permiso "${key}" que el manifest no declara`,
         );
@@ -73,10 +76,27 @@ export function validateManifest(
   }
 
   for (const entry of manifest.menu) {
-    if (!isWithinNamespace(entry.path, manifest.namespace)) {
+    const isGroup = entry.children !== undefined;
+    if (isGroup && entry.path !== undefined) {
+      errors.push(`menu: "${entry.label}" no puede tener path y children a la vez`);
+    }
+    if (!isGroup && entry.path === undefined) {
+      errors.push(`menu: "${entry.label}" necesita path (hoja) o children (submenú)`);
+    }
+    if (!isGroup && entry.mode !== undefined) {
+      errors.push(`menu: "${entry.label}" define mode pero no es un submenú`);
+    }
+    if (entry.path !== undefined && !isWithinNamespace(entry.path, manifest.namespace)) {
       errors.push(
         `menu: "${entry.path}" está fuera del namespace "/${manifest.namespace}"`,
       );
+    }
+    for (const child of entry.children ?? []) {
+      if (!isWithinNamespace(child.path, manifest.namespace)) {
+        errors.push(
+          `menu: "${child.path}" está fuera del namespace "/${manifest.namespace}"`,
+        );
+      }
     }
   }
 
