@@ -4,16 +4,19 @@
  * visual sin acoplarse entre sí.
  */
 export const tokens = {
+  // Paleta oficial LikeKiri (dark mode palette del manual de marca):
+  // fondo #12181F · container #243323 · accent/button #2E8B57 ·
+  // support #D99B3B · tipografía #F4F5F7
   color: {
-    background: '#ffffff',
-    surface: '#f6f7f9',
-    text: '#1a1d21',
-    textMuted: '#5c6570',
-    brand: '#0f766e',
-    brandContrast: '#ffffff',
-    accent: '#d97706',
-    danger: '#b91c1c',
-    border: '#d9dee3',
+    background: '#12181f',
+    surface: '#243323',
+    text: '#f4f5f7',
+    textMuted: '#a9b4bf',
+    brand: '#2e8b57',
+    brandContrast: '#f4f5f7',
+    accent: '#d99b3b',
+    danger: '#f87171',
+    border: '#2e3a45',
   },
   font: {
     sans: "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
