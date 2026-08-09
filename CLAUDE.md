@@ -36,9 +36,9 @@ La especificación completa vive en el brief del proyecto; las decisiones en `do
   portal de clientes en el front (tipo persona/empresa, login único),
   cuentas/planes/facturación en el admin.
 - `modules/sitio` — server-driven UI: edita la estructura del sitio público
+  (anuncio, menú, pie) que el core inyecta en cada render del SSR (ADR 006).
 - `modules/media` — gestor multimedia (subir, recortar, transparentar, WebP).
 - `modules/chat` — chat en vivo por WebSocket (widget global + panel de agente).
-  (anuncio, menú, pie) que el core inyecta en cada render del SSR (ADR 006).
 - `packages/contract` — esquemas zod + tipos del manifest, `CONTRACT_VERSION`.
 - `packages/tokens` — design tokens compartidos.
 - `infra/` — plantillas de Caddy, systemd y docker-compose (dev).
