@@ -18,7 +18,7 @@ function SiteHeader({ site }: { site: SiteConfig }): ReactElement {
           <img
             src="/assets/marca/logo.webp"
             alt="LikeKiri — Software · Automation · Consulting"
-            style={{ height: '52px', display: 'block' }}
+            style={{ height: '78px', display: 'block' }}
           />
         </a>
         <nav className="main" aria-label="principal">
@@ -37,7 +37,8 @@ function SiteFooter({ site }: { site: SiteConfig }): ReactElement {
   return (
     <footer className="site">
       <div className="container">
-        <div>
+        <div className="marca-pie">
+          <img src="/assets/marca/logo.webp" alt="LikeKiri" />
           <div>© {new Date().getFullYear()} LikeKiri — Desarrollo y consultoría de software</div>
           <div>
             <a href="mailto:contacto@likekiri.com">contacto@likekiri.com</a>
