@@ -25,6 +25,13 @@ button { font: inherit; cursor: pointer; }
   font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.09em; color: #6c8582; padding: 0 1.25rem 0.35rem;
 }
+.sidebar .grupo-titulo.plegable {
+  background: none; border: none; text-align: left; cursor: pointer;
+  font: inherit; font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.09em; color: #6c8582; padding: 0 1.25rem 0.35rem;
+}
+.sidebar .grupo-titulo.plegable:hover { color: #fff; }
+.sidebar .caret { display: inline-block; width: 0.9em; }
 .sidebar nav a {
   color: #b8c8c5; padding: 0.55rem 1.25rem; font-size: 0.95rem; border-left: 3px solid transparent;
 }

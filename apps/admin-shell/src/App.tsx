@@ -1,16 +1,56 @@
-import { useCallback, useEffect, useState, type ReactElement, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
 
-import { api, type Me, type ShellManifest } from './api';
+import { api, type Me, type ShellManifest, type ShellMenuEntry } from './api';
 import { matchModuleRoute } from './federation';
 import { Link, navigate, usePath } from './router';
 import { adminCss } from './styles';
 import { AcceptInvite } from './views/AcceptInvite';
-import { ChangePassword } from './views/ChangePassword';
-import { Invitations } from './views/Invitations';
 import { Login } from './views/Login';
 import { ModulePage } from './views/ModulePage';
-import { RegistryView } from './views/RegistryView';
-import { Users } from './views/Users';
+
+function MenuItem({ to, label, active }: { to: string; label: string; active: boolean }): ReactElement {
+  return (
+    <Link to={to} className={active ? 'activo' : ''}>
+      {label}
+    </Link>
+  );
+}
+
+/**
+ * Grupo de menú registrado por un módulo. 'expanded' se muestra siempre
+ * abierto; 'toggle' es plegable (arranca abierto si contiene la ruta activa).
+ */
+function MenuGroup({ entry, path }: { entry: ShellMenuEntry; path: string }): ReactElement {
+  const containsActive = entry.children.some((child) => child.path === path);
+  const [open, setOpen] = useState(entry.mode !== 'toggle' || containsActive);
+  const isToggle = entry.mode === 'toggle';
+  return (
+    <div className="grupo">
+      {isToggle ? (
+        <button
+          type="button"
+          className="grupo-titulo plegable"
+          aria-expanded={open}
+          onClick={() => setOpen((value) => !value)}
+        >
+          <span className="caret">{open ? '▾' : '▸'}</span> {entry.label}
+        </button>
+      ) : (
+        <div className="grupo-titulo">{entry.label}</div>
+      )}
+      {open &&
+        entry.children.map((child) => (
+          <MenuItem key={child.path} to={child.path} label={child.label} active={path === child.path} />
+        ))}
+    </div>
+  );
+}
 
 function Layout({
   me,
@@ -24,17 +64,9 @@ function Layout({
   children: ReactNode;
 }): ReactElement {
   const path = usePath();
-  const item = (to: string, label: string): ReactElement => (
-    <Link key={to} to={to} className={path === to ? 'activo' : ''}>
-      {label}
-    </Link>
-  );
-  const puede = (permission: string): boolean =>
-    me.isSuperadmin || me.permissions.includes(permission);
-  // Entradas aportadas por módulos, ya filtradas por permisos en el servidor.
-  const entradasModulos = (manifest?.menu ?? []).filter(
-    (entry) => entry.slot === 'sidebar',
-  );
+  // El sidebar se construye COMPLETO desde el manifest: el shell no tiene
+  // pantallas de negocio propias; cada parte del admin es un módulo.
+  const entradas = (manifest?.menu ?? []).filter((entry) => entry.slot === 'sidebar');
   return (
     <div className="layout">
       <aside className="sidebar">
@@ -42,23 +74,12 @@ function Layout({
           Like<span>Kiri</span> admin
         </div>
         <nav>
-          <div className="grupo">
-            <div className="grupo-titulo">Cuentas</div>
-            {puede('users.read') && item('/usuarios', 'Usuarios')}
-            {puede('users.read') && item('/invitaciones', 'Invitaciones')}
-            {item('/password', 'Mi contraseña')}
-          </div>
-          {puede('registry.read') && (
-            <div className="grupo">
-              <div className="grupo-titulo">Plataforma</div>
-              {item('/registry', 'Registry de módulos')}
-            </div>
-          )}
-          {entradasModulos.length > 0 && (
-            <div className="grupo">
-              <div className="grupo-titulo">Módulos</div>
-              {entradasModulos.map((entry) => item(entry.path, entry.label))}
-            </div>
+          {entradas.map((entry) =>
+            entry.children.length > 0 ? (
+              <MenuGroup key={`${entry.moduleId}:${entry.label}`} entry={entry} path={path} />
+            ) : entry.path !== null ? (
+              <MenuItem key={entry.path} to={entry.path} label={entry.label} active={path === entry.path} />
+            ) : null,
           )}
         </nav>
         <div className="abajo">
@@ -78,6 +99,28 @@ function NotFound(): ReactElement {
       <p className="muted">Esta página no existe en el panel.</p>
     </>
   );
+}
+
+function EmptyHome(): ReactElement {
+  return (
+    <>
+      <h1>Bienvenido</h1>
+      <p className="muted">
+        Tu cuenta no tiene acceso a ningún módulo todavía. Pide a un
+        administrador que te asigne permisos.
+      </p>
+    </>
+  );
+}
+
+/** Primer destino navegable del menú, para la ruta raíz. */
+function firstMenuPath(manifest: ShellManifest | null): string | null {
+  for (const entry of manifest?.menu ?? []) {
+    if (entry.path !== null) return entry.path;
+    const child = entry.children[0];
+    if (child !== undefined) return child.path;
+  }
+  return null;
 }
 
 export function App(): ReactElement {
@@ -102,6 +145,14 @@ export function App(): ReactElement {
   }, []);
 
   useEffect(cargarSesion, [cargarSesion]);
+
+  // Raíz (o /login con sesión): ir al primer destino visible del menú.
+  useEffect(() => {
+    if (me !== null && manifest !== null && (path === '/' || path === '/login')) {
+      const destino = firstMenuPath(manifest);
+      if (destino !== null) navigate(destino);
+    }
+  }, [me, manifest, path]);
 
   const logout = (): void => {
     void api
@@ -143,41 +194,26 @@ export function App(): ReactElement {
         <Login
           onLogin={() => {
             cargarSesion();
-            navigate('/usuarios');
+            navigate('/');
           }}
         />
       </>
     );
   }
 
-  let contenido: ReactElement;
   const moduleMatch = manifest === null ? null : matchModuleRoute(manifest.routes, path);
-  switch (path) {
-    case '/':
-    case '/usuarios':
-      contenido = <Users />;
-      break;
-    case '/invitaciones':
-      contenido = <Invitations />;
-      break;
-    case '/registry':
-      contenido = <RegistryView />;
-      break;
-    case '/password':
-      contenido = <ChangePassword />;
-      break;
-    case '/login':
-      navigate('/usuarios');
-      contenido = <Users />;
-      break;
-    default:
-      contenido =
-        moduleMatch === null ? (
-          <NotFound />
-        ) : (
-          <ModulePage route={moduleMatch.route} params={moduleMatch.params} />
-        );
-  }
+  const contenido: ReactElement =
+    path === '/' || path === '/login' ? (
+      firstMenuPath(manifest) === null ? (
+        <EmptyHome />
+      ) : (
+        <p className="muted">Cargando…</p>
+      )
+    ) : moduleMatch !== null ? (
+      <ModulePage route={moduleMatch.route} params={moduleMatch.params} />
+    ) : (
+      <NotFound />
+    );
 
   return (
     <>

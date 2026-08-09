@@ -5,46 +5,6 @@ export interface Me {
   permissions: string[];
 }
 
-export interface AdminUser {
-  id: string;
-  email: string;
-  status: string;
-  roles: string[];
-  lastLoginAt: string | null;
-  createdAt: string;
-  activeSessions: number;
-}
-
-export interface AdminInvitation {
-  id: string;
-  email: string;
-  role: string;
-  createdAt: string;
-  expiresAt: string;
-  status: 'pendiente' | 'aceptada' | 'revocada' | 'expirada';
-}
-
-export interface RoleOption {
-  id: string;
-  key: string;
-  label: string;
-}
-
-export interface CreatedInvitation {
-  id: string;
-  acceptUrl: string;
-  expiresAt: string;
-}
-
-export interface ModuleStatus {
-  moduleId: string;
-  name: string | null;
-  version: string | null;
-  syncedAt: string | null;
-  ok: boolean;
-  errors: string[];
-}
-
 export interface ShellRoute {
   moduleId: string;
   path: string;
@@ -53,13 +13,24 @@ export interface ShellRoute {
   ssr: 'shell' | null;
 }
 
+export interface ShellMenuChild {
+  label: string;
+  path: string;
+  icon: string | null;
+  order: number;
+}
+
 export interface ShellMenuEntry {
   moduleId: string;
   slot: string;
   label: string;
   icon: string | null;
   order: number;
-  path: string;
+  /** Hoja: enlace directo. null cuando la entrada es un submenú. */
+  path: string | null;
+  /** 'expanded' (siempre abierto) o 'toggle' (plegable); null en hojas. */
+  mode: 'expanded' | 'toggle' | null;
+  children: ShellMenuChild[];
 }
 
 export interface ShellManifest {
@@ -109,20 +80,5 @@ export const api = {
     request<{ email: string }>(`/api/auth/invitation?token=${encodeURIComponent(token)}`),
   acceptInvite: (token: string, password: string) =>
     post<{ ok: true; email: string }>('/api/auth/accept-invite', { token, password }),
-  changePassword: (currentPassword: string, newPassword: string) =>
-    post<{ ok: true }>('/api/auth/change-password', { currentPassword, newPassword }),
   manifest: () => request<ShellManifest>('/api/shell/manifest?surface=admin'),
-  users: () => request<AdminUser[]>('/api/admin/users'),
-  disableUser: (id: string) => post<{ ok: true }>(`/api/admin/users/${id}/disable`, {}),
-  enableUser: (id: string) => post<{ ok: true }>(`/api/admin/users/${id}/enable`, {}),
-  revokeSessions: (id: string) =>
-    post<{ ok: true; revoked: number }>(`/api/admin/users/${id}/revoke-sessions`, {}),
-  roles: () => request<RoleOption[]>('/api/admin/roles'),
-  invitations: () => request<AdminInvitation[]>('/api/admin/invitations'),
-  createInvitation: (email: string, roleId: string) =>
-    post<CreatedInvitation>('/api/admin/invitations', { email, roleId }),
-  revokeInvitation: (id: string) => post<{ ok: true }>(`/api/admin/invitations/${id}/revoke`, {}),
-  resendInvitation: (id: string) =>
-    post<CreatedInvitation>(`/api/admin/invitations/${id}/resend`, {}),
-  registry: () => request<ModuleStatus[]>('/api/admin/registry'),
 };
