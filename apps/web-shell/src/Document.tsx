@@ -38,6 +38,7 @@ function SiteFooter(): ReactElement {
           </div>
         </div>
         <nav aria-label="legal">
+          <a href="/clientes/acceso">Portal de clientes</a>
           <a href="/terminos">Términos del servicio</a>
           <a href="/privacidad">Privacidad</a>
         </nav>
