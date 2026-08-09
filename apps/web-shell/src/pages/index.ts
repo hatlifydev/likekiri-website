@@ -8,11 +8,23 @@ import { Contacto } from './Contacto';
 import { Terminos } from './Terminos';
 import { Privacidad } from './Privacidad';
 
+export interface TeamMember {
+  displayName: string;
+  title: string;
+  bio: string;
+  initials: string;
+}
+
+/** Contexto que el core inyecta en el render y las páginas pueden consumir. */
+export interface PageContext {
+  team: TeamMember[];
+}
+
 export interface StaticPage {
   path: string;
   title: string;
   description: string;
-  Component: () => ReactElement;
+  Component: (ctx: PageContext) => ReactElement;
 }
 
 export const staticPages: StaticPage[] = [

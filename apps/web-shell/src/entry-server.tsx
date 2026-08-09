@@ -6,6 +6,7 @@ import { findPage, staticPages } from './pages/index';
 import { NotFound, ServerError } from './pages/errors';
 import { serializePropsForAttribute } from './serialize';
 import type { SiteConfig } from './site-config';
+import type { TeamMember } from './pages/index';
 
 /**
  * Contrato de render entre el core y este shell. El core hace SSR únicamente
@@ -39,6 +40,8 @@ export interface RenderRequest {
   site?: SiteConfig;
   /** Widgets globales (islas flotantes) inyectados por el core en cada render. */
   widgets?: WidgetDescriptor[];
+  /** Equipo (fichas) para la página pública, desde el admin. */
+  team?: TeamMember[];
 }
 
 /** Islas flotantes globales (chat, etc.): se montan en toda página. */
@@ -140,7 +143,7 @@ function pickPage(request: RenderRequest): {
       withIslands: widgets.length > 0,
       element: (
         <Document meta={meta} site={request.site}>
-          <page.Component />
+          <page.Component team={request.team ?? []} />
           <Widgets widgets={widgets} />
         </Document>
       ),
