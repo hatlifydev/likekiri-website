@@ -1,6 +1,8 @@
 import { createServer } from 'node:http';
 import { createReadStream, existsSync, mkdirSync, readdirSync, readFileSync, statSync, unlinkSync } from 'node:fs';
 import { execFile } from 'node:child_process';
+import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
+import { DatabaseSync } from 'node:sqlite';
 import { extname, join, normalize, resolve } from 'node:path';
 
 import {
@@ -33,12 +35,47 @@ const CORE_URL = process.env.CORE_INTERNAL_URL ?? 'http://127.0.0.1:3000';
 const ADMIN_ORIGIN = process.env.ADMIN_ORIGIN ?? 'https://admin.likekiri.com';
 const MODULE_ID = 'ops';
 const RETENER = 20;
+const OPS_DATA_DIR = resolve(process.env.OPS_DATA_DIR ?? '/srv/likekiri/data/ops');
+const OPS_SECRET_KEY = process.env.OPS_SECRET_KEY ?? '';   // hex de 32 bytes (AES-256)
+const OWNER_EMAIL = (process.env.OWNER_EMAIL ?? '').toLowerCase();  // solo este usuario accede a los secretos
 
 if (KEY.length < 32) {
   console.error('MODULE_HMAC_KEY es obligatoria (mínimo 32 caracteres).');
   process.exit(1);
 }
 mkdirSync(BACKUP_DIR, { recursive: true });
+mkdirSync(OPS_DATA_DIR, { recursive: true });
+const db = new DatabaseSync(join(OPS_DATA_DIR, 'ops.sqlite'));
+db.exec(`create table if not exists secretos (
+  clave text primary key, valor text not null, iv text not null, tag text not null, actualizadoEn text not null
+);`);
+
+/** Cifra un valor con AES-256-GCM; la clave vive en el entorno, no en la BD. */
+function cifrar(texto) {
+  const iv = randomBytes(12);
+  const c = createCipheriv('aes-256-gcm', Buffer.from(OPS_SECRET_KEY, 'hex'), iv);
+  const enc = Buffer.concat([c.update(texto, 'utf8'), c.final()]);
+  return { valor: enc.toString('base64'), iv: iv.toString('base64'), tag: c.getAuthTag().toString('base64') };
+}
+function descifrar(row) {
+  const d = createDecipheriv('aes-256-gcm', Buffer.from(OPS_SECRET_KEY, 'hex'), Buffer.from(row.iv, 'base64'));
+  d.setAuthTag(Buffer.from(row.tag, 'base64'));
+  return Buffer.concat([d.update(Buffer.from(row.valor, 'base64')), d.final()]).toString('utf8');
+}
+function guardarSecreto(clave, texto) {
+  const { valor, iv, tag } = cifrar(texto);
+  db.prepare('insert into secretos (clave, valor, iv, tag, actualizadoEn) values (?, ?, ?, ?, ?) on conflict(clave) do update set valor=excluded.valor, iv=excluded.iv, tag=excluded.tag, actualizadoEn=excluded.actualizadoEn')
+    .run(clave, valor, iv, tag, new Date().toISOString());
+}
+function leerSecreto(clave) {
+  const row = db.prepare('select * from secretos where clave = ?').get(clave);
+  if (!row || OPS_SECRET_KEY === '') return null;
+  try { return descifrar(row); } catch { return null; }
+}
+function metaSecreto(clave) {
+  const row = db.prepare('select actualizadoEn from secretos where clave = ?').get(clave);
+  return row ? { configurado: true, actualizadoEn: row.actualizadoEn } : { configurado: false, actualizadoEn: null };
+}
 
 function sendJson(res, status, body) {
   res.writeHead(status, { 'content-type': 'application/json; charset=utf-8' });
@@ -123,6 +160,27 @@ async function handleApi(req, res, pathname) {
   const mutante = method !== 'GET' && method !== 'HEAD';
   if (mutante && req.headers.origin !== ADMIN_ORIGIN) {
     return sendJson(res, 403, { message: 'origen no permitido' });
+  }
+
+  // ——— secretos (solo el dueño: Pedro) ———
+  if (pathname.startsWith('/api/secretos')) {
+    const me = await auth(req, 'ops.read');
+    if (me === null) return sendJson(res, 401, { message: 'sesión requerida' });
+    if (OWNER_EMAIL === '' || String(me.email ?? '').toLowerCase() !== OWNER_EMAIL) {
+      return sendJson(res, 403, { message: 'solo el titular de la cuenta puede gestionar credenciales' });
+    }
+    if (pathname === '/api/secretos/estado' && method === 'GET') {
+      return sendJson(res, 200, { githubToken: metaSecreto('github-token') });
+    }
+    if (pathname === '/api/secretos/github-token' && method === 'POST') {
+      if (OPS_SECRET_KEY === '') return sendJson(res, 500, { message: 'OPS_SECRET_KEY no configurada' });
+      const body = await readBody(req);
+      const token = String(body.token ?? '').trim();
+      if (token.length < 20) return sendJson(res, 400, { message: 'token inválido' });
+      guardarSecreto('github-token', token);
+      return sendJson(res, 200, { ok: true });   // nunca se devuelve el valor
+    }
+    return sendJson(res, 404, { message: 'no existe' });
   }
 
   // ——— control de versiones ———
