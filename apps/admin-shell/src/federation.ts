@@ -10,7 +10,9 @@ const known = new Set<string>();
 export async function loadRemoteComponent(
   route: ShellRoute,
 ): Promise<ComponentType<Record<string, unknown>>> {
-  const remote = { name: route.moduleId, entry: route.remoteEntry };
+  // type 'module': los remotos se construyen con Vite y son ESM; sin esto el
+  // runtime los inyecta como script clásico y la sintaxis import revienta.
+  const remote = { name: route.moduleId, entry: route.remoteEntry, type: 'module' };
   if (!initialized) {
     init({ name: 'likekiri_admin', remotes: [remote] });
     initialized = true;

@@ -67,11 +67,13 @@ async function mount(spec: IslandSpec): Promise<void> {
 function boot(): void {
   const specs = collect();
   if (specs.length === 0) return;
+  // type 'module': los remotos se construyen con Vite y son ESM; sin esto el
+  // runtime los inyecta como script clásico y la sintaxis import revienta.
   const remotes = [
     ...new Map(
       specs.map((spec) => [
         spec.moduleId,
-        { name: spec.moduleId, entry: spec.remoteEntry },
+        { name: spec.moduleId, entry: spec.remoteEntry, type: 'module' as const },
       ]),
     ).values(),
   ];
