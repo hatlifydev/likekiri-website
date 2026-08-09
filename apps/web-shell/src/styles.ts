@@ -10,7 +10,12 @@ body {
   color: var(--lk-color-text);
   background: var(--lk-color-background);
   line-height: 1.6;
+  /* Footer siempre al fondo de la pantalla, aunque la página sea corta. */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
+main { flex: 1; }
 a { color: var(--lk-color-brand); text-decoration: none; }
 a:hover { text-decoration: underline; }
 .container { max-width: 1080px; margin: 0 auto; padding: 0 1.25rem; }

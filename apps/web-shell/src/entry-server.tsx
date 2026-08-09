@@ -43,6 +43,10 @@ function IslandPlaceholder({ island }: { island: IslandDescriptor }): ReactEleme
       data-remote={island.remoteEntry}
       data-props={serializePropsForAttribute(island.props)}
     >
+      {/* React 19 los iza al <head>: el navegador precarga el runtime y el
+          remoto en paralelo con el HTML, sin esperar la cascada de scripts. */}
+      <link rel="modulepreload" href="/assets/islands.js" />
+      <link rel="modulepreload" href={island.remoteEntry} />
       <div className="isla-cargando">Cargando componente…</div>
     </div>
   );
