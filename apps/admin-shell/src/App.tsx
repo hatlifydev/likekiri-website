@@ -31,6 +31,10 @@ function Layout({
   );
   const puede = (permission: string): boolean =>
     me.isSuperadmin || me.permissions.includes(permission);
+  // Entradas aportadas por módulos, ya filtradas por permisos en el servidor.
+  const entradasModulos = (manifest?.menu ?? []).filter(
+    (entry) => entry.slot === 'sidebar',
+  );
   return (
     <div className="layout">
       <aside className="sidebar">
@@ -38,15 +42,24 @@ function Layout({
           Like<span>Kiri</span> admin
         </div>
         <nav>
-          {puede('users.read') && item('/usuarios', 'Usuarios')}
-          {puede('users.read') && item('/invitaciones', 'Invitaciones')}
-          {puede('registry.read') && item('/registry', 'Registry')}
-          {/* Entradas de menú aportadas por módulos, ya filtradas por permisos
-              en el servidor. */}
-          {(manifest?.menu ?? [])
-            .filter((entry) => entry.slot === 'sidebar')
-            .map((entry) => item(entry.path, entry.label))}
-          {item('/password', 'Mi contraseña')}
+          <div className="grupo">
+            <div className="grupo-titulo">Cuentas</div>
+            {puede('users.read') && item('/usuarios', 'Usuarios')}
+            {puede('users.read') && item('/invitaciones', 'Invitaciones')}
+            {item('/password', 'Mi contraseña')}
+          </div>
+          {puede('registry.read') && (
+            <div className="grupo">
+              <div className="grupo-titulo">Plataforma</div>
+              {item('/registry', 'Registry de módulos')}
+            </div>
+          )}
+          {entradasModulos.length > 0 && (
+            <div className="grupo">
+              <div className="grupo-titulo">Módulos</div>
+              {entradasModulos.map((entry) => item(entry.path, entry.label))}
+            </div>
+          )}
         </nav>
         <div className="abajo">
           {me.email}

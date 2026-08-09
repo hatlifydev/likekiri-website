@@ -20,6 +20,11 @@ button { font: inherit; cursor: pointer; }
 .sidebar .marca { font-weight: 700; font-size: 1.15rem; padding: 0 1.25rem 1.25rem; color: #fff; }
 .sidebar .marca span { color: #5eead4; }
 .sidebar nav { display: flex; flex-direction: column; gap: 2px; }
+.sidebar .grupo { margin-bottom: 1.1rem; display: flex; flex-direction: column; gap: 2px; }
+.sidebar .grupo-titulo {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.09em; color: #6c8582; padding: 0 1.25rem 0.35rem;
+}
 .sidebar nav a {
   color: #b8c8c5; padding: 0.55rem 1.25rem; font-size: 0.95rem; border-left: 3px solid transparent;
 }
