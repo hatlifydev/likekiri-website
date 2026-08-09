@@ -25,12 +25,39 @@ export interface IslandDescriptor {
   html?: string | null;
 }
 
+export interface WidgetDescriptor {
+  moduleId: string;
+  component: string;
+  remoteEntry: string;
+}
+
 export interface RenderRequest {
   path: string;
   baseUrl: string;
   island: IslandDescriptor | null;
   /** Estructura del sitio administrada desde el admin; opcional por resiliencia. */
   site?: SiteConfig;
+  /** Widgets globales (islas flotantes) inyectados por el core en cada render. */
+  widgets?: WidgetDescriptor[];
+}
+
+/** Islas flotantes globales (chat, etc.): se montan en toda página. */
+function Widgets({ widgets }: { widgets: WidgetDescriptor[] }): ReactElement {
+  return (
+    <>
+      {widgets.map((w) => (
+        <div
+          key={w.moduleId + w.component}
+          data-likekiri-island={`${w.moduleId}/${w.component}`}
+          data-remote={w.remoteEntry}
+          data-props="{}"
+        >
+          <link rel="modulepreload" href="/assets/islands.js" />
+          <link rel="modulepreload" href={w.remoteEntry} />
+        </div>
+      ))}
+    </>
+  );
 }
 
 export interface RenderHooks {
@@ -76,6 +103,7 @@ function pickPage(request: RenderRequest): {
   status: number;
   withIslands: boolean;
 } {
+  const widgets = request.widgets ?? [];
   if (request.island !== null) {
     const meta: PageMeta = {
       title: `LikeKiri — ${request.island.moduleId}`,
@@ -93,6 +121,7 @@ function pickPage(request: RenderRequest): {
               <IslandPlaceholder island={request.island} />
             </div>
           </section>
+          <Widgets widgets={widgets} />
         </Document>
       ),
     };
@@ -108,10 +137,11 @@ function pickPage(request: RenderRequest): {
     };
     return {
       status: 200,
-      withIslands: false,
+      withIslands: widgets.length > 0,
       element: (
         <Document meta={meta} site={request.site}>
           <page.Component />
+          <Widgets widgets={widgets} />
         </Document>
       ),
     };
@@ -125,10 +155,11 @@ function pickPage(request: RenderRequest): {
   };
   return {
     status: 404,
-    withIslands: false,
+    withIslands: widgets.length > 0,
     element: (
       <Document meta={meta} site={request.site}>
         <NotFound />
+        <Widgets widgets={widgets} />
       </Document>
     ),
   };
