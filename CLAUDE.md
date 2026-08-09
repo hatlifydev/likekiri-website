@@ -40,6 +40,12 @@ La especificación completa vive en el brief del proyecto; las decisiones en `do
 - `pnpm build` / `pnpm test` / `pnpm typecheck` — recursivos sobre el workspace.
 - `pnpm --filter core dev` — core en modo watch.
 
+## Documentación clave
+
+- `docs/como-integrar-un-modulo.md` — guía paso a paso para crear un módulo e
+  integrarlo al admin (páginas + submenús) y al frontend público (islas SSR).
+- `docs/adr/` — decisiones con contexto y consecuencias.
+
 ## Convenciones
 
 - Commits pequeños y atómicos, mensaje en imperativo en español.
