@@ -1,10 +1,29 @@
 import { init, loadRemote, registerRemotes } from '@module-federation/runtime';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import type { ComponentType } from 'react';
 
 import type { ShellRoute } from './api';
 
 let initialized = false;
 const known = new Set<string>();
+
+// El host APORTA su React a los remotos (singleton). Sin esto, el loadShare
+// del remoto resuelve null y los hooks revientan ("Cannot read … 'useState'").
+const hostShared = {
+  react: {
+    version: '19.2.8',
+    scope: 'default',
+    lib: () => React,
+    shareConfig: { singleton: true, requiredVersion: false as const },
+  },
+  'react-dom': {
+    version: '19.2.8',
+    scope: 'default',
+    lib: () => ReactDOM,
+    shareConfig: { singleton: true, requiredVersion: false as const },
+  },
+};
 
 /** Carga el componente remoto de una ruta de módulo vía Module Federation. */
 export async function loadRemoteComponent(
@@ -14,7 +33,7 @@ export async function loadRemoteComponent(
   // runtime los inyecta como script clásico y la sintaxis import revienta.
   const remote = { name: route.moduleId, entry: route.remoteEntry, type: 'module' };
   if (!initialized) {
-    init({ name: 'likekiri_admin', remotes: [remote] });
+    init({ name: 'likekiri_admin', remotes: [remote], shared: hostShared });
     initialized = true;
     known.add(route.moduleId);
   } else if (!known.has(route.moduleId)) {

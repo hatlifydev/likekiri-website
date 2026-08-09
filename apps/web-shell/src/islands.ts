@@ -1,4 +1,6 @@
 import { init, loadRemote } from '@module-federation/runtime';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { createElement, type ComponentType } from 'react';
 import { createRoot } from 'react-dom/client';
 
@@ -77,7 +79,26 @@ function boot(): void {
       ]),
     ).values(),
   ];
-  init({ name: 'likekiri_web', remotes });
+  // El host aporta su React a los remotos (singleton): sin esto el loadShare
+  // del remoto resuelve null y los hooks revientan.
+  init({
+    name: 'likekiri_web',
+    remotes,
+    shared: {
+      react: {
+        version: '19.2.8',
+        scope: 'default',
+        lib: () => React,
+        shareConfig: { singleton: true, requiredVersion: false },
+      },
+      'react-dom': {
+        version: '19.2.8',
+        scope: 'default',
+        lib: () => ReactDOM,
+        shareConfig: { singleton: true, requiredVersion: false },
+      },
+    },
+  });
   specs.forEach((spec) => {
     void mount(spec);
   });
