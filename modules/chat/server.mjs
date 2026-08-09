@@ -76,6 +76,10 @@ db.exec(`
   const cols = db.prepare('pragma table_info(mensajes)').all();
   if (!cols.some((c) => c.name === 'autorNombre')) db.exec('alter table mensajes add column autorNombre text');
   if (!cols.some((c) => c.name === 'autorCargo')) db.exec('alter table mensajes add column autorCargo text');
+  const ccols = db.prepare('pragma table_info(conversaciones)').all();
+  if (!ccols.some((c) => c.name === 'asignadoA')) db.exec('alter table conversaciones add column asignadoA text');
+  if (!ccols.some((c) => c.name === 'asignadoNombre')) db.exec('alter table conversaciones add column asignadoNombre text');
+  if (!ccols.some((c) => c.name === 'asignadoEn')) db.exec('alter table conversaciones add column asignadoEn text');
 }
 
 const sha256 = (v) => createHash('sha256').update(v).digest('hex');
@@ -123,11 +127,14 @@ async function agenteAuth(cookie, permiso) {
   }
 }
 
-/** Firma para el chat: primer nombre + cargo del agente (o genérico). */
-function firmaAgente(me) {
+/** Identidad del agente: userId, nombre para mostrar, cargo y si es superadmin. */
+function agenteDe(me) {
+  const permisos = Array.isArray(me?.permissions) ? me.permissions : [];
   return {
+    userId: me?.userId ?? null,
     nombre: me?.firstName ?? me?.displayName ?? 'Equipo LikeKiri',
     cargo: me?.title ?? null,
+    isSuperadmin: me?.isSuperadmin === true || permisos.includes('*'),
   };
 }
 
@@ -155,6 +162,8 @@ const publicarConv = (c) => ({
   identidad: c.identidad ? JSON.parse(c.identidad) : null,
   noLeidosAgente: c.noLeidosAgente,
   derivadoA: c.derivadoA,
+  asignadoA: c.asignadoA ?? null,
+  asignadoNombre: c.asignadoNombre ?? null,
   creadaEn: c.creadaEn,
   actualizadaEn: c.actualizadaEn,
 });
@@ -172,6 +181,19 @@ function guardarMensaje(convId, autor, texto, canal = 'web', firma = null) {
   );
   db.prepare('update conversaciones set actualizadaEn = ? where id = ?').run(msg.creadoEn, convId);
   return msg;
+}
+
+/** Asigna (o desasigna con agente=null) y notifica a todos los agentes. */
+function asignar(convId, agente) {
+  db.prepare('update conversaciones set asignadoA = ?, asignadoNombre = ?, asignadoEn = ? where id = ?').run(
+    agente?.userId ?? null,
+    agente?.nombre ?? null,
+    agente ? new Date().toISOString() : null,
+    convId,
+  );
+  const conv = db.prepare('select * from conversaciones where id = ?').get(convId);
+  aAgentes({ tipo: 'asignacion', convId, asignadoA: conv.asignadoA ?? null, asignadoNombre: conv.asignadoNombre ?? null });
+  return conv;
 }
 
 // ——— WebSocket ———
@@ -201,11 +223,11 @@ async function onConnection(ws, req) {
       return;
     }
     ws.rol = 'agente';
-    ws.firma = firmaAgente(me);
+    ws.agente = agenteDe(me);
     agentes.add(ws);
     ws.on('close', () => agentes.delete(ws));
     ws.on('message', (raw) => onAgenteMensaje(ws, raw));
-    ws.send(JSON.stringify({ tipo: 'listo', rol: 'agente' }));
+    ws.send(JSON.stringify({ tipo: 'listo', rol: 'agente', yo: ws.agente }));
     return;
   }
 
@@ -252,18 +274,61 @@ function onVisitanteMensaje(ws, raw) {
 function onAgenteMensaje(ws, raw) {
   let ev;
   try { ev = JSON.parse(raw.toString()); } catch { return; }
+  const yo = ws.agente;
+
   if (ev.tipo === 'ver' && typeof ev.convId === 'string') {
-    // el agente abrió la conversación: marca leído
     db.prepare('update conversaciones set noLeidosAgente = 0 where id = ?').run(ev.convId);
     aAgentes({ tipo: 'leido', convId: ev.convId });
     return;
   }
+
+  if (ev.tipo === 'tomar' && typeof ev.convId === 'string') {
+    const conv = db.prepare('select * from conversaciones where id = ?').get(ev.convId);
+    if (conv === undefined) return;
+    if (conv.asignadoA != null && conv.asignadoA !== yo.userId && !yo.isSuperadmin) {
+      ws.send(JSON.stringify({ tipo: 'error', convId: ev.convId, mensaje: `La atiende ${conv.asignadoNombre}` }));
+      return;
+    }
+    asignar(ev.convId, yo);
+    return;
+  }
+
+  if (ev.tipo === 'liberar' && typeof ev.convId === 'string') {
+    const conv = db.prepare('select * from conversaciones where id = ?').get(ev.convId);
+    if (conv === undefined) return;
+    if (conv.asignadoA !== yo.userId && !yo.isSuperadmin) {
+      ws.send(JSON.stringify({ tipo: 'error', convId: ev.convId, mensaje: 'No la tienes asignada' }));
+      return;
+    }
+    asignar(ev.convId, null);
+    return;
+  }
+
+  if (ev.tipo === 'transferir' && typeof ev.convId === 'string' && typeof ev.aUserId === 'string') {
+    const conv = db.prepare('select * from conversaciones where id = ?').get(ev.convId);
+    if (conv === undefined) return;
+    if (conv.asignadoA !== yo.userId && !yo.isSuperadmin) {
+      ws.send(JSON.stringify({ tipo: 'error', convId: ev.convId, mensaje: 'Solo quien la atiende puede transferirla' }));
+      return;
+    }
+    asignar(ev.convId, { userId: ev.aUserId, nombre: String(ev.aNombre ?? 'Agente') });
+    return;
+  }
+
   if (ev.tipo === 'responder' && typeof ev.convId === 'string' && typeof ev.texto === 'string') {
     const texto = ev.texto.trim().slice(0, 4000);
     if (texto === '') return;
     const conv = db.prepare('select * from conversaciones where id = ?').get(ev.convId);
     if (conv === undefined) return;
-    const msg = guardarMensaje(ev.convId, 'agente', texto, 'web', ws.firma);
+    // Exclusividad: sin asignar, el primero que responde la toma; si la atiende
+    // otro, se rechaza (salvo superadmin, que igualmente debe tomarla primero).
+    if (conv.asignadoA == null) {
+      asignar(ev.convId, yo);
+    } else if (conv.asignadoA !== yo.userId) {
+      ws.send(JSON.stringify({ tipo: 'error', convId: ev.convId, mensaje: `La atiende ${conv.asignadoNombre}` }));
+      return;
+    }
+    const msg = guardarMensaje(ev.convId, 'agente', texto, 'web', { nombre: yo.nombre, cargo: yo.cargo });
     aVisitantes(ev.convId, { tipo: 'mensaje', mensaje: msg });
     aAgentes({ tipo: 'mensaje', convId: ev.convId, mensaje: msg });
   }
@@ -334,10 +399,16 @@ async function handleApi(req, res, pathname, url) {
     if (resp !== null && method === 'POST') {
       const conv = db.prepare('select * from conversaciones where id = ?').get(resp[1]);
       if (conv === undefined) return sendJson(res, 404, { message: 'no existe' });
+      const yo = agenteDe(meAgente);
+      if (conv.asignadoA == null) {
+        asignar(resp[1], yo);
+      } else if (conv.asignadoA !== yo.userId) {
+        return sendJson(res, 409, { message: `La atiende ${conv.asignadoNombre}` });
+      }
       const body = await readBody(req);
       const texto = String(body.texto ?? '').trim().slice(0, 4000);
       if (texto === '') return sendJson(res, 400, { message: 'mensaje vacío' });
-      const msg = guardarMensaje(resp[1], 'agente', texto, 'web', firmaAgente(meAgente));
+      const msg = guardarMensaje(resp[1], 'agente', texto, 'web', { nombre: yo.nombre, cargo: yo.cargo });
       aVisitantes(resp[1], { tipo: 'mensaje', mensaje: msg });
       aAgentes({ tipo: 'mensaje', convId: resp[1], mensaje: msg });
       return sendJson(res, 200, { mensaje: msg });

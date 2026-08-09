@@ -84,6 +84,38 @@ export class AdminController {
     }));
   }
 
+  /**
+   * Roster de agentes del chat: usuarios activos que pueden responder
+   * (rol superadmin o con permiso chat.write). Lo consume el módulo chat para
+   * transferir conversaciones. Guardado con chat.read (un agente puede verlo).
+   */
+  @Get('agents')
+  @RequirePermissions('chat.read')
+  async agents(): Promise<Array<{ id: string; nombre: string; title: string | null }>> {
+    const users = await this.prisma.user.findMany({
+      where: {
+        status: 'ACTIVE',
+        roles: {
+          some: {
+            role: {
+              OR: [
+                { key: 'superadmin' },
+                { permissions: { some: { permission: { key: 'chat.write' } } } },
+              ],
+            },
+          },
+        },
+      },
+      select: { id: true, displayName: true, firstName: true, email: true, title: true },
+      orderBy: { createdAt: 'asc' },
+    });
+    return users.map((u) => ({
+      id: u.id,
+      nombre: u.displayName ?? u.firstName ?? u.email,
+      title: u.title,
+    }));
+  }
+
   @Post('users/:id/ficha')
   @RequirePermissions('users.manage')
   async updateFicha(
