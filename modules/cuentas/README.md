@@ -8,7 +8,7 @@ no sabe que existe; lo descubre por el manifest.
 
 - **Submenú registrado por manifest**: la entrada `Cuentas` del sidebar es un
   grupo con `children` (Usuarios, Invitaciones, Mi contraseña) en
-  `mode: "expanded"`. El core filtra cada hijo por permisos y oculta el grupo
+  `mode: "toggle"`. El core filtra cada hijo por permisos y oculta el grupo
   si queda vacío.
 - **Permisos consumidos vs declarados**: este módulo no declara permisos
   propios; sus rutas *consumen* permisos de la plataforma (`users.read`).

@@ -65,7 +65,9 @@ const manifest = {
       label: 'Cuentas',
       icon: 'users',
       order: 10,
-      mode: 'expanded',
+      // Una sola entrada en el menú principal; sus opciones cuelgan como
+      // submenú desplegable.
+      mode: 'toggle',
       children: [
         { label: 'Usuarios', path: '/cuentas/usuarios', order: 1 },
         { label: 'Invitaciones', path: '/cuentas/invitaciones', order: 2 },

@@ -28,26 +28,34 @@ function MenuItem({ to, label, active }: { to: string; label: string; active: bo
  */
 function MenuGroup({ entry, path }: { entry: ShellMenuEntry; path: string }): ReactElement {
   const containsActive = entry.children.some((child) => child.path === path);
-  const [open, setOpen] = useState(entry.mode !== 'toggle' || containsActive);
   const isToggle = entry.mode === 'toggle';
+  const [open, setOpen] = useState(!isToggle || containsActive);
+  // Una entrada de menú con submenú: cabecera con aspecto de ítem e hijos
+  // indentados colgando de ella. En 'toggle' la cabecera pliega/despliega.
+  const hijos = (
+    <div className="hijos">
+      {entry.children.map((child) => (
+        <MenuItem key={child.path} to={child.path} label={child.label} active={path === child.path} />
+      ))}
+    </div>
+  );
   return (
     <div className="grupo">
       {isToggle ? (
         <button
           type="button"
-          className="grupo-titulo plegable"
+          className="grupo-cabecera"
           aria-expanded={open}
           onClick={() => setOpen((value) => !value)}
         >
           <span className="caret">{open ? '▾' : '▸'}</span> {entry.label}
         </button>
       ) : (
-        <div className="grupo-titulo">{entry.label}</div>
+        <div className="grupo-cabecera">
+          <span className="caret">▾</span> {entry.label}
+        </div>
       )}
-      {open &&
-        entry.children.map((child) => (
-          <MenuItem key={child.path} to={child.path} label={child.label} active={path === child.path} />
-        ))}
+      {open && hijos}
     </div>
   );
 }

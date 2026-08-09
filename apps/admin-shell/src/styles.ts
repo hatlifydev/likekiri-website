@@ -20,18 +20,20 @@ button { font: inherit; cursor: pointer; }
 .sidebar .marca { font-weight: 700; font-size: 1.15rem; padding: 0 1.25rem 1.25rem; color: #fff; }
 .sidebar .marca span { color: #5eead4; }
 .sidebar nav { display: flex; flex-direction: column; gap: 2px; }
-.sidebar .grupo { margin-bottom: 1.1rem; display: flex; flex-direction: column; gap: 2px; }
-.sidebar .grupo-titulo {
-  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.09em; color: #6c8582; padding: 0 1.25rem 0.35rem;
+.sidebar .grupo { display: flex; flex-direction: column; }
+.sidebar .grupo-cabecera {
+  display: flex; align-items: center; gap: 0.55rem; width: 100%;
+  background: none; border: none; text-align: left; cursor: default;
+  font: inherit; font-size: 0.95rem; font-weight: 600; color: #d3dedb;
+  padding: 0.55rem 1.25rem; border-left: 3px solid transparent;
 }
-.sidebar .grupo-titulo.plegable {
-  background: none; border: none; text-align: left; cursor: pointer;
-  font: inherit; font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.09em; color: #6c8582; padding: 0 1.25rem 0.35rem;
+.sidebar button.grupo-cabecera { cursor: pointer; }
+.sidebar .grupo-cabecera:hover { color: #fff; }
+.sidebar .caret { display: inline-block; width: 0.9em; font-size: 0.75em; color: #6c8582; }
+.sidebar .hijos { display: flex; flex-direction: column; }
+.sidebar .hijos a {
+  padding-left: 2.7rem; font-size: 0.92rem;
 }
-.sidebar .grupo-titulo.plegable:hover { color: #fff; }
-.sidebar .caret { display: inline-block; width: 0.9em; }
 .sidebar nav a {
   color: #b8c8c5; padding: 0.55rem 1.25rem; font-size: 0.95rem; border-left: 3px solid transparent;
 }
