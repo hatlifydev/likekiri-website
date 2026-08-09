@@ -198,14 +198,16 @@ function asignar(convId, agente) {
 
 // ——— WebSocket ———
 const agentes = new Set(); // sockets de agentes (reciben todo)
-const visitantes = new Map(); // convId -> Set<socket>
+const visitantes = new Map(); // visitorId -> Set<socket>
 
 function aAgentes(evento) {
   const payload = JSON.stringify(evento);
   for (const ws of agentes) if (ws.readyState === ws.OPEN) ws.send(payload);
 }
 function aVisitantes(convId, evento) {
-  const set = visitantes.get(convId);
+  const conv = db.prepare('select visitorId from conversaciones where id = ?').get(convId);
+  if (!conv) return;
+  const set = visitantes.get(conv.visitorId);
   if (!set) return;
   const payload = JSON.stringify(evento);
   for (const ws of set) if (ws.readyState === ws.OPEN) ws.send(payload);
@@ -231,28 +233,49 @@ async function onConnection(ws, req) {
     return;
   }
 
-  // visitante: la conversación se crea vía POST /api/sesion (fija cookie).
+  // visitante: identificado por su cookie. La conversación se crea al enviar
+  // el primer mensaje (no al cargar la página).
   const visitorId = readCookie(cookie, VISITOR_COOKIE);
-  const convId = url.searchParams.get('conv');
-  if (visitorId === null || convId === null) {
+  if (visitorId === null) {
     ws.close(4400, 'sesión no iniciada');
     return;
   }
-  const conv = db.prepare('select * from conversaciones where id = ? and visitorId = ?').get(convId, visitorId);
-  if (conv === undefined) {
-    ws.close(4404, 'conversación no encontrada');
-    return;
-  }
   ws.rol = 'visitante';
-  ws.convId = convId;
-  if (!visitantes.has(convId)) visitantes.set(convId, new Set());
-  visitantes.get(convId).add(ws);
+  ws.visitorId = visitorId;
+  ws.identidad = await identidadCliente(cookie);
+  const conv = db
+    .prepare("select * from conversaciones where visitorId = ? and estado = 'abierta' order by actualizadaEn desc limit 1")
+    .get(visitorId);
+  ws.convId = conv ? conv.id : null;
+  if (!visitantes.has(visitorId)) visitantes.set(visitorId, new Set());
+  visitantes.get(visitorId).add(ws);
   ws.on('close', () => {
-    const set = visitantes.get(convId);
-    if (set) { set.delete(ws); if (set.size === 0) visitantes.delete(convId); }
+    const set = visitantes.get(visitorId);
+    if (set) { set.delete(ws); if (set.size === 0) visitantes.delete(visitorId); }
   });
   ws.on('message', (raw) => onVisitanteMensaje(ws, raw));
-  ws.send(JSON.stringify({ tipo: 'historial', mensajes: mensajesDe(convId) }));
+  if (conv) ws.send(JSON.stringify({ tipo: 'historial', mensajes: mensajesDe(conv.id) }));
+}
+
+/** Devuelve la conversación abierta del visitante, creándola si no existe. */
+function resolverConvVisitor(ws) {
+  if (ws.convId != null) {
+    const c = db.prepare("select * from conversaciones where id = ? and estado = 'abierta'").get(ws.convId);
+    if (c) return c;
+  }
+  let conv = db
+    .prepare("select * from conversaciones where visitorId = ? and estado = 'abierta' order by actualizadaEn desc limit 1")
+    .get(ws.visitorId);
+  if (conv) { ws.convId = conv.id; return conv; }
+  const ahora = new Date().toISOString();
+  const id = randomUUID();
+  db.prepare('insert into conversaciones (id, visitorId, canal, identidad, estado, creadaEn, actualizadaEn) values (?, ?, ?, ?, ?, ?, ?)')
+    .run(id, ws.visitorId, 'web', ws.identidad ? JSON.stringify(ws.identidad) : null, 'abierta', ahora, ahora);
+  conv = db.prepare('select * from conversaciones where id = ?').get(id);
+  ws.convId = id;
+  aAgentes({ tipo: 'nueva', conv: publicarConv(conv) });
+  aVisitantes(id, { tipo: 'sesion', convId: id });
+  return conv;
 }
 
 function onVisitanteMensaje(ws, raw) {
@@ -261,14 +284,13 @@ function onVisitanteMensaje(ws, raw) {
   if (ev.tipo !== 'mensaje' || typeof ev.texto !== 'string') return;
   const texto = ev.texto.trim().slice(0, 4000);
   if (texto === '') return;
-  const msg = guardarMensaje(ws.convId, 'visitante', texto);
-  // notificación al backend: incrementa no leídos del agente
-  db.prepare('update conversaciones set noLeidosAgente = noLeidosAgente + 1 where id = ?').run(ws.convId);
-  aVisitantes(ws.convId, { tipo: 'mensaje', mensaje: msg });
-  const conv = db.prepare('select * from conversaciones where id = ?').get(ws.convId);
-  aAgentes({ tipo: 'mensaje', convId: ws.convId, mensaje: msg, conv: publicarConv(conv) });
-  // COSTURA RAG: aquí, en el futuro, un bot podría responder automáticamente
-  // (guardarMensaje(convId, 'bot', ...)) y/o derivar a WhatsApp.
+  const conv = resolverConvVisitor(ws);
+  const msg = guardarMensaje(conv.id, 'visitante', texto);
+  db.prepare('update conversaciones set noLeidosAgente = noLeidosAgente + 1 where id = ?').run(conv.id);
+  aVisitantes(conv.id, { tipo: 'mensaje', mensaje: msg });
+  const conv2 = db.prepare('select * from conversaciones where id = ?').get(conv.id);
+  aAgentes({ tipo: 'mensaje', convId: conv.id, mensaje: msg, conv: publicarConv(conv2) });
+  // COSTURA RAG: aquí un bot podría responder (autor 'bot') y/o derivar a WhatsApp.
 }
 
 function onAgenteMensaje(ws, raw) {
@@ -279,6 +301,13 @@ function onAgenteMensaje(ws, raw) {
   if (ev.tipo === 'ver' && typeof ev.convId === 'string') {
     db.prepare('update conversaciones set noLeidosAgente = 0 where id = ?').run(ev.convId);
     aAgentes({ tipo: 'leido', convId: ev.convId });
+    return;
+  }
+
+  if ((ev.tipo === 'archivar' || ev.tipo === 'desarchivar') && typeof ev.convId === 'string') {
+    const estado = ev.tipo === 'archivar' ? 'archivada' : 'abierta';
+    db.prepare('update conversaciones set estado = ? where id = ?').run(estado, ev.convId);
+    aAgentes({ tipo: 'estado', convId: ev.convId, estado });
     return;
   }
 
@@ -349,25 +378,18 @@ async function handleApi(req, res, pathname, url) {
       setCookie = `${VISITOR_COOKIE}=${visitorId}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${60 * 60 * 24 * 180}`;
     }
     const identidad = await identidadCliente(cookie);
-    let conv = db
+    // La conversación NO se crea aquí: solo existe cuando el visitante escribe.
+    const conv = db
       .prepare("select * from conversaciones where visitorId = ? and estado = 'abierta' order by actualizadaEn desc limit 1")
       .get(visitorId);
-    if (conv === undefined) {
-      const ahora = new Date().toISOString();
-      const id = randomUUID();
-      db.prepare(
-        'insert into conversaciones (id, visitorId, canal, identidad, estado, creadaEn, actualizadaEn) values (?, ?, ?, ?, ?, ?, ?)',
-      ).run(id, visitorId, 'web', identidad ? JSON.stringify(identidad) : null, 'abierta', ahora, ahora);
-      conv = db.prepare('select * from conversaciones where id = ?').get(id);
-      aAgentes({ tipo: 'nueva', conv: publicarConv(conv) });
-    } else if (identidad !== null && conv.identidad === null) {
-      db.prepare('update conversaciones set identidad = ? where id = ?').run(JSON.stringify(identidad), conv.id);
-      conv = db.prepare('select * from conversaciones where id = ?').get(conv.id);
-    }
     return sendJson(
       res,
       200,
-      { conversacion: publicarConv(conv), identidad, historial: mensajesDe(conv.id) },
+      {
+        conversacion: conv ? publicarConv(conv) : null,
+        identidad,
+        historial: conv ? mensajesDe(conv.id) : [],
+      },
       setCookie ? { 'set-cookie': setCookie } : {},
     );
   }
@@ -383,9 +405,27 @@ async function handleApi(req, res, pathname, url) {
       return sendJson(res, 401, { message: 'sesión de agente requerida' });
     }
     if (pathname === '/api/admin/conversaciones' && method === 'GET') {
-      const convs = db.prepare('select * from conversaciones order by actualizadaEn desc limit 200').all();
-      const totalNoLeidos = convs.reduce((s, c) => s + c.noLeidosAgente, 0);
-      return sendJson(res, 200, { conversaciones: convs.map(publicarConv), totalNoLeidos });
+      const p = url.searchParams;
+      const estado = p.get('estado') ?? 'abierta';          // abierta | archivada | todos
+      const tipo = p.get('tipo') ?? 'todos';                // cliente | anonimo | todos
+      const q = (p.get('q') ?? '').trim().toLowerCase();
+      const desde = p.get('desde');                         // YYYY-MM-DD
+      const hasta = p.get('hasta');
+      const page = Math.max(1, Number(p.get('page') ?? '1') || 1);
+      const limit = Math.min(50, Math.max(5, Number(p.get('limit') ?? '20') || 20));
+      const cond = [];
+      const args = [];
+      if (estado !== 'todos') { cond.push('estado = ?'); args.push(estado); }
+      if (tipo === 'cliente') cond.push('identidad is not null');
+      else if (tipo === 'anonimo') cond.push('identidad is null');
+      if (desde) { cond.push('actualizadaEn >= ?'); args.push(desde + 'T00:00:00.000Z'); }
+      if (hasta) { cond.push('actualizadaEn <= ?'); args.push(hasta + 'T23:59:59.999Z'); }
+      if (q) { cond.push('(lower(coalesce(identidad, \'\')) like ? or lower(id) like ?)'); args.push('%' + q + '%', '%' + q + '%'); }
+      const where = cond.length ? 'where ' + cond.join(' and ') : '';
+      const total = Number(db.prepare(`select count(*) as n from conversaciones ${where}`).get(...args).n);
+      const convs = db.prepare(`select * from conversaciones ${where} order by actualizadaEn desc limit ? offset ?`).all(...args, limit, (page - 1) * limit);
+      const totalNoLeidos = Number(db.prepare("select coalesce(sum(noLeidosAgente), 0) as n from conversaciones where estado = 'abierta'").get().n);
+      return sendJson(res, 200, { conversaciones: convs.map(publicarConv), total, page, limit, totalNoLeidos });
     }
     const hist = pathname.match(/^\/api\/admin\/conversaciones\/([0-9a-f-]{36})$/);
     if (hist !== null && method === 'GET') {

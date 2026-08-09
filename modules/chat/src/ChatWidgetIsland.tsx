@@ -33,20 +33,24 @@ export function ChatWidgetIsland(): ReactElement {
     let cerrado = false;
     let reintento: ReturnType<typeof setTimeout>;
 
-    const conectar = (convId: string): void => {
-      const ws = new WebSocket(`${WS_URL}?conv=${encodeURIComponent(convId)}`);
+    const conectar = (): void => {
+      // Identificado por la cookie de visitante; la conversación se crea al
+      // enviar el primer mensaje (creación diferida en el servidor).
+      const ws = new WebSocket(WS_URL);
       wsRef.current = ws;
       ws.onopen = () => !cerrado && setEstado('en línea');
       ws.onclose = () => {
         if (cerrado) return;
         setEstado('sin conexión');
-        reintento = setTimeout(() => conectar(convId), 3000); // reconexión
+        reintento = setTimeout(conectar, 3000); // reconexión
       };
       ws.onmessage = (ev) => {
         const data = JSON.parse(ev.data as string) as
           | { tipo: 'historial'; mensajes: Mensaje[] }
+          | { tipo: 'sesion'; convId: string }
           | { tipo: 'mensaje'; mensaje: Mensaje };
         if (data.tipo === 'historial') setMensajes(data.mensajes);
+        else if (data.tipo === 'sesion') convRef.current = data.convId;
         else if (data.tipo === 'mensaje') {
           setMensajes((prev) => [...prev, data.mensaje]);
           if (data.mensaje.autor !== 'visitante') {
@@ -58,12 +62,12 @@ export function ChatWidgetIsland(): ReactElement {
 
     fetch(`${API}/sesion`, { method: 'POST', credentials: 'same-origin', headers: { origin: window.location.origin } })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('sesión'))))
-      .then((data: { conversacion: { id: string }; identidad: { nombre: string | null } | null; historial: Mensaje[] }) => {
+      .then((data: { conversacion: { id: string } | null; identidad: { nombre: string | null } | null; historial: Mensaje[] }) => {
         if (cerrado) return;
-        convRef.current = data.conversacion.id;
+        convRef.current = data.conversacion?.id ?? null;
         setIdentidad(data.identidad);
         setMensajes(data.historial);
-        conectar(data.conversacion.id);
+        conectar();
       })
       .catch(() => setEstado('sin conexión'));
 
