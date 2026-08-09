@@ -144,6 +144,8 @@ describe('RegistryService', () => {
     assert.equal(conPermiso.routes[0]?.path, '/hello');
     assert.equal(conPermiso.menu.length, 1);
     assert.equal(conPermiso.menu[0]?.label, 'Hello');
+    assert.equal(conPermiso.menu[0]?.path, '/hello');
+    assert.deepEqual(conPermiso.menu[0]?.children, []);
 
     // la superficie web es pública
     const web = registry.shellManifest('web', new Set());
@@ -224,6 +226,54 @@ describe('RegistryService', () => {
     const clon = registry.status().find((s) => s.moduleId === 'hello-clon');
     assert.equal(clon?.ok, false);
     assert.ok(clon?.errors.some((e) => e.includes('colisión') || e.includes('pertenece')));
+  });
+
+  test('filtra hijos de submenú por permisos y oculta grupos vacíos', async () => {
+    let origin = '';
+    const server = await startModuleServer('hello', KEY_HELLO, () => {
+      const manifest = helloManifest(origin);
+      (manifest.routes as Record<string, unknown>[]).push({
+        surface: 'admin',
+        path: '/hello/config',
+        component: './HelloAdminPage',
+        permissions: ['hello.write'],
+      });
+      manifest.menu = [
+        {
+          surface: 'admin',
+          slot: 'sidebar',
+          label: 'Hello',
+          order: 10,
+          mode: 'toggle',
+          children: [
+            { label: 'Panel', path: '/hello', order: 1 },
+            { label: 'Config', path: '/hello/config', order: 2 },
+          ],
+        },
+      ];
+      return manifest;
+    });
+    origin = server.origin;
+
+    const configPath = writeRegistryConfig([
+      { moduleId: 'hello', baseUrl: server.origin, hmacKey: KEY_HELLO },
+    ]);
+    const registry = new RegistryService(makeConfig(configPath, [server.origin]));
+    await registry.syncAll();
+
+    // Con hello.read: el grupo aparece, pero solo con el hijo visible.
+    const soloRead = registry.shellManifest('admin', new Set(['hello.read']));
+    assert.equal(soloRead.menu.length, 1);
+    assert.equal(soloRead.menu[0]?.mode, 'toggle');
+    assert.equal(soloRead.menu[0]?.path, null);
+    assert.deepEqual(
+      soloRead.menu[0]?.children.map((child) => child.label),
+      ['Panel'],
+    );
+
+    // Sin permisos: el grupo entero desaparece.
+    const nada = registry.shellManifest('admin', new Set());
+    assert.equal(nada.menu.length, 0);
   });
 
   test('sin archivo de config, el registry queda vacío y el core arranca sano', async () => {

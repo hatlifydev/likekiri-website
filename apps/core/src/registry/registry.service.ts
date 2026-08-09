@@ -40,13 +40,25 @@ export interface ShellRouteDto {
   ssr: 'shell' | null;
 }
 
+export interface ShellMenuChildDto {
+  label: string;
+  path: string;
+  icon: string | null;
+  order: number;
+}
+
 export interface ShellMenuDto {
   moduleId: string;
   slot: MenuEntry['slot'];
   label: string;
   icon: string | null;
   order: number;
-  path: string;
+  /** Hoja: enlace directo. null cuando la entrada es un submenú. */
+  path: string | null;
+  /** Presentación del submenú; null en entradas hoja. */
+  mode: 'expanded' | 'toggle' | null;
+  /** Hijos visibles del submenú (vacío en entradas hoja). */
+  children: ShellMenuChildDto[];
 }
 
 export interface ShellManifestDto {
@@ -218,13 +230,41 @@ export class RegistryService implements OnModuleInit, OnModuleDestroy {
 
     const menu: ShellMenuDto[] = [];
     for (const synced of this.modules.values()) {
+      const visibleRoutes = visibleByModule.get(synced.manifest.moduleId) ?? [];
+      const pointsToVisible = (path: string): boolean =>
+        visibleRoutes.some((compiled) => this.pathMatchesPattern(path, compiled));
+
       for (const entry of synced.manifest.menu) {
         if (entry.surface !== surface) continue;
-        // Una entrada de menú solo es visible si apunta a una ruta visible.
-        const target = (visibleByModule.get(synced.manifest.moduleId) ?? []).some(
-          (compiled) => this.pathMatchesPattern(entry.path, compiled),
-        );
-        if (!target) continue;
+
+        if (entry.children !== undefined) {
+          // Submenú: cada hijo solo es visible si apunta a una ruta visible;
+          // el grupo entero desaparece si no le queda ningún hijo.
+          const children: ShellMenuChildDto[] = entry.children
+            .filter((child) => pointsToVisible(child.path))
+            .map((child) => ({
+              label: child.label,
+              path: child.path,
+              icon: child.icon ?? null,
+              order: child.order,
+            }))
+            .sort((a, b) => a.order - b.order);
+          if (children.length === 0) continue;
+          menu.push({
+            moduleId: synced.manifest.moduleId,
+            slot: entry.slot,
+            label: entry.label,
+            icon: entry.icon ?? null,
+            order: entry.order,
+            path: null,
+            mode: entry.mode ?? 'expanded',
+            children,
+          });
+          continue;
+        }
+
+        // Entrada hoja: visible solo si apunta a una ruta visible.
+        if (entry.path === undefined || !pointsToVisible(entry.path)) continue;
         menu.push({
           moduleId: synced.manifest.moduleId,
           slot: entry.slot,
@@ -232,6 +272,8 @@ export class RegistryService implements OnModuleInit, OnModuleDestroy {
           icon: entry.icon ?? null,
           order: entry.order,
           path: entry.path,
+          mode: null,
+          children: [],
         });
       }
     }

@@ -1,7 +1,7 @@
 import { BadRequestException, Controller, Get, Inject, Query, Req } from '@nestjs/common';
 import type { Request } from 'express';
 
-import { SurfaceSchema } from '@likekiri/contract';
+import { CONTRACT_VERSION, SurfaceSchema } from '@likekiri/contract';
 
 import { RegistryService, type ShellManifestDto } from '../registry/registry.service';
 import { AuthService } from './auth.service';
@@ -29,6 +29,11 @@ export class ShellManifestController {
     // el visitante es anónimo: solo ve rutas públicas (permissions: []).
     const token = readCookie(req.headers.cookie, SESSION_COOKIE);
     const auth = token === null ? null : await this.auth.sessionFromToken(token);
+    // La superficie admin es privada por definición: sin sesión no se revela
+    // ni la estructura (rutas y menú vacíos).
+    if (surface.data === 'admin' && auth === null) {
+      return { contractVersion: CONTRACT_VERSION, surface: 'admin', routes: [], menu: [] };
+    }
     const granted = auth?.permissions ?? new Set<string>();
     return this.registry.shellManifest(surface.data, granted);
   }
