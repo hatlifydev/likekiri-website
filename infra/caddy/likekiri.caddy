@@ -69,6 +69,9 @@ admin.likekiri.com {
 	handle_path /modules/chat/* {
 		reverse_proxy 127.0.0.1:4009
 	}
+	handle_path /modules/ops/* {
+		reverse_proxy 127.0.0.1:4010
+	}
 
 	handle {
 		reverse_proxy 127.0.0.1:3000

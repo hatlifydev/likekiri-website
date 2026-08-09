@@ -1,0 +1,29 @@
+[Unit]
+Description=likekiri módulo ops (respaldo de BD y git; privilegiado y acotado)
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=likekiri
+Group=likekiri
+WorkingDirectory=/srv/likekiri/app/modules/ops
+EnvironmentFile=/etc/likekiri/module-ops.env
+ExecStart=/usr/bin/node server.mjs
+Restart=on-failure
+RestartSec=3
+
+# Este módulo es el ÚNICO que escala privilegios: invoca /usr/local/bin/likekiri-ops
+# por sudo (acción fija) para operar el repo en /root/likekiri, y escribe
+# respaldos en /srv/likekiri/backups. Por eso NO lleva NoNewPrivileges ni
+# ProtectHome. Se mantiene el resto de superficie mínima.
+NoNewPrivileges=no
+ProtectSystem=strict
+ProtectHome=no
+ReadWritePaths=/srv/likekiri/backups /root/likekiri
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+
+[Install]
+WantedBy=multi-user.target

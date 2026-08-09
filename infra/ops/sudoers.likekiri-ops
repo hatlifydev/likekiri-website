@@ -1,0 +1,1 @@
+likekiri ALL=(root) NOPASSWD: /usr/local/bin/likekiri-ops
