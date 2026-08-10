@@ -65,12 +65,12 @@ button { font: inherit; cursor: pointer; }
   transition: all 0.15s ease;
 }
 .sidebar .abajo button:hover { color: #fff; border-color: var(--lk-color-brand); }
-.sidebar .idiomas-admin { display: inline-flex; gap: 2px; margin-top: 0.5rem; border: 1px solid #33414d; border-radius: 999px; overflow: hidden; width: auto; }
-.sidebar .idiomas-admin button {
-  margin: 0; width: auto; flex: 1; border: none; border-radius: 0; background: transparent; color: #aab6c0;
-  font-size: 0.78rem; font-weight: 600; padding: 0.3rem 0.7rem;
+.sidebar .abajo a.ver-sitio {
+  display: block; text-align: center; margin-top: 0.5rem; padding: 0.5rem;
+  border: 1px solid #33414d; border-radius: 999px; color: #aab6c0; font-size: 0.85rem; font-weight: 600;
+  transition: all 0.15s ease;
 }
-.sidebar .idiomas-admin button.activo { background: var(--lk-color-brand); color: #fff; }
+.sidebar .abajo a.ver-sitio:hover { color: #fff; border-color: var(--lk-color-brand); text-decoration: none; }
 
 .contenido { flex: 1; padding: 2rem 2.5rem; max-width: 1120px; }
 .contenido h1 { font-size: 1.6rem; letter-spacing: -0.02em; margin-bottom: 1.25rem; color: var(--lk-dark); }

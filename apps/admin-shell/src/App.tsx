@@ -67,18 +67,18 @@ function Layout({
   manifest,
   onLogout,
   locale,
-  onSetLang,
   children,
 }: {
   me: Me;
   manifest: ShellManifest | null;
   onLogout: () => void;
   locale: Locale;
-  onSetLang: (l: Locale) => void;
   children: ReactNode;
 }): ReactElement {
   const path = usePath();
   const t = dict(locale);
+  // El sitio público: mismo host sin el prefijo "admin.".
+  const sitioUrl = `https://${window.location.host.replace(/^admin\./, '')}`;
   // El sidebar se construye COMPLETO desde el manifest: el shell no tiene
   // pantallas de negocio propias; cada parte del admin es un módulo.
   const entradas = (manifest?.menu ?? []).filter((entry) => entry.slot === 'sidebar');
@@ -100,10 +100,9 @@ function Layout({
         </nav>
         <div className="abajo">
           {me.email}
-          <div className="idiomas-admin" role="group" aria-label={t.admin.idioma}>
-            <button className={locale === 'es' ? 'activo' : ''} onClick={() => onSetLang('es')}>ES</button>
-            <button className={locale === 'en' ? 'activo' : ''} onClick={() => onSetLang('en')}>EN</button>
-          </div>
+          <a className="ver-sitio" href={sitioUrl} target="_blank" rel="noopener noreferrer">
+            Ver sitio ↗
+          </a>
           <button onClick={onLogout}>{t.admin.cerrarSesion}</button>
         </div>
       </aside>
@@ -138,11 +137,6 @@ export function App(): ReactElement {
   const [loading, setLoading] = useState(true);
   const [locale, setLocale] = useState<Locale>('es');
   const t = dict(locale);
-
-  const cambiarIdioma = (l: Locale): void => {
-    setLocale(l);
-    void api.setLang(l).catch(() => undefined);
-  };
 
   const cargarSesion = useCallback((): void => {
     setLoading(true);
@@ -237,7 +231,7 @@ export function App(): ReactElement {
   return (
     <>
       <style>{adminCss}</style>
-      <Layout me={me} manifest={manifest} onLogout={logout} locale={locale} onSetLang={cambiarIdioma}>
+      <Layout me={me} manifest={manifest} onLogout={logout} locale={locale}>
         {contenido}
       </Layout>
     </>
