@@ -83,6 +83,7 @@ export const api = {
   enableUser: (id: string) => post<{ ok: true }>(`/api/admin/users/${id}/enable`, {}),
   revokeSessions: (id: string) =>
     post<{ ok: true; revoked: number }>(`/api/admin/users/${id}/revoke-sessions`, {}),
+  borrarUser: (id: string) => post<{ ok: true }>(`/api/admin/users/${id}/delete`, {}),
   guardarFicha: (id: string, ficha: Ficha) =>
     post<{ ok: true }>(`/api/admin/users/${id}/ficha`, ficha),
   roles: () => request<RoleOption[]>('/api/admin/roles'),

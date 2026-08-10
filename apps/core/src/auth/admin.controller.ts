@@ -132,6 +132,32 @@ export class AdminController {
     return { ok: true };
   }
 
+  @Post('users/:id/delete')
+  @RequirePermissions('users.manage')
+  async deleteUser(@Param('id') id: string, @Req() req: AuthedRequest): Promise<{ ok: true }> {
+    if (req.auth?.userId === id) {
+      throw new BadRequestException('no puedes borrar tu propia cuenta');
+    }
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (user === null) {
+      throw new BadRequestException('el usuario no existe');
+    }
+    // No dejar la plataforma sin ningún superadmin.
+    const esSuperadmin = await this.prisma.userRole.findFirst({
+      where: { userId: id, role: { key: 'superadmin' } },
+    });
+    if (esSuperadmin !== null) {
+      const totalSuper = await this.prisma.userRole.count({ where: { role: { key: 'superadmin' } } });
+      if (totalSuper <= 1) {
+        throw new BadRequestException('no puedes borrar al último superadministrador');
+      }
+    }
+    // Sesiones y roles se borran en cascada (onDelete: Cascade en el esquema).
+    await this.prisma.user.delete({ where: { id } });
+    await this.auth.audit(req.auth?.userId ?? null, 'user.deleted', id, { email: user.email }, null);
+    return { ok: true };
+  }
+
   @Post('users/:id/disable')
   @RequirePermissions('users.manage')
   async disableUser(@Param('id') id: string, @Req() req: AuthedRequest): Promise<{ ok: true }> {

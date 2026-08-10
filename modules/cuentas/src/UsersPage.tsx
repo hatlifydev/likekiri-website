@@ -185,6 +185,20 @@ export function UsersPage(): ReactElement {
                       <button className="boton mini suave" onClick={() => void accion(() => api.enableUser(user.id), `¿Reactivar a ${user.email}?`)}>Reactivar</button>
                     )}
                     <button className="boton mini suave" onClick={() => void accion(() => api.revokeSessions(user.id), `¿Cerrar todas las sesiones de ${user.email}?`)}>Revocar sesiones</button>
+                    <button
+                      className="boton mini peligro"
+                      onClick={() => {
+                        const escrito = window.prompt(`Esto BORRA la cuenta de ${user.email} de forma permanente. Escribe su correo para confirmar:`);
+                        if (escrito === null) return;
+                        if (escrito.trim().toLowerCase() !== user.email.toLowerCase()) {
+                          setError('el correo no coincide; no se borró nada');
+                          return;
+                        }
+                        void accion(() => api.borrarUser(user.id), `¿Borrar definitivamente a ${user.email}?`);
+                      }}
+                    >
+                      Borrar
+                    </button>
                   </td>
                 </tr>
               ))}
