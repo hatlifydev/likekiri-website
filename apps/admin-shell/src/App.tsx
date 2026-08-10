@@ -6,6 +6,8 @@ import {
   type ReactNode,
 } from 'react';
 
+import { dict, resolveLocale, type Locale } from '@likekiri/i18n';
+
 import { api, type Me, type ShellManifest, type ShellMenuEntry } from './api';
 import { matchModuleRoute } from './federation';
 import { Link, navigate, usePath } from './router';
@@ -64,14 +66,19 @@ function Layout({
   me,
   manifest,
   onLogout,
+  locale,
+  onSetLang,
   children,
 }: {
   me: Me;
   manifest: ShellManifest | null;
   onLogout: () => void;
+  locale: Locale;
+  onSetLang: (l: Locale) => void;
   children: ReactNode;
 }): ReactElement {
   const path = usePath();
+  const t = dict(locale);
   // El sidebar se construye COMPLETO desde el manifest: el shell no tiene
   // pantallas de negocio propias; cada parte del admin es un módulo.
   const entradas = (manifest?.menu ?? []).filter((entry) => entry.slot === 'sidebar');
@@ -93,7 +100,11 @@ function Layout({
         </nav>
         <div className="abajo">
           {me.email}
-          <button onClick={onLogout}>Cerrar sesión</button>
+          <div className="idiomas-admin" role="group" aria-label={t.admin.idioma}>
+            <button className={locale === 'es' ? 'activo' : ''} onClick={() => onSetLang('es')}>ES</button>
+            <button className={locale === 'en' ? 'activo' : ''} onClick={() => onSetLang('en')}>EN</button>
+          </div>
+          <button onClick={onLogout}>{t.admin.cerrarSesion}</button>
         </div>
       </aside>
       <main className="contenido">{children}</main>
@@ -106,18 +117,6 @@ function NotFound(): ReactElement {
     <>
       <h1>404</h1>
       <p className="muted">Esta página no existe en el panel.</p>
-    </>
-  );
-}
-
-function EmptyHome(): ReactElement {
-  return (
-    <>
-      <h1>Bienvenido</h1>
-      <p className="muted">
-        Tu cuenta no tiene acceso a ningún módulo todavía. Pide a un
-        administrador que te asigne permisos.
-      </p>
     </>
   );
 }
@@ -137,6 +136,13 @@ export function App(): ReactElement {
   const [me, setMe] = useState<Me | null>(null);
   const [manifest, setManifest] = useState<ShellManifest | null>(null);
   const [loading, setLoading] = useState(true);
+  const [locale, setLocale] = useState<Locale>('es');
+  const t = dict(locale);
+
+  const cambiarIdioma = (l: Locale): void => {
+    setLocale(l);
+    void api.setLang(l).catch(() => undefined);
+  };
 
   const cargarSesion = useCallback((): void => {
     setLoading(true);
@@ -144,6 +150,7 @@ export function App(): ReactElement {
       .me()
       .then((session) => {
         setMe(session);
+        setLocale(resolveLocale(session.lang));
         return api.manifest().then(setManifest);
       })
       .catch(() => {
@@ -189,7 +196,7 @@ export function App(): ReactElement {
       <>
         <style>{adminCss}</style>
         <div className="centrado">
-          <p className="muted">Cargando…</p>
+          <p className="muted">{t.admin.cargando}</p>
         </div>
       </>
     );
@@ -214,9 +221,12 @@ export function App(): ReactElement {
   const contenido: ReactElement =
     path === '/' || path === '/login' ? (
       firstMenuPath(manifest) === null ? (
-        <EmptyHome />
+        <>
+          <h1>{t.admin.bienvenido}</h1>
+          <p className="muted">{t.admin.sinAcceso}</p>
+        </>
       ) : (
-        <p className="muted">Cargando…</p>
+        <p className="muted">{t.admin.cargando}</p>
       )
     ) : moduleMatch !== null ? (
       <ModulePage route={moduleMatch.route} params={moduleMatch.params} />
@@ -227,7 +237,7 @@ export function App(): ReactElement {
   return (
     <>
       <style>{adminCss}</style>
-      <Layout me={me} manifest={manifest} onLogout={logout}>
+      <Layout me={me} manifest={manifest} onLogout={logout} locale={locale} onSetLang={cambiarIdioma}>
         {contenido}
       </Layout>
     </>

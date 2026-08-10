@@ -37,6 +37,8 @@ interface RenderRequest {
   island: RenderIsland | null;
   /** Estructura del sitio administrada desde el admin (server-driven UI). */
   site: WebShellConfig;
+  /** Idioma del render ('es' | 'en'), resuelto por cookie. */
+  locale: 'es' | 'en';
   /** Widgets globales (islas flotantes) de los módulos, en cada render. */
   widgets: RenderWidget[];
   /** Equipo (fichas de usuarios) para la página pública, desde el admin. */
@@ -111,6 +113,7 @@ export class ShellService {
     res: Response,
     islandHtml: string | null = null,
     widgets: RenderWidget[] = [],
+    locale: 'es' | 'en' = 'es',
   ): Promise<void> {
     let entry: EntryServerModule;
     try {
@@ -127,6 +130,7 @@ export class ShellService {
       // El back decide la estructura del front en cada render.
       site: await this.shellConfig.getWebConfig(),
       team: await this.shellConfig.getTeam(),
+      locale,
       widgets,
       island:
         match === null

@@ -65,6 +65,7 @@ export const es = {
     idioma: 'Idioma',
     bienvenido: 'Bienvenido',
     sinAcceso: 'Tu cuenta no tiene acceso a ningún módulo todavía. Pide a un administrador que te asigne permisos.',
+    cargando: 'Cargando…',
   },
 };
 

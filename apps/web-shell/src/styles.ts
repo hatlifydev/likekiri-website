@@ -64,6 +64,14 @@ nav.main a::after {
 nav.main a:hover { color: #fff; text-decoration: none; }
 nav.main a:hover::after { width: 100%; }
 
+.idiomas { display: inline-flex; gap: 2px; border: 1px solid #33414d; border-radius: 999px; overflow: hidden; }
+.idiomas button {
+  background: transparent; border: none; color: #c6cfd8; font: inherit; font-size: 0.8rem; font-weight: 600;
+  padding: 0.25rem 0.6rem; cursor: pointer;
+}
+.idiomas button:hover { color: #fff; }
+.idiomas button.activo { background: var(--lk-color-brand); color: #fff; }
+
 /* ——— franjas oscuras con figuras decorativas ——— */
 .franja-oscura { position: relative; background: var(--lk-dark); color: #f4f5f7; overflow: hidden; }
 .franja-oscura .container { position: relative; z-index: 2; }

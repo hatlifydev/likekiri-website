@@ -12,7 +12,8 @@
     "@likekiri/tokens": "workspace:*",
     "@module-federation/runtime": "2.8.2",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "@likekiri/i18n": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.18.0",

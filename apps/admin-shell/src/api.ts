@@ -3,6 +3,7 @@ export interface Me {
   userId: string;
   isSuperadmin: boolean;
   permissions: string[];
+  lang: string;
 }
 
 export interface ShellRoute {
@@ -76,6 +77,7 @@ export const api = {
   me: () => request<Me>('/api/auth/me'),
   login: (email: string, password: string) => post<{ ok: true }>('/api/auth/login', { email, password }),
   logout: () => post<{ ok: true }>('/api/auth/logout', {}),
+  setLang: (lang: 'es' | 'en') => post<{ ok: true; lang: string }>('/api/auth/lang', { lang }),
   invitationPeek: (token: string) =>
     request<{ email: string }>(`/api/auth/invitation?token=${encodeURIComponent(token)}`),
   acceptInvite: (token: string, password: string) =>

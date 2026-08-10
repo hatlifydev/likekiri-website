@@ -63,5 +63,6 @@ export const en: Dictionary = {
     idioma: 'Language',
     bienvenido: 'Welcome',
     sinAcceso: 'Your account has no module access yet. Ask an administrator to grant you permissions.',
+    cargando: 'Loading…',
   },
 };

@@ -1,5 +1,7 @@
 import type { ReactElement } from 'react';
 
+import type { Dictionary, Locale } from '@likekiri/i18n';
+
 import { Home } from './Home';
 import { Personas } from './Personas';
 import { Empresas } from './Empresas';
@@ -18,6 +20,8 @@ export interface TeamMember {
 /** Contexto que el core inyecta en el render y las páginas pueden consumir. */
 export interface PageContext {
   team: TeamMember[];
+  t: Dictionary;
+  locale: Locale;
 }
 
 export interface StaticPage {

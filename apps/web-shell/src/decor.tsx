@@ -58,6 +58,15 @@ export function FigurasFooter(): ReactElement {
  */
 export const animationScript = `
 (function () {
+  // Selector de idioma (siempre activo, aunque haya reduced-motion): fija la
+  // cookie lk_lang y recarga para que el SSR renderice en el idioma elegido.
+  document.addEventListener('click', function (e) {
+    var b = e.target && e.target.closest ? e.target.closest('[data-set-lang]') : null;
+    if (!b) return;
+    document.cookie = 'lk_lang=' + b.getAttribute('data-set-lang') + '; path=/; max-age=31536000; samesite=lax';
+    location.reload();
+  });
+
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var reveals = [].slice.call(document.querySelectorAll('.reveal'));
   if ('IntersectionObserver' in window) {

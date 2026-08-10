@@ -23,6 +23,8 @@ export interface AuthContext {
   firstName: string | null;
   title: string | null;
   displayName: string | null;
+  /** Idioma preferido de la cuenta ('es' | 'en'). */
+  lang: string;
 }
 
 /** Mensaje único para credenciales malas: no revela si la cuenta existe. */
@@ -161,7 +163,14 @@ export class AuthService {
       firstName: session.user.firstName,
       title: session.user.title,
       displayName: session.user.displayName,
+      lang: session.user.lang,
     };
+  }
+
+  /** Guarda el idioma preferido de la cuenta ('es' | 'en'). */
+  async setLang(userId: string, lang: string): Promise<void> {
+    const normal = lang === 'en' ? 'en' : 'es';
+    await this.prisma.user.update({ where: { id: userId }, data: { lang: normal } });
   }
 
   async changePassword(

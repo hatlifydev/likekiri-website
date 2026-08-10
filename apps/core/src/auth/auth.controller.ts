@@ -81,6 +81,7 @@ export class AuthController {
     firstName: string | null;
     title: string | null;
     displayName: string | null;
+    lang: string;
   } {
     const auth = req.auth;
     if (!auth) throw new BadRequestException();
@@ -92,7 +93,17 @@ export class AuthController {
       firstName: auth.firstName,
       title: auth.title,
       displayName: auth.displayName,
+      lang: auth.lang,
     };
+  }
+
+  @Post('lang')
+  @UseGuards(SessionGuard)
+  async setLang(@Body() body: unknown, @Req() req: AuthedRequest): Promise<{ ok: true; lang: string }> {
+    const parsed = z.strictObject({ lang: z.enum(['es', 'en']) }).safeParse(body);
+    if (!parsed.success || !req.auth) throw new BadRequestException('idioma inválido');
+    await this.auth.setLang(req.auth.userId, parsed.data.lang);
+    return { ok: true, lang: parsed.data.lang };
   }
 
   /** Pantalla de aceptar invitación: valida el token con respuesta genérica. */

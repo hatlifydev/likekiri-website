@@ -6,6 +6,7 @@ import { findPage, staticPages } from './pages/index';
 import { NotFound, ServerError } from './pages/errors';
 import { serializePropsForAttribute } from './serialize';
 import type { SiteConfig } from './site-config';
+import { dict, type Locale } from '@likekiri/i18n';
 import type { TeamMember } from './pages/index';
 
 /**
@@ -42,6 +43,8 @@ export interface RenderRequest {
   widgets?: WidgetDescriptor[];
   /** Equipo (fichas) para la página pública, desde el admin. */
   team?: TeamMember[];
+  /** Idioma del render. */
+  locale?: Locale;
 }
 
 /** Islas flotantes globales (chat, etc.): se montan en toda página. */
@@ -107,6 +110,8 @@ function pickPage(request: RenderRequest): {
   withIslands: boolean;
 } {
   const widgets = request.widgets ?? [];
+  const locale: Locale = request.locale ?? 'es';
+  const t = dict(locale);
   if (request.island !== null) {
     const meta: PageMeta = {
       title: `LikeKiri — ${request.island.moduleId}`,
@@ -118,7 +123,7 @@ function pickPage(request: RenderRequest): {
       status: 200,
       withIslands: true,
       element: (
-        <Document meta={meta} site={request.site}>
+        <Document meta={meta} site={request.site} locale={locale}>
           <section className="bloque">
             <div className="container">
               <IslandPlaceholder island={request.island} />
@@ -142,8 +147,8 @@ function pickPage(request: RenderRequest): {
       status: 200,
       withIslands: widgets.length > 0,
       element: (
-        <Document meta={meta} site={request.site}>
-          <page.Component team={request.team ?? []} />
+        <Document meta={meta} site={request.site} locale={locale}>
+          <page.Component team={request.team ?? []} t={t} locale={locale} />
           <Widgets widgets={widgets} />
         </Document>
       ),
@@ -160,7 +165,7 @@ function pickPage(request: RenderRequest): {
     status: 404,
     withIslands: widgets.length > 0,
     element: (
-      <Document meta={meta} site={request.site}>
+      <Document meta={meta} site={request.site} locale={locale}>
         <NotFound />
         <Widgets widgets={widgets} />
       </Document>

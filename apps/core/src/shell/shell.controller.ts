@@ -5,6 +5,7 @@ import { CORE_CONFIG, type CoreConfig } from '../config';
 import { RegistryService } from '../registry/registry.service';
 import { ShellService } from './shell.service';
 import { surfaceForHost } from './host-resolver';
+import { readCookie } from '../auth/tokens';
 
 /**
  * Catch-all del shell. NestJS construye su router en el bootstrap, así que la
@@ -46,7 +47,9 @@ export class ShellController {
       match !== null && match.route.ssr === 'server'
         ? await this.registry.renderRemote(match.moduleId, match.route.component, match.params)
         : null;
+    // Idioma por cookie (lk_lang); por defecto español.
+    const locale = readCookie(req.headers.cookie, 'lk_lang') === 'en' ? 'en' : 'es';
     // Widgets globales (chat, etc.): islas flotantes en todas las páginas.
-    await this.shell.streamWeb(match, req.path, res, islandHtml, this.registry.webWidgets());
+    await this.shell.streamWeb(match, req.path, res, islandHtml, this.registry.webWidgets(), locale);
   }
 }
