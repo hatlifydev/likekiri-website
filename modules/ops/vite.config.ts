@@ -12,5 +12,5 @@ export default defineConfig({
       shared: { react: { singleton: true }, 'react-dom': { singleton: true } },
     }),
   ],
-  build: { outDir: 'dist', target: 'chrome89', rollupOptions: { input: 'src/index.ts' } },
+  build: { outDir: 'dist', emptyOutDir: true, target: 'chrome89', rollupOptions: { input: 'src/index.ts' } },
 });

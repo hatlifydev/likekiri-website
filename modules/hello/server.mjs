@@ -108,7 +108,7 @@ function serveStatic(req, res, pathname) {
     // Los shells viven en otros orígenes (likekiri.com / admin.likekiri.com):
     // los estáticos federados son públicos, CORS abierto.
     'access-control-allow-origin': '*',
-    'cache-control': pathname === '/remoteEntry.js' ? 'no-cache' : 'public, max-age=31536000, immutable',
+    'cache-control': 'no-cache',
   });
   createReadStream(file).pipe(res);
 }

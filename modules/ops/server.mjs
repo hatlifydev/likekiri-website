@@ -298,7 +298,7 @@ function serveStatic(req, res, pathname) {
   res.writeHead(200, {
     'content-type': MIME[extname(file)] ?? 'application/octet-stream',
     'access-control-allow-origin': '*',
-    'cache-control': pathname === '/remoteEntry.js' ? 'no-cache' : 'public, max-age=31536000, immutable',
+    'cache-control': 'no-cache',
   });
   createReadStream(file).pipe(res);
 }
