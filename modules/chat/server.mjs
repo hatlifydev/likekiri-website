@@ -80,6 +80,7 @@ db.exec(`
   if (!ccols.some((c) => c.name === 'asignadoA')) db.exec('alter table conversaciones add column asignadoA text');
   if (!ccols.some((c) => c.name === 'asignadoNombre')) db.exec('alter table conversaciones add column asignadoNombre text');
   if (!ccols.some((c) => c.name === 'asignadoEn')) db.exec('alter table conversaciones add column asignadoEn text');
+  if (!ccols.some((c) => c.name === 'titulo')) db.exec('alter table conversaciones add column titulo text');
 }
 
 const sha256 = (v) => createHash('sha256').update(v).digest('hex');
@@ -164,6 +165,7 @@ const publicarConv = (c) => ({
   derivadoA: c.derivadoA,
   asignadoA: c.asignadoA ?? null,
   asignadoNombre: c.asignadoNombre ?? null,
+  titulo: c.titulo ?? null,
   creadaEn: c.creadaEn,
   actualizadaEn: c.actualizadaEn,
 });
@@ -453,6 +455,26 @@ async function handleApi(req, res, pathname, url) {
       aAgentes({ tipo: 'mensaje', convId: resp[1], mensaje: msg });
       return sendJson(res, 200, { mensaje: msg });
     }
+
+    // Renombrar (editar título) una conversación del historial.
+    const tit = pathname.match(/^\/api\/admin\/conversaciones\/([0-9a-f-]{36})\/titulo$/);
+    if (tit !== null && method === 'POST') {
+      const body = await readBody(req);
+      const titulo = String(body.titulo ?? '').trim().slice(0, 120);
+      db.prepare('update conversaciones set titulo = ? where id = ?').run(titulo === '' ? null : titulo, tit[1]);
+      aAgentes({ tipo: 'actualizada', convId: tit[1] });
+      return sendJson(res, 200, { ok: true });
+    }
+
+    // Borrar definitivamente una conversación y sus mensajes.
+    const del = pathname.match(/^\/api\/admin\/conversaciones\/([0-9a-f-]{36})\/borrar$/);
+    if (del !== null && method === 'POST') {
+      db.prepare('delete from mensajes where convId = ?').run(del[1]);
+      db.prepare('delete from conversaciones where id = ?').run(del[1]);
+      aAgentes({ tipo: 'borrada', convId: del[1] });
+      return sendJson(res, 200, { ok: true });
+    }
+
     return sendJson(res, 404, { message: 'no existe' });
   }
 
@@ -472,8 +494,17 @@ const manifest = {
   routes: [
     { surface: 'web', path: '/chat/widget', component: './ChatWidgetIsland', ssr: 'shell', widget: true, permissions: [] },
     { surface: 'admin', path: '/chat', component: './ChatAdminPage', permissions: ['chat.read'] },
+    { surface: 'admin', path: '/chat/historial', component: './ChatAdminPage', permissions: ['chat.read'] },
   ],
-  menu: [{ surface: 'admin', slot: 'sidebar', label: 'Conversaciones', icon: 'chat', order: 16, path: '/chat' }],
+  menu: [
+    {
+      surface: 'admin', slot: 'sidebar', label: 'Chat', icon: 'chat', order: 16, mode: 'toggle',
+      children: [
+        { label: 'Conversaciones', path: '/chat', order: 1 },
+        { label: 'Historial de conversaciones', path: '/chat/historial', order: 2 },
+      ],
+    },
+  ],
   permissions: [
     { key: 'chat.read', label: 'Ver conversaciones del chat' },
     { key: 'chat.write', label: 'Responder conversaciones del chat' },
