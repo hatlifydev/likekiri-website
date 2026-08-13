@@ -36,6 +36,11 @@ var post = (path, body) => request(path, {
 	method: "POST",
 	body: JSON.stringify(body ?? {})
 });
+var put = (path, body) => request(path, {
+	method: "PUT",
+	body: JSON.stringify(body ?? {})
+});
+var del = (path) => request(path, { method: "DELETE" });
 var api = {
 	registro: (datos) => post("/registro", datos),
 	acceso: (email, password) => post("/acceso", {
@@ -48,7 +53,19 @@ var api = {
 	adminCuentas: () => request("/admin/cuentas"),
 	adminFacturas: () => request("/admin/facturas"),
 	adminCambiarPlan: (id, plan) => post(`/admin/cuentas/${id}/plan`, { plan }),
-	adminEstado: (id, activo) => post(`/admin/cuentas/${id}/estado`, { activo })
+	adminEstado: (id, activo) => post(`/admin/cuentas/${id}/estado`, { activo }),
+	adminProductos: () => request("/admin/productos"),
+	adminRotarApiKey: (slug) => post(`/admin/productos/${slug}/rotar-apikey`, {}),
+	adminActualizarProducto: (slug, origenesPermitidos) => put(`/admin/productos/${slug}`, { origenesPermitidos }),
+	adminClientesDeProducto: (slug) => request(`/admin/cuentas?producto=${encodeURIComponent(slug)}`),
+	adminCrearCliente: (datos) => post("/admin/cuentas", datos),
+	adminEditarCliente: (id, datos) => put(`/admin/cuentas/${id}`, datos),
+	adminEliminarCliente: (id) => del(`/admin/cuentas/${id}`),
+	adminPlanes: () => request("/admin/planes"),
+	adminCrearPlan: (datos) => post("/admin/planes", datos),
+	adminEditarPlan: (id, datos) => put(`/admin/planes/${id}`, datos),
+	adminEliminarPlan: (id) => del(`/admin/planes/${id}`),
+	adminAsociarPlanes: (slug, planIds) => put(`/admin/productos/${slug}/planes`, { planIds })
 };
 //#endregion
 //#region src/planes.ts
