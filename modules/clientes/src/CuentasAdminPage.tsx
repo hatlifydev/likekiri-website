@@ -468,9 +468,13 @@ function Integracion({
 }): ReactElement {
   const [ver, setVer] = useState(false);
   const [origenes, setOrigenes] = useState(producto.origenesPermitidos.join('\n'));
+  const [autoAlta, setAutoAlta] = useState(producto.autoAltaFree);
   const [aviso, setAviso] = useState<string | null>(null);
 
-  useEffect(() => setOrigenes(producto.origenesPermitidos.join('\n')), [producto.slug, producto.origenesPermitidos]);
+  useEffect(() => {
+    setOrigenes(producto.origenesPermitidos.join('\n'));
+    setAutoAlta(producto.autoAltaFree);
+  }, [producto.slug, producto.origenesPermitidos, producto.autoAltaFree]);
 
   const rotar = async (): Promise<void> => {
     if (!window.confirm(`¿Rotar la API key de ${producto.nombre}? La clave anterior dejará de funcionar.`)) return;
@@ -482,18 +486,18 @@ function Integracion({
       onError(err instanceof ApiError ? err.message : 'no se pudo rotar');
     }
   };
-  const guardarOrigenes = async (): Promise<void> => {
+  const guardar = async (): Promise<void> => {
     const lista = origenes.split('\n').map((s) => s.trim()).filter(Boolean);
     try {
-      await api.adminActualizarProducto(producto.slug, lista);
-      setAviso('Orígenes guardados.');
+      await api.adminActualizarProducto(producto.slug, lista, autoAlta);
+      setAviso('Guardado.');
       onCambio();
     } catch (err) {
-      onError(err instanceof ApiError ? err.message : 'no se pudieron guardar los orígenes');
+      onError(err instanceof ApiError ? err.message : 'no se pudo guardar');
     }
   };
 
-  const ejemplo = `GET https://likekiri.com/modules/clientes/api/entitlement?email=CORREO_DEL_CLIENTE\nHeader  x-api-key: ${producto.apiKey}`;
+  const ejemplo = `GET https://likekiri.com/modules/clientes/api/entitlement?email=CORREO&uid=FIREBASE_UID\nHeader  x-api-key: ${producto.apiKey}`;
 
   return (
     <div className="panel">
@@ -522,13 +526,22 @@ function Integracion({
 
       <label style={{ marginTop: '1rem' }}>Orígenes permitidos (uno por línea; vacío = solo server-to-server con la clave)</label>
       <textarea rows={2} value={origenes} onChange={(e) => setOrigenes(e.target.value)} placeholder="https://askmypast.com" />
-      <div>
-        <button className="boton mini" onClick={() => void guardarOrigenes()}>
-          Guardar orígenes
+
+      <label style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'flex-start', fontWeight: 400 }}>
+        <input type="checkbox" checked={autoAlta} onChange={(e) => setAutoAlta(e.target.checked)} style={{ marginTop: '0.2rem' }} />
+        <span>
+          <strong>Auto-alta como Free al consultar</strong> — si la app pregunta por un email/UID que no existe, se crea
+          automáticamente como cliente Free. Útil para sincronizar usuarios de Firebase sin tocar nada más.
+        </span>
+      </label>
+
+      <div style={{ marginTop: '0.5rem' }}>
+        <button className="boton mini" onClick={() => void guardar()}>
+          Guardar
         </button>
       </div>
 
-      <label style={{ marginTop: '1rem' }}>Ejemplo de consulta</label>
+      <label style={{ marginTop: '1rem' }}>Ejemplo de consulta (email y/o uid de Firebase)</label>
       <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontSize: '0.8rem' }}>{ejemplo}</pre>
     </div>
   );

@@ -92,6 +92,7 @@ db.exec(`
   if (!colsCuentas.includes('cicloFacturacion')) db.exec('alter table cuentas add column cicloFacturacion text');
   if (!colsCuentas.includes('inicioVigencia')) db.exec('alter table cuentas add column inicioVigencia text');
   if (!colsCuentas.includes('finVigencia')) db.exec('alter table cuentas add column finVigencia text');
+  if (!colsCuentas.includes('firebaseUid')) db.exec('alter table cuentas add column firebaseUid text');
 }
 
 // ——— productos (subcategorías) y su clave de integración por app externa ———
@@ -105,6 +106,11 @@ db.exec(`
     creadaEn text not null
   );
 `);
+{
+  // Aditivo: auto-alta como free al consultar vigencia (sync con Firebase, etc.).
+  const colsProd = db.prepare('pragma table_info(productos)').all().map((c) => c.name);
+  if (!colsProd.includes('autoAltaFree')) db.exec('alter table productos add column autoAltaFree integer not null default 0');
+}
 
 /** Ciclos de facturación → meses a sumar (lifetime = sin vencimiento). */
 const CICLOS = { mensual: 1, trimestral: 3, anual: 12, bianual: 24, lifetime: null };
@@ -319,7 +325,67 @@ function getProducto(slug) {
     planes: planesDeProducto(slug, true),
     apiKey: fila.apiKey,
     origenesPermitidos: JSON.parse(fila.origenesPermitidos),
+    autoAltaFree: fila.autoAltaFree === 1,
     creadaEn: fila.creadaEn,
+  };
+}
+
+/**
+ * Upsert de un cliente de producto por (producto, firebaseUid) o (producto, email).
+ * Usado por la sincronización con Firebase (auto-alta JIT, push on-signup, backfill).
+ * Sin plan → free/lifetime (siempre vigente). No pisa datos con vacíos.
+ */
+function upsertCliente(prodSlug, { email, uid, nombre, plan, ciclo, inicio }) {
+  const em = String(email ?? '').trim().toLowerCase();
+  const fbUid = uid ? String(uid) : null;
+  const planes = planesDeProducto(prodSlug, true);
+  let row = null;
+  if (fbUid) row = db.prepare('select * from cuentas where producto = ? and firebaseUid = ?').get(prodSlug, fbUid);
+  if (!row && em) row = db.prepare('select * from cuentas where producto = ? and email = ?').get(prodSlug, em);
+
+  const planValido = plan && planes.some((p) => p.clave === plan) ? plan : null;
+  const planFinal = planValido ?? (row ? row.plan : 'free');
+  const cicloFinal = ciclo && ciclo in CICLOS ? ciclo : row?.cicloFacturacion ?? 'lifetime';
+  const inicioFinal = inicio || row?.inicioVigencia || new Date().toISOString();
+  const fin = calcularFinVigencia(inicioFinal, cicloFinal);
+  const nom = String(nombre ?? '').trim();
+
+  if (row) {
+    db.prepare(
+      `update cuentas set email = ?, nombre = case when ? <> '' then ? else nombre end,
+       firebaseUid = coalesce(?, firebaseUid), plan = ?, cicloFacturacion = ?, inicioVigencia = ?, finVigencia = ? where id = ?`,
+    ).run(em || row.email, nom, nom, fbUid, planFinal, cicloFinal, inicioFinal, fin, row.id);
+    return db.prepare('select * from cuentas where id = ?').get(row.id);
+  }
+  const id = randomUUID();
+  db.prepare(
+    `insert into cuentas (id, nombre, email, passwordHash, plan, tipo, activo, creadaEn, producto, cicloFacturacion, inicioVigencia, finVigencia, firebaseUid)
+     values (?, ?, ?, '', ?, 'empresa', 1, ?, ?, ?, ?, ?, ?)`,
+  ).run(id, nom, em, planFinal, new Date().toISOString(), prodSlug, cicloFinal, inicioFinal, fin, fbUid);
+  return db.prepare('select * from cuentas where id = ?').get(id);
+}
+
+/** Arma la respuesta de vigencia (planEfectivo, premium, onpremise, features). */
+function respuestaEntitlement(prodSlug, fila, email) {
+  if (!fila) {
+    return { producto: prodSlug, email, encontrado: false, vigente: false, plan: null, planEfectivo: 'free', premium: false, onpremise: false, features: featuresDePlan('free') };
+  }
+  const vig = esVigente(fila);
+  const planEfectivo = vig ? fila.plan : 'free';
+  return {
+    producto: prodSlug,
+    email: fila.email,
+    uid: fila.firebaseUid ?? null,
+    encontrado: true,
+    vigente: vig,
+    plan: fila.plan,
+    planEfectivo,
+    premium: planEfectivo === 'premium' || planEfectivo === 'onpremise',
+    onpremise: planEfectivo === 'onpremise',
+    features: featuresDePlan(planEfectivo),
+    cicloFacturacion: fila.cicloFacturacion ?? null,
+    inicioVigencia: fila.inicioVigencia ?? null,
+    finVigencia: fila.finVigencia ?? null,
   };
 }
 
@@ -364,6 +430,7 @@ const publicarCuenta = (fila) => ({
   cicloFacturacion: fila.cicloFacturacion ?? null,
   inicioVigencia: fila.inicioVigencia ?? null,
   finVigencia: fila.finVigencia ?? null,
+  firebaseUid: fila.firebaseUid ?? null,
   vigente: esVigente(fila),
 });
 
@@ -492,40 +559,63 @@ async function handleApi(req, res, pathname) {
     }
     const cors = origen && origenes.includes(origen) ? { 'access-control-allow-origin': origen, vary: 'Origin' } : {};
 
-    const email = String(new URL(req.url ?? '/', 'http://x').searchParams.get('email') ?? '').trim().toLowerCase();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return sendJson(res, 400, { message: 'email inválido' }, cors);
-    const fila = db.prepare('select * from cuentas where producto = ? and email = ?').get(prod.slug, email);
-    // Sin cliente/plan asociado → se considera FREE.
-    if (!fila) {
-      return sendJson(
-        res,
-        200,
-        { producto: prod.slug, email, encontrado: false, vigente: false, plan: null, planEfectivo: 'free', premium: false, onpremise: false, features: featuresDePlan('free') },
-        cors,
-      );
+    const params = new URL(req.url ?? '/', 'http://x').searchParams;
+    const email = String(params.get('email') ?? '').trim().toLowerCase();
+    const uid = params.get('uid') ? String(params.get('uid')) : null;
+    const nombre = params.get('nombre') ? String(params.get('nombre')) : '';
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!uid && !emailOk) return sendJson(res, 400, { message: 'email o uid requerido' }, cors);
+
+    let fila = null;
+    if (uid) fila = db.prepare('select * from cuentas where producto = ? and firebaseUid = ?').get(prod.slug, uid);
+    if (!fila && emailOk) fila = db.prepare('select * from cuentas where producto = ? and email = ?').get(prod.slug, email);
+    // Auto-alta JIT como free (sincronización con Firebase), si el producto lo permite.
+    if (!fila && prod.autoAltaFree === 1 && (emailOk || uid)) {
+      fila = upsertCliente(prod.slug, { email, uid, nombre, plan: 'free', ciclo: 'lifetime' });
     }
-    // Si no está vigente (venció), cae a FREE (premium/onpremise desactivados).
-    const vig = esVigente(fila);
-    const planEfectivo = vig ? fila.plan : 'free';
-    return sendJson(
-      res,
-      200,
-      {
-        producto: prod.slug,
-        email,
-        encontrado: true,
-        vigente: vig,
-        plan: fila.plan, // plan contratado (aunque esté vencido)
-        planEfectivo, // lo que askmypast debe APLICAR (free si venció o no existe)
-        premium: planEfectivo === 'premium' || planEfectivo === 'onpremise',
-        onpremise: planEfectivo === 'onpremise',
-        features: featuresDePlan(planEfectivo),
-        cicloFacturacion: fila.cicloFacturacion ?? null,
-        inicioVigencia: fila.inicioVigencia ?? null,
-        finVigencia: fila.finVigencia ?? null,
-      },
-      cors,
-    );
+    return sendJson(res, 200, respuestaEntitlement(prod.slug, fila, email), cors);
+  }
+
+  // ——— UPSERT de cliente para apps externas (push on-signup / backfill de Firebase) ———
+  if (pathname === '/api/clients') {
+    const origen = req.headers.origin ?? null;
+    if (method === 'OPTIONS') {
+      if (origen && origenPermitidoGlobal(origen)) {
+        res.writeHead(204, {
+          'access-control-allow-origin': origen,
+          'access-control-allow-methods': 'POST, OPTIONS',
+          'access-control-allow-headers': 'x-api-key, authorization, content-type',
+          'access-control-max-age': '600',
+          vary: 'Origin',
+        });
+        return res.end();
+      }
+      return sendJson(res, 403, { message: 'origen no permitido' });
+    }
+    if (method !== 'POST') return sendJson(res, 405, { message: 'método no permitido' });
+    const key = String(req.headers['x-api-key'] ?? String(req.headers.authorization ?? '').replace(/^Bearer\s+/i, ''));
+    if (!key) return sendJson(res, 401, { message: 'apikey requerida' });
+    const prod = db.prepare('select * from productos where apiKey = ?').get(key);
+    if (!prod) return sendJson(res, 401, { message: 'apikey inválida' });
+    const origenes = JSON.parse(prod.origenesPermitidos);
+    const refererOrigen = (() => {
+      try {
+        return req.headers.referer ? new URL(req.headers.referer).origin : null;
+      } catch {
+        return null;
+      }
+    })();
+    const declarado = origen ?? refererOrigen;
+    if (declarado && origenes.length > 0 && !origenes.includes(declarado)) return sendJson(res, 403, { message: 'origen no permitido' });
+    const cors = origen && origenes.includes(origen) ? { 'access-control-allow-origin': origen, vary: 'Origin' } : {};
+
+    const body = await readBody(req);
+    const email = String(body.email ?? '').trim().toLowerCase();
+    const uid = body.uid ? String(body.uid) : null;
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!uid && !emailOk) return sendJson(res, 400, { message: 'email o uid requerido' }, cors);
+    const row = upsertCliente(prod.slug, { email, uid, nombre: body.nombre, plan: body.plan, ciclo: body.cicloFacturacion, inicio: body.inicioVigencia });
+    return sendJson(res, 200, { ok: true, ...respuestaEntitlement(prod.slug, row, email) }, cors);
   }
 
   // ——— superficie pública (sesión de cliente) ———
@@ -624,6 +714,7 @@ async function handleApi(req, res, pathname) {
         planIdsAsociados: db.prepare('select planId from producto_planes where productoSlug = ?').all(f.slug).map((r) => r.planId),
         apiKey: f.apiKey,
         origenesPermitidos: JSON.parse(f.origenesPermitidos),
+        autoAltaFree: f.autoAltaFree === 1,
         clientes: db.prepare('select count(*) c from cuentas where producto = ?').get(f.slug).c,
       })),
     );
@@ -657,6 +748,9 @@ async function handleApi(req, res, pathname) {
       ? [...new Set(body.origenesPermitidos.filter((o) => typeof o === 'string' && o.trim()).map((o) => o.trim()))].slice(0, 10)
       : [];
     db.prepare('update productos set origenesPermitidos = ? where slug = ?').run(JSON.stringify(origenes), prodPutMatch[1]);
+    if (typeof body.autoAltaFree === 'boolean') {
+      db.prepare('update productos set autoAltaFree = ? where slug = ?').run(body.autoAltaFree ? 1 : 0, prodPutMatch[1]);
+    }
     return sendJson(res, 200, { ok: true, origenesPermitidos: origenes });
   }
 

@@ -56,7 +56,10 @@ var api = {
 	adminEstado: (id, activo) => post(`/admin/cuentas/${id}/estado`, { activo }),
 	adminProductos: () => request("/admin/productos"),
 	adminRotarApiKey: (slug) => post(`/admin/productos/${slug}/rotar-apikey`, {}),
-	adminActualizarProducto: (slug, origenesPermitidos) => put(`/admin/productos/${slug}`, { origenesPermitidos }),
+	adminActualizarProducto: (slug, origenesPermitidos, autoAltaFree) => put(`/admin/productos/${slug}`, {
+		origenesPermitidos,
+		autoAltaFree
+	}),
 	adminClientesDeProducto: (slug) => request(`/admin/cuentas?producto=${encodeURIComponent(slug)}`),
 	adminCrearCliente: (datos) => post("/admin/cuentas", datos),
 	adminEditarCliente: (id, datos) => put(`/admin/cuentas/${id}`, datos),

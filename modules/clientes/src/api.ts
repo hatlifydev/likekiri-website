@@ -63,6 +63,7 @@ export interface ProductoAdmin {
   planIdsAsociados: string[];
   apiKey: string;
   origenesPermitidos: string[];
+  autoAltaFree: boolean;
   clientes: number;
 }
 
@@ -75,6 +76,7 @@ export interface ClienteProducto {
   cicloFacturacion: Ciclo | null;
   inicioVigencia: string | null;
   finVigencia: string | null;
+  firebaseUid: string | null;
   vigente: boolean;
   activo: boolean;
   creadaEn: string;
@@ -140,8 +142,8 @@ export const api = {
   // — productos (subcategorías) y clientes de producto —
   adminProductos: () => request<ProductoAdmin[]>('/admin/productos'),
   adminRotarApiKey: (slug: string) => post<{ apiKey: string }>(`/admin/productos/${slug}/rotar-apikey`, {}),
-  adminActualizarProducto: (slug: string, origenesPermitidos: string[]) =>
-    put<{ ok: true; origenesPermitidos: string[] }>(`/admin/productos/${slug}`, { origenesPermitidos }),
+  adminActualizarProducto: (slug: string, origenesPermitidos: string[], autoAltaFree?: boolean) =>
+    put<{ ok: true; origenesPermitidos: string[] }>(`/admin/productos/${slug}`, { origenesPermitidos, autoAltaFree }),
   adminClientesDeProducto: (slug: string) => request<ClienteProducto[]>(`/admin/cuentas?producto=${encodeURIComponent(slug)}`),
   adminCrearCliente: (datos: {
     nombre: string;
