@@ -9,9 +9,10 @@ import { cssVariables } from '@likekiri/tokens';
  *
  * Estado (design-system §8): Fase 1 (plomería de tokens) y Fase 2 (tipografía
  * definitiva Source Serif 4 + Inter, hero con rama Kiri, header) aplicadas.
- * Literales que quedan a propósito (se resuelven en Fase 5): duraciones y
- * easings del reveal/parallax, sombras del logo y separador Kiri bajo h2.
- * Las posiciones/tamaños de las figuras decorativas viven en decor.tsx.
+ * Sistema completo (Fases 1–5). Únicos literales deliberados: los keyframes
+ * ambientales de las figuras (9s/11s/5s, ritmo propio) y las sombras de
+ * recorte del logo sobre franja oscura. Las posiciones/tamaños de las figuras
+ * decorativas viven en decor.tsx.
  */
 export const shellCss = `
 /* Fuentes self-hosted (apps/web-shell/public/fonts, subset latin+latin-ext):
@@ -43,6 +44,7 @@ export const shellCss = `
 }
 * { box-sizing: border-box; margin: 0; }
 html { scroll-behavior: smooth; }
+::selection { background: var(--lk-color-brandTint); color: var(--lk-color-text); }
 body {
   font-family: var(--lk-font-sans);
   color: var(--lk-color-text);
@@ -66,7 +68,7 @@ header.site :focus-visible, .franja-oscura :focus-visible, .hero :focus-visible,
 
 .anuncio {
   background: var(--lk-color-accent); color: var(--lk-color-dark-base);
-  text-align: center; padding: 0.55rem var(--lk-space-5); font-size: var(--lk-type-small-size); font-weight: 600;
+  text-align: center; padding: var(--lk-space-2) var(--lk-space-5); font-size: var(--lk-type-small-size); font-weight: 600;
 }
 
 /* ——— header: fijo al hacer scroll, logo centrado con el menú ——— */
@@ -83,14 +85,14 @@ header.site .container {
 .brand img {
   height: 64px; display: block;
   filter: drop-shadow(0 8px 16px rgba(0,0,0,0.35));
-  transition: transform 0.3s ease;
+  transition: transform var(--lk-motion-base) var(--lk-motion-ease);
 }
 .brand:hover img { transform: translateY(-2px) scale(1.02); }
 nav.main { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center; }
 nav.main a { color: var(--lk-color-dark-textSecondary); font-size: var(--lk-type-body-size); font-weight: 500; position: relative; }
 nav.main a::after {
   content: ''; position: absolute; left: 0; bottom: -4px; width: 0; height: 2px;
-  background: var(--lk-color-brand); transition: width 0.25s ease;
+  background: var(--lk-color-brand); transition: width var(--lk-motion-base) var(--lk-motion-ease);
 }
 nav.main a:hover { color: var(--lk-color-dark-text); text-decoration: none; }
 nav.main a:hover::after { width: 100%; }
@@ -143,7 +145,7 @@ nav.main a:hover::after { width: 100%; }
   letter-spacing: var(--lk-type-display-tracking); max-width: 24ch; color: var(--lk-color-dark-text);
 }
 .hero p.lead { margin-top: var(--lk-space-5); font-size: var(--lk-type-lead-size); line-height: var(--lk-type-lead-lineHeight); color: var(--lk-color-dark-textMuted); max-width: 60ch; }
-.hero .acciones { margin-top: 2.25rem; display: flex; gap: 0.85rem; flex-wrap: wrap; }
+.hero .acciones { margin-top: var(--lk-space-8); display: flex; gap: var(--lk-space-3); flex-wrap: wrap; }
 
 .boton {
   display: inline-block; padding: var(--lk-space-3) var(--lk-space-8); border-radius: var(--lk-radius-pill);
@@ -164,7 +166,7 @@ nav.main a:hover::after { width: 100%; }
 .boton.secundario:active { background: transparent; border-color: var(--lk-color-dark-brand); }
 
 /* ——— zonas claras: alternancia de fondos planos, sin texturas ——— */
-section.bloque { padding: 4.25rem 0; position: relative; }
+section.bloque { padding: var(--lk-space-16) 0; position: relative; }
 section.bloque > .container { position: relative; z-index: 1; }
 section.bloque.alterno { background: var(--lk-color-surfaceSunken); }
 section.bloque h2 {
@@ -172,10 +174,17 @@ section.bloque h2 {
   font-size: var(--lk-type-h2-size); line-height: var(--lk-type-h2-lineHeight);
   letter-spacing: var(--lk-type-h2-tracking); margin-bottom: var(--lk-space-3); color: var(--lk-color-dark-base);
 }
-/* barra de acento bajo cada título */
+/* separador bajo cada título: barra sólida como base, rama-diagrama vía mask (§9.3) */
 section.bloque h2::after {
-  content: ''; display: block; width: 54px; height: 4px; border-radius: var(--lk-radius-pill);
-  background: linear-gradient(90deg, var(--lk-color-brand), var(--lk-color-accent)); margin-top: 0.6rem;
+  content: ''; display: block; width: 44px; height: 4px; border-radius: var(--lk-radius-pill);
+  background: var(--lk-color-brand); margin-top: var(--lk-space-2);
+}
+@supports ((-webkit-mask-repeat: no-repeat) or (mask-repeat: no-repeat)) {
+  section.bloque h2::after {
+    width: 64px; height: 14px; border-radius: 0;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2014'%3E%3Cg%20fill='none'%20stroke='white'%20stroke-width='1.6'%20stroke-linecap='round'%3E%3Cpath%20d='M1%2011%20C18%209.5%2034%208%2046%206.5'/%3E%3Cpath%20d='M26%209%20C31%206%2034%204%2037%201.5'/%3E%3Ccircle%20cx='55'%20cy='6'%20r='3.2'/%3E%3C/g%3E%3C/svg%3E") left center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2014'%3E%3Cg%20fill='none'%20stroke='white'%20stroke-width='1.6'%20stroke-linecap='round'%3E%3Cpath%20d='M1%2011%20C18%209.5%2034%208%2046%206.5'/%3E%3Cpath%20d='M26%209%20C31%206%2034%204%2037%201.5'/%3E%3Ccircle%20cx='55'%20cy='6'%20r='3.2'/%3E%3C/g%3E%3C/svg%3E") left center / contain no-repeat;
+  }
 }
 section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-width: 65ch; margin-bottom: var(--lk-space-8); }
 
@@ -205,7 +214,11 @@ section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-wi
 
 /* ——— servicios (Qué hacemos): lista editorial asimétrica, §9.2 ——— */
 .servicios { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--lk-space-6); margin-top: var(--lk-space-6); }
-.servicio { padding-top: var(--lk-space-6); border-top: 2px solid var(--lk-color-border); }
+.servicio {
+  padding-top: var(--lk-space-6); border-top: 2px solid var(--lk-color-border);
+  transition: border-color var(--lk-motion-base) var(--lk-motion-ease);
+}
+.servicio:hover { border-top-color: var(--lk-color-brand); }
 .etiqueta-tec {
   font-family: var(--lk-font-mono); font-size: var(--lk-type-caption-size); font-weight: 600;
   letter-spacing: 0.08em; color: var(--lk-color-brandText);
@@ -216,7 +229,9 @@ section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-wi
 .servicio.destacado {
   grid-column: 1 / -1; border-top: none;
   background: var(--lk-color-accentTint); border-radius: var(--lk-radius-lg); padding: var(--lk-space-6);
+  transition: box-shadow var(--lk-motion-base) var(--lk-motion-ease);
 }
+.servicio.destacado:hover { box-shadow: var(--lk-shadow-1); }
 .servicio.destacado .etiqueta-tec { color: var(--lk-color-accentText); }
 
 /* ——— pipeline (Cómo trabajamos): la única sección numerada, §9.1 ——— */
@@ -269,7 +284,10 @@ section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-wi
 .lista-check li::before { content: '✓'; position: absolute; left: 0; color: var(--lk-color-brand); font-weight: 700; }
 
 /* ——— revelado al hacer scroll (progresivo: sin JS, se ve igual) ——— */
-.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal {
+  opacity: 0; transform: translateY(16px);
+  transition: opacity var(--lk-motion-slow) var(--lk-motion-ease), transform var(--lk-motion-slow) var(--lk-motion-ease);
+}
 .reveal.visible { opacity: 1; transform: none; }
 
 footer.site {
