@@ -7,20 +7,43 @@ import type { ReactElement } from 'react';
  * mueve el script de animaciones). Marcadas aria-hidden.
  */
 
-function Hoja({ className, style }: { className?: string; style?: React.CSSProperties }): ReactElement {
+interface FiguraProps {
+  className?: string;
+  style?: React.CSSProperties;
+  'data-parallax'?: string;
+}
+
+function Hoja({ className, style, ...rest }: FiguraProps): ReactElement {
   return (
-    <svg className={className} style={style} width="40" height="40" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg {...rest} className={className} style={style} width="40" height="40" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M12 2C7 4 4 8 4 13c0 4 3 8 8 9 0-6 1-10 6-14-4 0-7 1-9 4 1-4 2-7 3-10z" />
     </svg>
   );
 }
 
-function Flecha({ className, style }: { className?: string; style?: React.CSSProperties }): ReactElement {
+function Flecha({ className, style, ...rest }: FiguraProps): ReactElement {
   return (
-    <svg className={className} style={style} width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg {...rest} className={className} style={style} width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M5 19L19 5" />
       <path d="M9 5h10v10" />
     </svg>
+  );
+}
+
+/** Set de figuras para el hero (flotantes con parallax), conviven con la rama Kiri. */
+export function FigurasHero(): ReactElement {
+  return (
+    <div className="figuras" aria-hidden="true">
+      <Hoja className="figura leaf anim-flotar" style={{ top: '18%', right: '8%', width: 46, height: 46 }} data-parallax="0.15" />
+      <Flecha className="figura arc anim-flotar2" style={{ top: '55%', right: '18%' }} data-parallax="0.28" />
+      <Hoja className="figura leaf anim-flotar2" style={{ bottom: '14%', left: '6%', width: 30, height: 30, opacity: 0.35 }} data-parallax="0.2" />
+      <Hoja className="figura leaf anim-flotar" style={{ top: '38%', left: '4%', width: 22, height: 22, opacity: 0.25 }} data-parallax="0.12" />
+      <span className="figura dot arc anim-pulso" style={{ top: '28%', left: '14%', width: 10, height: 10 }} />
+      <span className="figura dot leaf anim-pulso" style={{ bottom: '26%', right: '30%', width: 7, height: 7 }} data-parallax="0.4" />
+      <span className="figura dot arc anim-pulso" style={{ top: '12%', left: '42%', width: 6, height: 6 }} />
+      <span className="figura dot leaf anim-pulso" style={{ top: '64%', right: '6%', width: 8, height: 8 }} data-parallax="0.3" />
+      <span className="figura dot arc anim-pulso" style={{ bottom: '10%', right: '12%', width: 5, height: 5 }} />
+    </div>
   );
 }
 

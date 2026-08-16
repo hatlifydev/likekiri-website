@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 
-import { RamaKiri } from '../decor';
+import { FigurasHero, RamaKiri } from '../decor';
 import type { PageContext } from './index';
 
 export function Home({ t }: PageContext): ReactElement {
@@ -8,6 +8,7 @@ export function Home({ t }: PageContext): ReactElement {
   return (
     <>
       <section className="hero franja-oscura">
+        <FigurasHero />
         <RamaKiri />
         <div className="container">
           <h1>{h.heroTitulo}</h1>
