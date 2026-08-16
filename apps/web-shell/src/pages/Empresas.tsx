@@ -27,17 +27,17 @@ export function Empresas(): ReactElement {
             <div className="tarjeta">
               <h3>Diagnóstico de procesos</h3>
               <p>
-                Levantamiento de tu operación con tu gente, mapa de
+                Levantamiento de tu operación junto a tu equipo, mapa de
                 automatización priorizado por impacto y costo, y un plan por
-                etapas que tu directorio pueda leer.
+                etapas que la alta dirección pueda leer.
               </p>
             </div>
             <div className="tarjeta">
               <h3>RPA a escala</h3>
               <p>
                 Flotas de robots con orquestación, reintentos, trazabilidad y
-                alertas. No scripts sueltos en el computador de alguien que ya
-                no trabaja aquí.
+                alertas. Nada de scripts sueltos en el equipo de alguien que ya
+                dejó la empresa.
               </p>
             </div>
             <div className="tarjeta">

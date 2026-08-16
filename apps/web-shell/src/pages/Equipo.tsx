@@ -24,8 +24,9 @@ export function Equipo({ team }: PageContext): ReactElement {
         <div className="container">
           <h1>El equipo</h1>
           <p className="lead">
-            Somos un equipo pequeño a propósito: la gente que diseña tu solución
-            es la misma que la construye y la misma que contesta cuando algo falla.
+            Somos un equipo pequeño a propósito: las personas que diseñan tu
+            solución son las mismas que la construyen y las que responden cuando
+            algo falla.
           </p>
         </div>
       </section>

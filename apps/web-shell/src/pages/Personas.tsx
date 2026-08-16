@@ -9,7 +9,7 @@ export function Personas(): ReactElement {
           <p className="lead">
             No hace falta ser una gran empresa para dejar de perder horas en
             tareas repetitivas. Si ejerces una profesión independiente o llevas
-            un equipo chico, hay versiones a tu escala de lo mismo que hacemos
+            un equipo pequeño, hay versiones a tu escala de lo mismo que hacemos
             para organizaciones grandes.
           </p>
         </div>
@@ -31,7 +31,7 @@ export function Personas(): ReactElement {
               <h3>Un asistente con tus documentos</h3>
               <p>
                 Tus contratos, fichas o expedientes, consultables en lenguaje
-                natural. Se despliega donde te acomode y, si tu información es
+                natural. Se despliega donde prefieras y, si tu información es
                 delicada, puede correr en tu propio equipo sin subir nada a
                 servicios de terceros.
               </p>
@@ -55,7 +55,7 @@ export function Personas(): ReactElement {
             <ul className="lista-check">
               <li>Una reunión de una hora para entender tu día a día.</li>
               <li>Te proponemos una sola automatización, la de mayor impacto.</li>
-              <li>Precio cerrado, sin suscripciones que no entiendes.</li>
+              <li>Precio cerrado, sin suscripciones confusas.</li>
               <li>
                 Si tu caso necesita algo que no hacemos, te lo decimos y te
                 orientamos hacia quien sí.
