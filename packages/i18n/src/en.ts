@@ -4,6 +4,7 @@ import type { Dictionary } from './es';
 export const en: Dictionary = {
   localeName: 'English',
   nav: {
+    inicio: 'Home',
     personas: 'For people',
     empresas: 'For business',
     equipo: 'Team',

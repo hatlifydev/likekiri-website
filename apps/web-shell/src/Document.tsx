@@ -54,6 +54,7 @@ function SiteHeader({ site, t, locale }: { site: SiteConfig; t: Dictionary; loca
  */
 function traducirNav(label: string, t: Dictionary): string {
   const mapa: Record<string, string> = {
+    Inicio: t.nav.inicio,
     Personas: t.nav.personas,
     Empresas: t.nav.empresas,
     Equipo: t.nav.equipo,

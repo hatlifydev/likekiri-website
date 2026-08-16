@@ -6,6 +6,7 @@
 export const es = {
   localeName: 'Español',
   nav: {
+    inicio: 'Inicio',
     personas: 'Personas',
     empresas: 'Empresas',
     equipo: 'Equipo',

@@ -18,6 +18,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   anuncio: null,
   header: {
     links: [
+      { label: 'Inicio', path: '/' },
       { label: 'Personas', path: '/personas' },
       { label: 'Empresas', path: '/empresas' },
       { label: 'Equipo', path: '/equipo' },
