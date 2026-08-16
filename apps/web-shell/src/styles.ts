@@ -55,8 +55,14 @@ body {
   overflow-x: hidden;
 }
 main { flex: 1; }
-a { color: var(--lk-color-brand); text-decoration: none; }
+/* brandText y no brand: el verde puro da 4.03:1 sobre el fondo — falla AA (§2.2) */
+a { color: var(--lk-color-brandText); text-decoration: none; }
 a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--lk-color-brandText); outline-offset: 2px; }
+/* sobre franjas oscuras el foco necesita el verde legible en oscuro */
+header.site :focus-visible, .franja-oscura :focus-visible, .hero :focus-visible, footer.site :focus-visible {
+  outline-color: var(--lk-color-dark-brand);
+}
 .container { max-width: var(--lk-layout-container); margin: 0 auto; padding: 0 var(--lk-layout-gutter); }
 
 .anuncio {
@@ -141,13 +147,22 @@ nav.main a:hover::after { width: 100%; }
 .hero .acciones { margin-top: 2.25rem; display: flex; gap: 0.85rem; flex-wrap: wrap; }
 
 .boton {
-  display: inline-block; padding: 0.78rem 1.8rem; border-radius: var(--lk-radius-pill);
-  background: var(--lk-color-brand); color: #fff; font-weight: 600;
-  border: 1px solid var(--lk-color-brand); transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 6px 18px rgba(46,139,87,0.28);
+  display: inline-block; padding: var(--lk-space-3) var(--lk-space-8); border-radius: var(--lk-radius-pill);
+  background: var(--lk-color-action); color: var(--lk-color-brandContrast); font-weight: 600;
+  border: 1px solid var(--lk-color-action);
+  transition: background var(--lk-motion-fast) var(--lk-motion-ease),
+    border-color var(--lk-motion-fast) var(--lk-motion-ease),
+    transform var(--lk-motion-fast) var(--lk-motion-ease);
 }
-.boton:hover { text-decoration: none; filter: brightness(1.08); transform: translateY(-2px); box-shadow: 0 10px 24px rgba(46,139,87,0.36); }
-.boton.secundario { background: transparent; color: inherit; border-color: currentColor; opacity: 0.9; box-shadow: none; }
+.boton:hover { text-decoration: none; background: var(--lk-color-actionHover); border-color: var(--lk-color-actionHover); transform: translateY(-1px); }
+.boton:active { background: var(--lk-color-actionActive); border-color: var(--lk-color-actionActive); transform: translateY(0); }
+.boton:disabled, .boton[aria-disabled='true'] {
+  background: var(--lk-color-surfaceSunken); border-color: var(--lk-color-border);
+  color: var(--lk-color-textMuted); cursor: not-allowed; transform: none;
+}
+.boton.secundario { background: transparent; color: inherit; border-color: currentColor; opacity: 0.9; }
+.boton.secundario:hover { background: transparent; border-color: var(--lk-color-dark-brand); color: var(--lk-color-dark-text); opacity: 1; }
+.boton.secundario:active { background: transparent; border-color: var(--lk-color-dark-brand); }
 
 /* ——— zonas claras: alternancia de fondos planos, sin texturas ——— */
 section.bloque { padding: 4.25rem 0; position: relative; }
@@ -193,7 +208,7 @@ section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-wi
   color: #fff; display: flex; align-items: center; justify-content: center;
   font-weight: 700; font-size: 1.3rem; margin-bottom: var(--lk-space-4);
 }
-.persona .rol { color: var(--lk-color-brand); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.persona .rol { color: var(--lk-color-brandText); font-size: var(--lk-type-caption-size); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
 
 .prosa { max-width: 72ch; }
 .prosa h1 {
