@@ -35,11 +35,16 @@ function SiteHeader({ site, t, locale }: { site: SiteConfig; t: Dictionary; loca
           <img src="/assets/marca/logo.webp" alt="LikeKiri — Software · Automation · Consulting" />
         </a>
         <nav className="main" aria-label="principal">
-          {site.header.links.map((link) => (
-            <a key={link.path} href={link.path}>
-              {traducirNav(link.label, t)}
-            </a>
-          ))}
+          {/* El enlace a la portada es del shell (como el logo): se muestra
+              siempre, exista o no en el menú administrado desde el admin. */}
+          <a href="/">{t.nav.inicio}</a>
+          {site.header.links
+            .filter((link) => link.path !== '/')
+            .map((link) => (
+              <a key={link.path} href={link.path}>
+                {traducirNav(link.label, t)}
+              </a>
+            ))}
           <SelectorIdioma locale={locale} />
         </nav>
       </div>
