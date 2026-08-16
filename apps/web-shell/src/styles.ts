@@ -2,22 +2,22 @@ import { cssVariables } from '@likekiri/tokens';
 
 /**
  * CSS del shell público. Esquema de marca: base CLARA con contraste vertical
- * (líneas/degradados sutiles), franjas OSCURAS (#12181F) en header/hero/footer
- * con figuras decorativas animadas, y colores corporativos (verde #2E8B57,
- * naranja #D99B3B) como acentos. Diseño redondeado. Todas las animaciones
- * respetan prefers-reduced-motion.
+ * (líneas/degradados sutiles), franjas OSCURAS en header/hero/footer con
+ * figuras decorativas animadas, y colores corporativos (verde, dorado) como
+ * acentos. Diseño redondeado. Todas las animaciones respetan
+ * prefers-reduced-motion.
+ *
+ * Fase 1 del design-system (docs/design/design-system.md §8): todo valor con
+ * token equivalente EXACTO se consume vía var(--lk-*); esta fase no cambia el
+ * render. Quedan literales, a propósito, los valores cuyo token alteraría el
+ * aspecto actual; cada grupo se resuelve en su fase: tamaños tipográficos,
+ * clamp del hero, header 84px y logo (Fase 2); sombras/estados de botón y
+ * radio 20px de tarjetas (Fase 3); grises del footer, blancos puros y radio
+ * 14px de islas (Fase 4); texturas rgba, duraciones y easings (Fase 5).
  */
 export const shellCss = `
 :root {
   ${cssVariables()}
-  --lk-color-background: #ffffff;
-  --lk-color-surface: #f4f6f8;
-  --lk-color-text: #1d2630;
-  --lk-color-textMuted: #5b6674;
-  --lk-color-border: #e2e7ec;
-  --lk-color-danger: #b91c1c;
-  --lk-dark: #12181f;
-  --lk-dark-container: #243323;
 }
 * { box-sizing: border-box; margin: 0; }
 html { scroll-behavior: smooth; }
@@ -34,17 +34,17 @@ body {
 main { flex: 1; }
 a { color: var(--lk-color-brand); text-decoration: none; }
 a:hover { text-decoration: underline; }
-.container { max-width: 1080px; margin: 0 auto; padding: 0 1.25rem; }
+.container { max-width: var(--lk-layout-container); margin: 0 auto; padding: 0 var(--lk-layout-gutter); }
 
 .anuncio {
-  background: var(--lk-color-accent); color: #12181f;
-  text-align: center; padding: 0.55rem 1.25rem; font-size: 0.92rem; font-weight: 600;
+  background: var(--lk-color-accent); color: var(--lk-color-dark-base);
+  text-align: center; padding: 0.55rem var(--lk-space-5); font-size: 0.92rem; font-weight: 600;
 }
 
 /* ——— header: altura fija; el logo sobresale sin empujar ——— */
-header.site { background: var(--lk-dark); height: 84px; position: relative; z-index: 20; }
+header.site { background: var(--lk-color-dark-base); height: 84px; position: relative; z-index: 20; }
 header.site .container {
-  display: flex; align-items: center; justify-content: space-between; height: 100%; gap: 1.5rem;
+  display: flex; align-items: center; justify-content: space-between; height: 100%; gap: var(--lk-space-6);
 }
 .brand { position: relative; display: flex; align-items: center; }
 .brand:hover { text-decoration: none; }
@@ -56,7 +56,7 @@ header.site .container {
 }
 .brand:hover img { transform: translateY(-2px) scale(1.02); }
 nav.main { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center; }
-nav.main a { color: #c6cfd8; font-size: 0.97rem; font-weight: 500; position: relative; }
+nav.main a { color: var(--lk-color-dark-textSecondary); font-size: 0.97rem; font-weight: 500; position: relative; }
 nav.main a::after {
   content: ''; position: absolute; left: 0; bottom: -4px; width: 0; height: 2px;
   background: var(--lk-color-brand); transition: width 0.25s ease;
@@ -64,16 +64,16 @@ nav.main a::after {
 nav.main a:hover { color: #fff; text-decoration: none; }
 nav.main a:hover::after { width: 100%; }
 
-.idiomas { display: inline-flex; gap: 2px; border: 1px solid #33414d; border-radius: 999px; overflow: hidden; }
+.idiomas { display: inline-flex; gap: 2px; border: 1px solid var(--lk-color-dark-border); border-radius: var(--lk-radius-pill); overflow: hidden; }
 .idiomas button {
-  background: transparent; border: none; color: #c6cfd8; font: inherit; font-size: 0.8rem; font-weight: 600;
-  padding: 0.25rem 0.6rem; cursor: pointer;
+  background: transparent; border: none; color: var(--lk-color-dark-textSecondary); font: inherit; font-size: 0.8rem; font-weight: 600;
+  padding: var(--lk-space-1) 0.6rem; cursor: pointer;
 }
 .idiomas button:hover { color: #fff; }
 .idiomas button.activo { background: var(--lk-color-brand); color: #fff; }
 
 /* ——— franjas oscuras con figuras decorativas ——— */
-.franja-oscura { position: relative; background: var(--lk-dark); color: #f4f5f7; overflow: hidden; }
+.franja-oscura { position: relative; background: var(--lk-color-dark-base); color: var(--lk-color-dark-text); overflow: hidden; }
 .franja-oscura .container { position: relative; z-index: 2; }
 .figuras { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
 .figura { position: absolute; opacity: 0.5; }
@@ -88,15 +88,15 @@ nav.main a:hover::after { width: 100%; }
 .anim-pulso { animation: pulso 5s ease-in-out infinite; }
 
 .hero {
-  background: linear-gradient(160deg, var(--lk-dark) 55%, var(--lk-dark-container) 135%);
-  color: #f4f5f7; padding: 5rem 0 5.5rem; border-radius: 0 0 40px 40px;
+  background: linear-gradient(160deg, var(--lk-color-dark-base) 55%, var(--lk-color-dark-container) 135%);
+  color: var(--lk-color-dark-text); padding: var(--lk-space-20) 0 5.5rem; border-radius: 0 0 var(--lk-radius-hero) var(--lk-radius-hero);
 }
 .hero h1 { font-size: clamp(2.1rem, 5.2vw, 3.4rem); line-height: 1.1; letter-spacing: -0.03em; max-width: 24ch; color: #fff; }
-.hero p.lead { margin-top: 1.25rem; font-size: 1.2rem; color: #b9c3cd; max-width: 60ch; }
+.hero p.lead { margin-top: var(--lk-space-5); font-size: 1.2rem; color: var(--lk-color-dark-textMuted); max-width: 60ch; }
 .hero .acciones { margin-top: 2.25rem; display: flex; gap: 0.85rem; flex-wrap: wrap; }
 
 .boton {
-  display: inline-block; padding: 0.78rem 1.8rem; border-radius: 999px;
+  display: inline-block; padding: 0.78rem 1.8rem; border-radius: var(--lk-radius-pill);
   background: var(--lk-color-brand); color: #fff; font-weight: 600;
   border: 1px solid var(--lk-color-brand); transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
   box-shadow: 0 6px 18px rgba(46,139,87,0.28);
@@ -120,17 +120,17 @@ section.bloque.alterno {
 section.bloque.alterno::before {
   background-image: repeating-linear-gradient(90deg, rgba(46,139,87,0.06) 0 2px, transparent 2px 120px);
 }
-section.bloque h2 { font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.75rem; color: var(--lk-dark); }
+section.bloque h2 { font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: var(--lk-space-3); color: var(--lk-color-dark-base); }
 /* barra de acento bajo cada título */
 section.bloque h2::after {
-  content: ''; display: block; width: 54px; height: 4px; border-radius: 999px;
+  content: ''; display: block; width: 54px; height: 4px; border-radius: var(--lk-radius-pill);
   background: linear-gradient(90deg, var(--lk-color-brand), var(--lk-color-accent)); margin-top: 0.6rem;
 }
-section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-width: 65ch; margin-bottom: 2rem; }
+section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-width: 65ch; margin-bottom: var(--lk-space-8); }
 
-.tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.4rem; margin-top: 1.5rem; }
+.tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.4rem; margin-top: var(--lk-space-6); }
 .tarjeta {
-  background: #fff; border: 1px solid var(--lk-color-border); border-radius: 20px; padding: 1.6rem;
+  background: var(--lk-color-background); border: 1px solid var(--lk-color-border); border-radius: 20px; padding: 1.6rem;
   box-shadow: 0 2px 10px rgba(18,24,31,0.05);
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   position: relative; overflow: hidden;
@@ -143,22 +143,22 @@ section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-wi
 }
 .tarjeta:hover { transform: translateY(-6px); box-shadow: 0 16px 32px rgba(18,24,31,0.12); border-color: transparent; }
 .tarjeta:hover::before { transform: scaleX(1); }
-.tarjeta h3 { font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--lk-dark); }
+.tarjeta h3 { font-size: 1.1rem; margin-bottom: var(--lk-space-2); color: var(--lk-color-dark-base); }
 .tarjeta p { color: var(--lk-color-textMuted); font-size: 0.95rem; }
 
 .persona .avatar {
   width: 64px; height: 64px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--lk-color-brand), var(--lk-dark-container));
+  background: linear-gradient(135deg, var(--lk-color-brand), var(--lk-color-dark-container));
   color: #fff; display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 1.3rem; margin-bottom: 1rem;
+  font-weight: 700; font-size: 1.3rem; margin-bottom: var(--lk-space-4);
 }
 .persona .rol { color: var(--lk-color-brand); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
 
 .prosa { max-width: 72ch; }
-.prosa h1 { color: var(--lk-dark); }
-.prosa h2 { font-size: 1.35rem; margin: 2rem 0 0.75rem; color: var(--lk-dark); }
-.prosa p, .prosa li { color: var(--lk-color-text); margin-bottom: 0.75rem; }
-.prosa ul, .prosa ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+.prosa h1 { color: var(--lk-color-dark-base); }
+.prosa h2 { font-size: 1.35rem; margin: var(--lk-space-8) 0 var(--lk-space-3); color: var(--lk-color-dark-base); }
+.prosa p, .prosa li { color: var(--lk-color-text); margin-bottom: var(--lk-space-3); }
+.prosa ul, .prosa ol { padding-left: var(--lk-space-6); margin-bottom: var(--lk-space-4); }
 .prosa .fecha { color: var(--lk-color-textMuted); font-size: 0.9rem; }
 .lista-check { list-style: none; padding-left: 0; }
 .lista-check li { padding-left: 1.75rem; position: relative; margin-bottom: 0.6rem; }
@@ -169,25 +169,25 @@ section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-wi
 .reveal.visible { opacity: 1; transform: none; }
 
 footer.site {
-  background: var(--lk-dark); color: #aab6c0; padding: 3rem 0 2.5rem; margin-top: 3rem;
-  border-radius: 40px 40px 0 0; position: relative; overflow: hidden;
+  background: var(--lk-color-dark-base); color: #aab6c0; padding: var(--lk-space-12) 0 var(--lk-space-10); margin-top: var(--lk-space-12);
+  border-radius: var(--lk-radius-hero) var(--lk-radius-hero) 0 0; position: relative; overflow: hidden;
 }
-footer.site .container { display: flex; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; font-size: 0.9rem; align-items: flex-start; position: relative; z-index: 2; }
-footer.site nav { display: flex; gap: 1.25rem; flex-wrap: wrap; }
-footer.site a { color: #c6cfd8; }
+footer.site .container { display: flex; justify-content: space-between; gap: var(--lk-space-6); flex-wrap: wrap; font-size: 0.9rem; align-items: flex-start; position: relative; z-index: 2; }
+footer.site nav { display: flex; gap: var(--lk-space-5); flex-wrap: wrap; }
+footer.site a { color: var(--lk-color-dark-textSecondary); }
 footer.site a:hover { color: #fff; }
 footer.site .marca-pie img { height: 84px; display: block; margin-bottom: 0.9rem; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4)); }
 
-[data-likekiri-island] { min-height: 4rem; }
+[data-likekiri-island] { min-height: var(--lk-space-16); }
 .isla-cargando, .isla-error {
   border: 1px dashed var(--lk-color-border); border-radius: 14px;
-  padding: 1.25rem; color: var(--lk-color-textMuted); font-size: 0.95rem;
+  padding: var(--lk-space-5); color: var(--lk-color-textMuted); font-size: 0.95rem;
 }
 .isla-error { border-color: var(--lk-color-danger); color: var(--lk-color-danger); }
 
-.pagina-error { padding: 6rem 0; text-align: center; }
-.pagina-error h1 { font-size: 3rem; color: var(--lk-dark); }
-.pagina-error p { color: var(--lk-color-textMuted); margin-top: 0.75rem; }
+.pagina-error { padding: var(--lk-space-24) 0; text-align: center; }
+.pagina-error h1 { font-size: 3rem; color: var(--lk-color-dark-base); }
+.pagina-error p { color: var(--lk-color-textMuted); margin-top: var(--lk-space-3); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
