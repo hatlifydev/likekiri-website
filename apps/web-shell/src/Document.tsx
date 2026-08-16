@@ -126,6 +126,7 @@ export function Document({
         <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
         <link rel="preload" href="/assets/fonts/inter-regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/assets/fonts/inter-semibold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/assets/fonts/source-serif-4-display-semibold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <style dangerouslySetInnerHTML={{ __html: shellCss }} />
       </head>
       <body>

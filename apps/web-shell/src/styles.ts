@@ -7,17 +7,17 @@ import { cssVariables } from '@likekiri/tokens';
  * acentos. Diseño redondeado. Todas las animaciones respetan
  * prefers-reduced-motion.
  *
- * Fase 1 del design-system (docs/design/design-system.md §8): todo valor con
- * token equivalente EXACTO se consume vía var(--lk-*); esta fase no cambia el
- * render. Quedan literales, a propósito, los valores cuyo token alteraría el
- * aspecto actual; cada grupo se resuelve en su fase: tamaños tipográficos,
- * clamp del hero, header 84px y logo (Fase 2); sombras/estados de botón y
- * radio 20px de tarjetas (Fase 3); grises del footer, blancos puros y radio
- * 14px de islas (Fase 4); texturas rgba, duraciones y easings (Fase 5).
+ * Estado (design-system §8): Fase 1 (plomería de tokens) y Fase 2 (tipografía
+ * definitiva Source Serif 4 + Inter, hero con rama Kiri, header) aplicadas.
+ * Literales que quedan a propósito, cada grupo se resuelve en su fase:
+ * sombras/estados de botón, radio 20px y tamaños menores de tarjetas (Fase 3);
+ * grises del footer, blancos puros restantes y radio 14px de islas (Fase 4);
+ * texturas rgba, duraciones/easings y separador Kiri bajo h2 (Fase 5).
  */
 export const shellCss = `
-/* Inter self-hosted (apps/web-shell/public/fonts, subset latin+latin-ext).
-   La familia display (Source Serif 4) se conecta al elegirse en la Fase 2. */
+/* Fuentes self-hosted (apps/web-shell/public/fonts, subset latin+latin-ext):
+   Inter 400/600 para cuerpo/UI y Source Serif 4 (óptico Display, 600) para
+   titulares — decisión de Fase 2, con tracking 0 (ver design-system §3.1). */
 @font-face {
   font-family: 'Inter';
   src: url('/assets/fonts/inter-regular.woff2') format('woff2');
@@ -32,6 +32,13 @@ export const shellCss = `
   font-style: normal;
   font-display: swap;
 }
+@font-face {
+  font-family: 'Source Serif 4';
+  src: url('/assets/fonts/source-serif-4-display-semibold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
 :root {
   ${cssVariables()}
 }
@@ -41,7 +48,7 @@ body {
   font-family: var(--lk-font-sans);
   color: var(--lk-color-text);
   background: var(--lk-color-background);
-  line-height: 1.6;
+  line-height: var(--lk-type-body-lineHeight);
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -54,7 +61,7 @@ a:hover { text-decoration: underline; }
 
 .anuncio {
   background: var(--lk-color-accent); color: var(--lk-color-dark-base);
-  text-align: center; padding: 0.55rem var(--lk-space-5); font-size: 0.92rem; font-weight: 600;
+  text-align: center; padding: 0.55rem var(--lk-space-5); font-size: var(--lk-type-small-size); font-weight: 600;
 }
 
 /* ——— header: altura fija; el logo sobresale sin empujar ——— */
@@ -72,7 +79,7 @@ header.site .container {
 }
 .brand:hover img { transform: translateY(-2px) scale(1.02); }
 nav.main { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center; }
-nav.main a { color: var(--lk-color-dark-textSecondary); font-size: 0.97rem; font-weight: 500; position: relative; }
+nav.main a { color: var(--lk-color-dark-textSecondary); font-size: var(--lk-type-body-size); font-weight: 500; position: relative; }
 nav.main a::after {
   content: ''; position: absolute; left: 0; bottom: -4px; width: 0; height: 2px;
   background: var(--lk-color-brand); transition: width 0.25s ease;
@@ -82,7 +89,7 @@ nav.main a:hover::after { width: 100%; }
 
 .idiomas { display: inline-flex; gap: 2px; border: 1px solid var(--lk-color-dark-border); border-radius: var(--lk-radius-pill); overflow: hidden; }
 .idiomas button {
-  background: transparent; border: none; color: var(--lk-color-dark-textSecondary); font: inherit; font-size: 0.8rem; font-weight: 600;
+  background: transparent; border: none; color: var(--lk-color-dark-textSecondary); font: inherit; font-size: var(--lk-type-caption-size); font-weight: 600;
   padding: var(--lk-space-1) 0.6rem; cursor: pointer;
 }
 .idiomas button:hover { color: #fff; }
@@ -107,8 +114,12 @@ nav.main a:hover::after { width: 100%; }
   background: linear-gradient(160deg, var(--lk-color-dark-base) 55%, var(--lk-color-dark-container) 135%);
   color: var(--lk-color-dark-text); padding: var(--lk-space-20) 0 5.5rem; border-radius: 0 0 var(--lk-radius-hero) var(--lk-radius-hero);
 }
-.hero h1 { font-size: clamp(2.1rem, 5.2vw, 3.4rem); line-height: 1.1; letter-spacing: -0.03em; max-width: 24ch; color: #fff; }
-.hero p.lead { margin-top: var(--lk-space-5); font-size: 1.2rem; color: var(--lk-color-dark-textMuted); max-width: 60ch; }
+.hero h1 {
+  font-family: var(--lk-font-display); font-weight: var(--lk-type-display-weight);
+  font-size: var(--lk-type-display-size); line-height: var(--lk-type-display-lineHeight);
+  letter-spacing: var(--lk-type-display-tracking); max-width: 24ch; color: var(--lk-color-dark-text);
+}
+.hero p.lead { margin-top: var(--lk-space-5); font-size: var(--lk-type-lead-size); line-height: var(--lk-type-lead-lineHeight); color: var(--lk-color-dark-textMuted); max-width: 60ch; }
 .hero .acciones { margin-top: 2.25rem; display: flex; gap: 0.85rem; flex-wrap: wrap; }
 
 .boton {
@@ -136,7 +147,11 @@ section.bloque.alterno {
 section.bloque.alterno::before {
   background-image: repeating-linear-gradient(90deg, rgba(46,139,87,0.06) 0 2px, transparent 2px 120px);
 }
-section.bloque h2 { font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: var(--lk-space-3); color: var(--lk-color-dark-base); }
+section.bloque h2 {
+  font-family: var(--lk-font-display); font-weight: var(--lk-type-h2-weight);
+  font-size: var(--lk-type-h2-size); line-height: var(--lk-type-h2-lineHeight);
+  letter-spacing: var(--lk-type-h2-tracking); margin-bottom: var(--lk-space-3); color: var(--lk-color-dark-base);
+}
 /* barra de acento bajo cada título */
 section.bloque h2::after {
   content: ''; display: block; width: 54px; height: 4px; border-radius: var(--lk-radius-pill);
@@ -159,7 +174,11 @@ section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-wi
 }
 .tarjeta:hover { transform: translateY(-6px); box-shadow: 0 16px 32px rgba(18,24,31,0.12); border-color: transparent; }
 .tarjeta:hover::before { transform: scaleX(1); }
-.tarjeta h3 { font-size: 1.1rem; margin-bottom: var(--lk-space-2); color: var(--lk-color-dark-base); }
+.tarjeta h3 {
+  font-family: var(--lk-font-display); font-weight: var(--lk-type-h3-weight);
+  font-size: var(--lk-type-h3-size); line-height: var(--lk-type-h3-lineHeight);
+  letter-spacing: var(--lk-type-h3-tracking); margin-bottom: var(--lk-space-2); color: var(--lk-color-dark-base);
+}
 .tarjeta p { color: var(--lk-color-textMuted); font-size: 0.95rem; }
 
 .persona .avatar {
@@ -171,8 +190,16 @@ section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-wi
 .persona .rol { color: var(--lk-color-brand); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
 
 .prosa { max-width: 72ch; }
-.prosa h1 { color: var(--lk-color-dark-base); }
-.prosa h2 { font-size: 1.35rem; margin: var(--lk-space-8) 0 var(--lk-space-3); color: var(--lk-color-dark-base); }
+.prosa h1 {
+  font-family: var(--lk-font-display); font-weight: var(--lk-type-h1-weight);
+  font-size: var(--lk-type-h1-size); line-height: var(--lk-type-h1-lineHeight);
+  letter-spacing: var(--lk-type-h1-tracking); color: var(--lk-color-dark-base);
+}
+.prosa h2 {
+  font-family: var(--lk-font-display); font-weight: var(--lk-type-h3-weight);
+  font-size: var(--lk-type-h3-size); line-height: var(--lk-type-h3-lineHeight);
+  letter-spacing: var(--lk-type-h3-tracking); margin: var(--lk-space-8) 0 var(--lk-space-3); color: var(--lk-color-dark-base);
+}
 .prosa p, .prosa li { color: var(--lk-color-text); margin-bottom: var(--lk-space-3); }
 .prosa ul, .prosa ol { padding-left: var(--lk-space-6); margin-bottom: var(--lk-space-4); }
 .prosa .fecha { color: var(--lk-color-textMuted); font-size: 0.9rem; }
@@ -202,7 +229,11 @@ footer.site .marca-pie img { height: 84px; display: block; margin-bottom: 0.9rem
 .isla-error { border-color: var(--lk-color-danger); color: var(--lk-color-danger); }
 
 .pagina-error { padding: var(--lk-space-24) 0; text-align: center; }
-.pagina-error h1 { font-size: 3rem; color: var(--lk-color-dark-base); }
+.pagina-error h1 {
+  font-family: var(--lk-font-display); font-weight: var(--lk-type-display-weight);
+  font-size: var(--lk-type-display-size); line-height: var(--lk-type-display-lineHeight);
+  letter-spacing: var(--lk-type-display-tracking); color: var(--lk-color-dark-base);
+}
 .pagina-error p { color: var(--lk-color-textMuted); margin-top: var(--lk-space-3); }
 
 @media (prefers-reduced-motion: reduce) {
