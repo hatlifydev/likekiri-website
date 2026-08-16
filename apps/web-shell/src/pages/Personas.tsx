@@ -62,7 +62,7 @@ export function Personas(): ReactElement {
               </li>
             </ul>
           </div>
-          <div className="acciones" style={{ marginTop: '2rem' }}>
+          <div className="acciones al-final">
             <a className="boton" href="/contacto">
               Cuéntanos tu caso
             </a>

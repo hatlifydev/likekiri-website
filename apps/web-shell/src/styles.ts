@@ -9,9 +9,9 @@ import { cssVariables } from '@likekiri/tokens';
  *
  * Estado (design-system §8): Fase 1 (plomería de tokens) y Fase 2 (tipografía
  * definitiva Source Serif 4 + Inter, hero con rama Kiri, header) aplicadas.
- * Literales que quedan a propósito, cada grupo se resuelve en su fase:
- * grises del footer, blancos puros restantes y radio 14px de islas (Fase 4);
- * duraciones/easings del reveal y separador Kiri bajo h2 (Fase 5).
+ * Literales que quedan a propósito (se resuelven en Fase 5): duraciones y
+ * easings del reveal/parallax, sombras del logo y separador Kiri bajo h2.
+ * Las posiciones/tamaños de las figuras decorativas viven en decor.tsx.
  */
 export const shellCss = `
 /* Fuentes self-hosted (apps/web-shell/public/fonts, subset latin+latin-ext):
@@ -244,10 +244,11 @@ section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-wi
 .persona .avatar {
   width: 64px; height: 64px; border-radius: 50%;
   background: linear-gradient(135deg, var(--lk-color-brand), var(--lk-color-dark-container));
-  color: #fff; display: flex; align-items: center; justify-content: center;
+  color: var(--lk-color-brandContrast); display: flex; align-items: center; justify-content: center;
   font-weight: 700; font-size: 1.3rem; margin-bottom: var(--lk-space-4);
 }
 .persona .rol { color: var(--lk-color-brandText); font-size: var(--lk-type-caption-size); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.persona .bio { margin-top: var(--lk-space-2); }
 
 .prosa { max-width: 72ch; }
 .prosa h1 {
@@ -264,7 +265,7 @@ section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-wi
 .prosa ul, .prosa ol { padding-left: var(--lk-space-6); margin-bottom: var(--lk-space-4); }
 .prosa .fecha { color: var(--lk-color-textMuted); font-size: 0.9rem; }
 .lista-check { list-style: none; padding-left: 0; }
-.lista-check li { padding-left: 1.75rem; position: relative; margin-bottom: 0.6rem; }
+.lista-check li { padding-left: var(--lk-space-8); position: relative; margin-bottom: var(--lk-space-2); }
 .lista-check li::before { content: '✓'; position: absolute; left: 0; color: var(--lk-color-brand); font-weight: 700; }
 
 /* ——— revelado al hacer scroll (progresivo: sin JS, se ve igual) ——— */
@@ -272,18 +273,18 @@ section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-wi
 .reveal.visible { opacity: 1; transform: none; }
 
 footer.site {
-  background: var(--lk-color-dark-base); color: #aab6c0; padding: var(--lk-space-12) 0 var(--lk-space-10); margin-top: var(--lk-space-12);
+  background: var(--lk-color-dark-base); color: var(--lk-color-dark-textMuted); padding: var(--lk-space-12) 0 var(--lk-space-10); margin-top: var(--lk-space-12);
   border-radius: var(--lk-radius-hero) var(--lk-radius-hero) 0 0; position: relative; overflow: hidden;
 }
 footer.site .container { display: flex; justify-content: space-between; gap: var(--lk-space-6); flex-wrap: wrap; font-size: 0.9rem; align-items: flex-start; position: relative; z-index: 2; }
 footer.site nav { display: flex; gap: var(--lk-space-5); flex-wrap: wrap; }
 footer.site a { color: var(--lk-color-dark-textSecondary); }
-footer.site a:hover { color: #fff; }
+footer.site a:hover { color: var(--lk-color-dark-text); }
 footer.site .marca-pie img { height: 84px; display: block; margin-bottom: 0.9rem; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4)); }
 
 [data-likekiri-island] { min-height: var(--lk-space-16); }
 .isla-cargando, .isla-error {
-  border: 1px dashed var(--lk-color-border); border-radius: 14px;
+  border: 1px dashed var(--lk-color-border); border-radius: var(--lk-radius-lg);
   padding: var(--lk-space-5); color: var(--lk-color-textMuted); font-size: 0.95rem;
 }
 .isla-error { border-color: var(--lk-color-danger); color: var(--lk-color-danger); }

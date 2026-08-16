@@ -40,7 +40,7 @@ export function Equipo({ team }: PageContext): ReactElement {
                 </div>
                 <h3>{miembro.displayName}</h3>
                 {miembro.title !== '' && <div className="rol">{miembro.title}</div>}
-                {miembro.bio !== '' && <p style={{ marginTop: '0.6rem' }}>{miembro.bio}</p>}
+                {miembro.bio !== '' && <p className="bio">{miembro.bio}</p>}
               </div>
             ))}
           </div>
