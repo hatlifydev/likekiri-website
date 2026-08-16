@@ -32,11 +32,7 @@ function SiteHeader({ site, t, locale }: { site: SiteConfig; t: Dictionary; loca
     <header className="site">
       <div className="container">
         <a className="brand" href="/">
-          <img
-            src="/assets/marca/logo.webp"
-            alt="LikeKiri — Software · Automation · Consulting"
-            style={{ height: '78px', display: 'block' }}
-          />
+          <img src="/assets/marca/logo.webp" alt="LikeKiri — Software · Automation · Consulting" />
         </a>
         <nav className="main" aria-label="principal">
           {site.header.links.map((link) => (

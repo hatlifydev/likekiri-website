@@ -24,17 +24,31 @@ function Flecha({ className, style }: { className?: string; style?: React.CSSPro
   );
 }
 
-/** Set de figuras para el hero. */
-export function FigurasHero(): ReactElement {
+/**
+ * Motivo de marca: la rama de Kiri (design-system §6, boceto «Rama»).
+ * Un trazo continuo con dos bifurcaciones y hojas acorazonadas mínimas;
+ * geométrico, sin modulación. pathLength=1 permite el trazado progresivo
+ * en CSS puro (stroke-dashoffset), sin JavaScript.
+ */
+export function RamaKiri(): ReactElement {
   return (
-    <div className="figuras" aria-hidden="true">
-      <Hoja className="figura leaf anim-flotar" style={{ top: '18%', right: '8%', width: 46, height: 46 }} data-parallax="0.15" />
-      <Flecha className="figura arc anim-flotar2" style={{ top: '55%', right: '18%' }} data-parallax="0.28" />
-      <Hoja className="figura leaf anim-flotar2" style={{ bottom: '14%', left: '6%', width: 30, height: 30, opacity: 0.35 }} data-parallax="0.2" />
-      <span className="figura dot arc anim-pulso" style={{ top: '28%', left: '14%', width: 10, height: 10 }} />
-      <span className="figura dot leaf anim-pulso" style={{ bottom: '26%', right: '30%', width: 7, height: 7 }} data-parallax="0.4" />
-      <span className="figura dot arc anim-pulso" style={{ top: '12%', left: '42%', width: 6, height: 6 }} />
-    </div>
+    <svg className="rama-kiri" viewBox="0 0 220 160" fill="none" aria-hidden="true">
+      <g className="trazo" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+        <path pathLength={1} d="M14 152 C56 136 88 116 120 94 C142 79 160 71 180 66" />
+        <path pathLength={1} d="M86 118 C98 98 106 84 110 60" />
+        <path pathLength={1} d="M132 86 C148 93 160 104 166 120" />
+        <path pathLength={1} d="M180 66 C180 66 173 61 174 56 A3.4 3.4 0 0 1 180 54 A3.4 3.4 0 0 1 186 56 C187 61 180 66 180 66 Z" transform="rotate(14 180 66)" />
+        <path pathLength={1} d="M166 120 C166 120 159 115 160 110 A3.4 3.4 0 0 1 166 108 A3.4 3.4 0 0 1 172 110 C173 115 166 120 166 120 Z" transform="rotate(150 166 120)" />
+      </g>
+      <path
+        className="hoja-acento"
+        pathLength={1}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        d="M110 60 C110 60 103 55 104 50 A3.4 3.4 0 0 1 110 48 A3.4 3.4 0 0 1 116 50 C117 55 110 60 110 60 Z"
+        transform="rotate(-12 110 60)"
+      />
+    </svg>
   );
 }
 

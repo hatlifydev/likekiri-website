@@ -71,9 +71,9 @@ header.site .container {
 }
 .brand { position: relative; display: flex; align-items: center; }
 .brand:hover { text-decoration: none; }
-/* overhang: el logo es más alto que el header y baja sobre el contenido */
+/* overhang: el logo baja levemente sobre el contenido */
 .brand img {
-  height: 128px; display: block; margin: 20px 0 -44px;
+  height: 78px; display: block; margin: 20px 0 -44px;
   filter: drop-shadow(0 8px 16px rgba(0,0,0,0.35));
   transition: transform 0.3s ease;
 }
@@ -84,7 +84,7 @@ nav.main a::after {
   content: ''; position: absolute; left: 0; bottom: -4px; width: 0; height: 2px;
   background: var(--lk-color-brand); transition: width 0.25s ease;
 }
-nav.main a:hover { color: #fff; text-decoration: none; }
+nav.main a:hover { color: var(--lk-color-dark-text); text-decoration: none; }
 nav.main a:hover::after { width: 100%; }
 
 .idiomas { display: inline-flex; gap: 2px; border: 1px solid var(--lk-color-dark-border); border-radius: var(--lk-radius-pill); overflow: hidden; }
@@ -92,8 +92,8 @@ nav.main a:hover::after { width: 100%; }
   background: transparent; border: none; color: var(--lk-color-dark-textSecondary); font: inherit; font-size: var(--lk-type-caption-size); font-weight: 600;
   padding: var(--lk-space-1) 0.6rem; cursor: pointer;
 }
-.idiomas button:hover { color: #fff; }
-.idiomas button.activo { background: var(--lk-color-brand); color: #fff; }
+.idiomas button:hover { color: var(--lk-color-dark-text); }
+.idiomas button.activo { background: var(--lk-color-brand); color: var(--lk-color-brandContrast); }
 
 /* ——— franjas oscuras con figuras decorativas ——— */
 .franja-oscura { position: relative; background: var(--lk-color-dark-base); color: var(--lk-color-dark-text); overflow: hidden; }
@@ -112,8 +112,23 @@ nav.main a:hover::after { width: 100%; }
 
 .hero {
   background: linear-gradient(160deg, var(--lk-color-dark-base) 55%, var(--lk-color-dark-container) 135%);
-  color: var(--lk-color-dark-text); padding: var(--lk-space-20) 0 5.5rem; border-radius: 0 0 var(--lk-radius-hero) var(--lk-radius-hero);
+  color: var(--lk-color-dark-text); padding: var(--lk-space-20) 0; border-radius: 0 0 var(--lk-radius-hero) var(--lk-radius-hero);
+  position: relative; overflow: hidden;
 }
+
+/* ——— rama de Kiri: una sola aparición en el hero, al fondo ——— */
+.rama-kiri {
+  position: absolute; left: -1.5rem; bottom: -2rem; z-index: 1;
+  width: min(46vw, 430px); height: auto; pointer-events: none;
+  color: var(--lk-color-dark-brand);
+}
+.rama-kiri .trazo { stroke-opacity: 0.18; }
+.rama-kiri .hoja-acento { stroke: var(--lk-color-accent); stroke-opacity: 0.45; }
+.rama-kiri path {
+  stroke-dasharray: 1; stroke-dashoffset: 1;
+  animation: rama-crece 1.4s var(--lk-motion-ease) 0.2s forwards;
+}
+@keyframes rama-crece { to { stroke-dashoffset: 0; } }
 .hero h1 {
   font-family: var(--lk-font-display); font-weight: var(--lk-type-display-weight);
   font-size: var(--lk-type-display-size); line-height: var(--lk-type-display-lineHeight);
@@ -239,5 +254,7 @@ footer.site .marca-pie img { height: 84px; display: block; margin-bottom: 0.9rem
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .reveal { opacity: 1; transform: none; }
+  /* sin animación, la rama debe mostrarse ya dibujada (dashoffset 1 la ocultaría) */
+  .rama-kiri path { stroke-dasharray: none; stroke-dashoffset: 0; }
 }
 `;
