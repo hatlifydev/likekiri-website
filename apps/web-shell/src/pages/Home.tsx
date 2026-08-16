@@ -41,9 +41,9 @@ export function Home({ t }: PageContext): ReactElement {
           <h2>{h.s2Titulo}</h2>
           <p className="intro">{h.s2Intro}</p>
           <div className="tarjetas">
-            <div className="tarjeta reveal"><h3>{h.s2PrecisosT}</h3><p>{h.s2PrecisosD}</p></div>
             <div className="tarjeta reveal"><h3>{h.s2DatosT}</h3><p>{h.s2DatosD}</p></div>
             <div className="tarjeta reveal"><h3>{h.s2ConsumoT}</h3><p>{h.s2ConsumoD}</p></div>
+            <div className="tarjeta reveal"><h3>{h.s2PropiosT}</h3><p>{h.s2PropiosD}</p></div>
           </div>
         </div>
       </section>
@@ -53,8 +53,8 @@ export function Home({ t }: PageContext): ReactElement {
           <h2>{h.s3Titulo}</h2>
           <p className="intro">{h.s3Intro}</p>
           <div className="tarjetas">
-            <div className="tarjeta reveal"><h3>{h.s3JuridicoT}</h3><p>{h.s3JuridicoD}</p></div>
-            <div className="tarjeta reveal"><h3>{h.s3SaludT}</h3><p>{h.s3SaludD}</p></div>
+            <div className="tarjeta reveal"><h3>{h.s3ReguladaT}</h3><p>{h.s3ReguladaD}</p></div>
+            <div className="tarjeta reveal"><h3>{h.s3DisenoT}</h3><p>{h.s3DisenoD}</p></div>
           </div>
         </div>
       </section>

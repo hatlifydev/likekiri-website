@@ -36,7 +36,7 @@ export const staticPages: StaticPage[] = [
     path: '/',
     title: 'LikeKiri — Automatización inteligente de procesos',
     description:
-      'Consultora de desarrollo de software especializada en IPA: procesos batch, RPA, IA aplicada, RAG y modelos de lenguaje propios que corren on-premise.',
+      'Consultora de desarrollo de software especializada en IPA: procesos batch, RPA, IA aplicada y RAG, desplegados en la infraestructura que elijas.',
     Component: Home,
   },
   {
@@ -50,14 +50,14 @@ export const staticPages: StaticPage[] = [
     path: '/empresas',
     title: 'LikeKiri para empresas',
     description:
-      'RPA a escala, integraciones batch, RAG corporativo y modelos LLM on-premise para organizaciones que manejan datos sensibles.',
+      'RPA a escala, integraciones batch, RAG corporativo y despliegues con foco en privacidad para organizaciones que manejan datos sensibles.',
     Component: Empresas,
   },
   {
     path: '/equipo',
     title: 'Equipo — LikeKiri',
     description:
-      'Las personas detrás de LikeKiri: tecnología, consultoría de procesos, ingeniería de datos, RPA y cumplimiento.',
+      'Las personas detrás de LikeKiri: quienes diseñan, construyen y responden por cada proyecto.',
     Component: Equipo,
   },
   {

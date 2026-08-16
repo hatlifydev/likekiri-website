@@ -7,11 +7,10 @@ export function Empresas(): ReactElement {
         <div className="container">
           <h1>Para organizaciones que mueven datos sensibles</h1>
           <p className="lead">
-            Ayudamos a bancos, aseguradoras, estudios jurídicos, clínicas y
-            empresas de servicios a automatizar operaciones completas: desde el
-            proceso batch que concilia cuentas cada noche hasta el asistente que
-            responde con la política interna vigente. Con los controles de
-            seguridad que tu área de riesgo va a pedir de todos modos.
+            Automatizamos operaciones completas: desde el proceso batch que
+            concilia cuentas cada noche hasta el asistente que responde con la
+            política interna vigente. Con los controles de seguridad que tu
+            área de riesgo va a pedir de todos modos.
           </p>
           <div className="acciones">
             <a className="boton" href="/contacto">
@@ -44,8 +43,9 @@ export function Empresas(): ReactElement {
             <div className="tarjeta">
               <h3>Integraciones batch</h3>
               <p>
-                Cargas y sincronizaciones entre core bancario, ERP y sistemas
-                legados, con validación de datos y reproceso controlado.
+                Cargas y sincronizaciones entre tus sistemas centrales, ERP y
+                aplicaciones legadas, con validación de datos y reproceso
+                controlado.
               </p>
             </div>
             <div className="tarjeta">
@@ -57,11 +57,12 @@ export function Empresas(): ReactElement {
               </p>
             </div>
             <div className="tarjeta">
-              <h3>LLM on-premise</h3>
+              <h3>IA generativa a medida</h3>
               <p>
-                Modelos de lenguaje propios, ajustados a tu dominio, desplegados
-                en tu datacenter o nube privada. Precisión alta en lo tuyo,
-                consumo bajo, y ningún dato cruzando la frontera de tu red.
+                Integramos modelos de los grandes proveedores o modelos abiertos
+                según tu caso, con controles sobre qué datos ven. Y estamos
+                entrenando modelos propios para dominios acotados, que correrán
+                íntegramente dentro de tu red cuando estén en producción.
               </p>
             </div>
             <div className="tarjeta">
@@ -81,9 +82,9 @@ export function Empresas(): ReactElement {
           <div className="prosa">
             <ul className="lista-check">
               <li>
-                Los datos se procesan donde tú decidas: on-premise o en tu nube
-                privada. Los proyectos con información regulada no usan APIs
-                públicas de IA.
+                Los datos se procesan donde tú decidas: tu nube, tus servidores
+                o un entorno administrado. Los proyectos con información
+                regulada se diseñan para no usar APIs públicas de IA.
               </li>
               <li>
                 Trabajamos junto a tus áreas legales y de seguridad desde el

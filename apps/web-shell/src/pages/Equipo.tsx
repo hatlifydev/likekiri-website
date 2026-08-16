@@ -11,7 +11,7 @@ const POR_DEFECTO = [
   {
     displayName: 'Pedro Miguras',
     title: 'Socio fundador · Dirección de tecnología',
-    bio: 'Ingeniero de software con veinte años construyendo sistemas para banca y salud. Dirige la arquitectura de los proyectos y el desarrollo de los modelos de lenguaje propios de LikeKiri.',
+    bio: 'Ingeniero de software con veinte años construyendo sistemas en producción. Dirige la arquitectura y la construcción de los proyectos de LikeKiri.',
     initials: 'PM',
   },
 ];

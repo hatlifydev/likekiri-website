@@ -8,9 +8,9 @@ export function Personas(): ReactElement {
           <h1>Para profesionales y equipos pequeños</h1>
           <p className="lead">
             No hace falta ser una gran empresa para dejar de perder horas en
-            tareas repetitivas. Si eres abogado, médico, contador o llevas un
-            equipo chico, hay versiones a tu escala de lo mismo que hacemos para
-            organizaciones grandes.
+            tareas repetitivas. Si ejerces una profesión independiente o llevas
+            un equipo chico, hay versiones a tu escala de lo mismo que hacemos
+            para organizaciones grandes.
           </p>
         </div>
       </section>
@@ -31,8 +31,9 @@ export function Personas(): ReactElement {
               <h3>Un asistente con tus documentos</h3>
               <p>
                 Tus contratos, fichas o expedientes, consultables en lenguaje
-                natural, corriendo en tu propio computador o servidor. Nada se
-                sube a servicios de terceros.
+                natural. Se despliega donde te acomode y, si tu información es
+                delicada, puede correr en tu propio equipo sin subir nada a
+                servicios de terceros.
               </p>
             </div>
             <div className="tarjeta">
@@ -40,7 +41,7 @@ export function Personas(): ReactElement {
               <p>
                 Sesiones prácticas para que entiendas qué puede y qué no puede
                 hacer la IA en tu trabajo, y uses estas herramientas sin poner en
-                riesgo información de clientes o pacientes.
+                riesgo la información que te confiaron.
               </p>
             </div>
           </div>
