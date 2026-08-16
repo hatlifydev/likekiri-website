@@ -16,6 +16,22 @@ import { cssVariables } from '@likekiri/tokens';
  * 14px de islas (Fase 4); texturas rgba, duraciones y easings (Fase 5).
  */
 export const shellCss = `
+/* Inter self-hosted (apps/web-shell/public/fonts, subset latin+latin-ext).
+   La familia display (Source Serif 4) se conecta al elegirse en la Fase 2. */
+@font-face {
+  font-family: 'Inter';
+  src: url('/assets/fonts/inter-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/assets/fonts/inter-semibold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
 :root {
   ${cssVariables()}
 }

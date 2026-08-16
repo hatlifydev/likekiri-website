@@ -1,0 +1,250 @@
+<!doctype html>
+<!-- PÁGINA TEMPORAL — Fase 2 del design-system (docs/design/design-system.md).
+     Comparativa tipográfica A/B y bocetos del motivo Kiri para decisión.
+     Se elimina cuando la decisión esté tomada. No enlazar desde el sitio. -->
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>[TEMPORAL] Preview — tipografía A/B y motivo Kiri</title>
+<style>
+  @font-face {
+    font-family: 'Inter';
+    src: url('fonts/inter-regular.woff2') format('woff2');
+    font-weight: 400; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Inter';
+    src: url('fonts/inter-semibold.woff2') format('woff2');
+    font-weight: 600; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Space Grotesk';
+    src: url('fonts/space-grotesk-var.woff2') format('woff2');
+    font-weight: 300 700; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Source Serif 4';
+    src: url('fonts/source-serif-4-display-semibold.woff2') format('woff2');
+    font-weight: 600; font-style: normal; font-display: swap;
+  }
+
+  /* Paleta del design-system (§2) para que la decisión se vea en contexto real */
+  :root {
+    --bg: #faf9f6; --surface: #ffffff; --sunken: #f2f0ea;
+    --text: #1c2420; --text-2: #45514b; --muted: #5f6b64; --border: #e5e2da;
+    --dark: #12181f; --dark-text: #f4f5f7; --dark-muted: #b9c3cd;
+    --brand: #2e8b57; --brand-dark: #3fa76c; --accent: #d99b3b;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 2rem 1.25rem 5rem; }
+  .aviso-temporal {
+    max-width: 1200px; margin: 0 auto 2rem; padding: 0.6rem 1rem; border-radius: 8px;
+    background: #faf0dc; color: #92610c; border: 1px solid #e8d5ae; font-size: 0.875rem; font-weight: 600;
+  }
+  .marco { max-width: 1200px; margin: 0 auto; }
+  h1.titulo-pagina { font-size: 1.563rem; font-weight: 600; margin-bottom: 0.5rem; }
+  p.explica { color: var(--muted); max-width: 70ch; margin-bottom: 2rem; }
+
+  .comparativa { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start; }
+  @media (max-width: 860px) { .comparativa { grid-template-columns: 1fr; } }
+  .opcion { border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: var(--surface); }
+  .opcion .etiqueta {
+    padding: 0.6rem 1.25rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; background: var(--sunken); color: var(--text-2); border-bottom: 1px solid var(--border);
+  }
+
+  /* Escala §3.2, común a ambas opciones */
+  .muestra .hero { background: linear-gradient(160deg, var(--dark) 55%, #243323 135%); color: var(--dark-text); padding: 2.5rem 1.5rem 3rem; }
+  .muestra .hero h1 { font-size: clamp(2rem, 1.6rem + 1.8vw, 2.8rem); line-height: 1.1; max-width: 22ch; color: #fff; }
+  .muestra .hero p { margin-top: 1rem; font-size: 1.125rem; line-height: 1.55; color: var(--dark-muted); max-width: 55ch; }
+  .muestra .seccion { padding: 2rem 1.5rem; }
+  .muestra .seccion.hundida { background: var(--sunken); }
+  .muestra h2 { font-size: 1.563rem; line-height: 1.3; margin-bottom: 0.75rem; }
+  .muestra p.intro { color: var(--muted); margin-bottom: 1.25rem; }
+  .muestra .tarjeta { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; max-width: 420px; }
+  .muestra .tarjeta h3 { font-size: 1.25rem; line-height: 1.35; margin-bottom: 0.5rem; }
+  .muestra .tarjeta p, .muestra .legal p { color: var(--text-2); font-size: 1rem; }
+  .muestra .legal h2 { font-size: 1.25rem; }
+  .muestra .legal { max-width: 60ch; }
+
+  /* Opción A — Space Grotesk: pesos 700/600, tracking negativo (grotesca) */
+  .opt-a h1, .opt-a h2, .opt-a h3 { font-family: 'Space Grotesk', system-ui, sans-serif; font-weight: 600; }
+  .opt-a .hero h1 { font-weight: 700; letter-spacing: -0.03em; }
+  .opt-a h2 { letter-spacing: -0.02em; }
+  /* Opción B — Source Serif 4 (óptico Display): peso 600, tracking 0 (§3.1) */
+  .opt-b h1, .opt-b h2, .opt-b h3 { font-family: 'Source Serif 4', Georgia, serif; font-weight: 600; letter-spacing: 0; }
+
+  /* ——— Motivo Kiri ——— */
+  .kiri { margin-top: 4rem; }
+  .bocetos { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+  .boceto { border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: var(--surface); }
+  .boceto .panel-oscuro { background: var(--dark); padding: 1.5rem; display: flex; justify-content: center; }
+  .boceto .panel-claro { padding: 1.25rem 1.5rem; border-top: 1px solid var(--border); }
+  .boceto .panel-claro .nombre { font-weight: 600; font-size: 1rem; }
+  .boceto .panel-claro .nota { color: var(--muted); font-size: 0.875rem; margin: 0.25rem 0 1rem; }
+  .boceto .separador { display: flex; align-items: center; gap: 0.75rem; color: var(--muted); font-size: 0.8rem; }
+</style>
+</head>
+<body>
+<div class="aviso-temporal">Página temporal de decisión (Fase 2). No es parte del sitio; se elimina al elegir tipografía y boceto.</div>
+<div class="marco">
+  <h1 class="titulo-pagina">Tipografía de titulares — opción A vs. opción B</h1>
+  <p class="explica">Mismo contenido real del sitio, misma escala (§3.2) y mismo cuerpo (Inter 400/600) en ambas columnas.
+  Cambia solo la familia del titular: A con sus pesos 700/600 y tracking negativo; B con los ajustes ópticos de serif (peso 600, tracking 0).</p>
+
+  <div class="comparativa">
+    <section class="opcion opt-a">
+      <div class="etiqueta">Opción A — Space Grotesk</div>
+      <div class="muestra">
+        <div class="hero">
+          <h1>Automatizamos los procesos que le quitan tiempo a tu equipo</h1>
+          <p>Somos una consultora de desarrollo de software especializada en automatización inteligente de procesos (IPA).</p>
+        </div>
+        <div class="seccion hundida">
+          <h2>Donde la privacidad no es negociable</h2>
+          <p class="intro">Trabajamos con foco en privacidad para cualquier organización donde un dato filtrado es un problema legal, no solo reputacional.</p>
+          <div class="tarjeta">
+            <h3>Circuito cerrado cuando hace falta</h3>
+            <p>Para información que no puede salir, todo el ciclo —consulta, procesamiento y respuesta— puede ocurrir en tus servidores: nada se envía a APIs de terceros, nada queda en logs ajenos.</p>
+          </div>
+        </div>
+        <div class="seccion legal">
+          <h2>Qué datos recogemos en este sitio</h2>
+          <p>Este sitio no usa cookies de seguimiento ni herramientas de analítica de terceros. Los únicos datos personales que recibimos son los que tú nos envías voluntariamente al escribirnos por correo: tu nombre, tu dirección de correo y lo que decidas contarnos.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="opcion opt-b">
+      <div class="etiqueta">Opción B — Source Serif 4 (óptico Display)</div>
+      <div class="muestra">
+        <div class="hero">
+          <h1>Automatizamos los procesos que le quitan tiempo a tu equipo</h1>
+          <p>Somos una consultora de desarrollo de software especializada en automatización inteligente de procesos (IPA).</p>
+        </div>
+        <div class="seccion hundida">
+          <h2>Donde la privacidad no es negociable</h2>
+          <p class="intro">Trabajamos con foco en privacidad para cualquier organización donde un dato filtrado es un problema legal, no solo reputacional.</p>
+          <div class="tarjeta">
+            <h3>Circuito cerrado cuando hace falta</h3>
+            <p>Para información que no puede salir, todo el ciclo —consulta, procesamiento y respuesta— puede ocurrir en tus servidores: nada se envía a APIs de terceros, nada queda en logs ajenos.</p>
+          </div>
+        </div>
+        <div class="seccion legal">
+          <h2>Qué datos recogemos en este sitio</h2>
+          <p>Este sitio no usa cookies de seguimiento ni herramientas de analítica de terceros. Los únicos datos personales que recibimos son los que tú nos envías voluntariamente al escribirnos por correo: tu nombre, tu dirección de correo y lo que decidas contarnos.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="kiri">
+    <h1 class="titulo-pagina">Motivo Kiri — 3 bocetos (§6: geométrico, no botánico)</h1>
+    <p class="explica">Trazo constante 1.5, hojas acorazonadas reducidas a dos arcos y un vértice, ángulos de una familia limitada.
+    Cada boceto se muestra en contexto de franja oscura (verde legible + una hoja en dorado) y con su variante mini de separador sobre claro.
+    En el sitio real, la versión del hero iría a opacidad ~0.18.</p>
+
+    <div class="bocetos">
+      <article class="boceto">
+        <div class="panel-oscuro">
+          <svg width="260" height="190" viewBox="0 0 220 160" fill="none" aria-label="Boceto 1: diagrama de nodos">
+            <g stroke="#3fa76c" stroke-width="1.5" stroke-linecap="round">
+              <path d="M16 148 L70 118 L124 92 L178 72" />
+              <path d="M70 118 L98 62" />
+              <path d="M124 92 L150 44" />
+              <circle cx="70" cy="118" r="3.5" fill="#12181f" />
+              <circle cx="124" cy="92" r="3.5" fill="#12181f" />
+              <path d="M178 72 C178 72 171 67 172 62 A3.4 3.4 0 0 1 178 60 A3.4 3.4 0 0 1 184 62 C185 67 178 72 178 72 Z" transform="rotate(20 178 72)" />
+              <path d="M150 44 C150 44 143 39 144 34 A3.4 3.4 0 0 1 150 32 A3.4 3.4 0 0 1 156 34 C157 39 150 44 150 44 Z" transform="rotate(-8 150 44)" />
+            </g>
+            <g stroke="#d99b3b" stroke-width="1.5" stroke-linecap="round">
+              <path d="M98 62 C98 62 91 57 92 52 A3.4 3.4 0 0 1 98 50 A3.4 3.4 0 0 1 104 52 C105 57 98 62 98 62 Z" transform="rotate(-18 98 62)" />
+            </g>
+          </svg>
+        </div>
+        <div class="panel-claro">
+          <div class="nombre">Boceto 1 — «Diagrama»</div>
+          <p class="nota">Máxima abstracción: segmentos rectos, nodos circulares en cada bifurcación. Lo más cercano a un diagrama de red.</p>
+          <div class="separador">
+            <svg width="110" height="18" viewBox="0 0 110 18" fill="none" aria-hidden="true">
+              <g stroke="#2e8b57" stroke-width="1.5" stroke-linecap="round">
+                <path d="M2 14 L48 9 L92 6" />
+                <circle cx="48" cy="9" r="2.5" fill="#fff" />
+                <path d="M92 6 C92 6 87 3 88 0.5 A2.2 2.2 0 0 1 92 -0.5 A2.2 2.2 0 0 1 96 0.5 C97 3 92 6 92 6 Z" transform="translate(0 5)" />
+              </g>
+            </svg>
+            <span>separador bajo h2</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="boceto">
+        <div class="panel-oscuro">
+          <svg width="260" height="190" viewBox="0 0 220 160" fill="none" aria-label="Boceto 2: rama de arcos">
+            <g stroke="#3fa76c" stroke-width="1.5" stroke-linecap="round">
+              <path d="M14 152 C56 136 88 116 120 94 C142 79 160 71 180 66" />
+              <path d="M86 118 C98 98 106 84 110 60" />
+              <path d="M132 86 C148 93 160 104 166 120" />
+              <path d="M180 66 C180 66 173 61 174 56 A3.4 3.4 0 0 1 180 54 A3.4 3.4 0 0 1 186 56 C187 61 180 66 180 66 Z" transform="rotate(14 180 66)" />
+              <path d="M166 120 C166 120 159 115 160 110 A3.4 3.4 0 0 1 166 108 A3.4 3.4 0 0 1 172 110 C173 115 166 120 166 120 Z" transform="rotate(150 166 120)" />
+            </g>
+            <g stroke="#d99b3b" stroke-width="1.5" stroke-linecap="round">
+              <path d="M110 60 C110 60 103 55 104 50 A3.4 3.4 0 0 1 110 48 A3.4 3.4 0 0 1 116 50 C117 55 110 60 110 60 Z" transform="rotate(-12 110 60)" />
+            </g>
+          </svg>
+        </div>
+        <div class="panel-claro">
+          <div class="nombre">Boceto 2 — «Rama»</div>
+          <p class="nota">Abstracción media: un solo trazo curvo con dos bifurcaciones (~30°/~55°), arcos amplios de pocos puntos de control.</p>
+          <div class="separador">
+            <svg width="110" height="18" viewBox="0 0 110 18" fill="none" aria-hidden="true">
+              <g stroke="#2e8b57" stroke-width="1.5" stroke-linecap="round">
+                <path d="M2 14 C34 11 62 9 92 7" />
+                <path d="M52 10 C58 6 62 4 66 1" />
+                <path d="M92 7 C92 7 87 4 88 1.5 A2.2 2.2 0 0 1 92 0.5 A2.2 2.2 0 0 1 96 1.5 C97 4 92 7 92 7 Z" transform="translate(0 4)" />
+              </g>
+            </svg>
+            <span>separador bajo h2</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="boceto">
+        <div class="panel-oscuro">
+          <svg width="260" height="190" viewBox="0 0 220 160" fill="none" aria-label="Boceto 3: brote con espiral">
+            <g stroke="#3fa76c" stroke-width="1.5" stroke-linecap="round">
+              <path d="M12 154 C50 142 80 124 108 102 C130 85 148 74 172 64" />
+              <path d="M74 128 C84 110 90 98 92 78" />
+              <path d="M118 94 C132 100 142 110 148 126" />
+              <path d="M148 78 C158 66 162 56 160 42" />
+              <path d="M92 78 C92 78 85 73 86 68 A3.4 3.4 0 0 1 92 66 A3.4 3.4 0 0 1 98 68 C99 73 92 78 92 78 Z" transform="rotate(-14 92 78)" />
+              <path d="M148 126 C148 126 141 121 142 116 A3.4 3.4 0 0 1 148 114 A3.4 3.4 0 0 1 154 116 C155 121 148 126 148 126 Z" transform="rotate(155 148 126)" />
+              <path d="M172 64 C172 64 165 59 166 54 A3.4 3.4 0 0 1 172 52 A3.4 3.4 0 0 1 178 54 C179 59 172 64 172 64 Z" transform="rotate(18 172 64)" />
+            </g>
+            <g stroke="#d99b3b" stroke-width="1.5" stroke-linecap="round">
+              <path d="M160 42 C157 34 163 28 168 32 C171 35 168 40 163 39" />
+            </g>
+          </svg>
+        </div>
+        <div class="panel-claro">
+          <div class="nombre">Boceto 3 — «Brote»</div>
+          <p class="nota">La más expresiva dentro de la regla: tres bifurcaciones y un brote en espiral (dorado) aún sin abrir. Sigue sin nervaduras ni modulación.</p>
+          <div class="separador">
+            <svg width="110" height="18" viewBox="0 0 110 18" fill="none" aria-hidden="true">
+              <g stroke="#2e8b57" stroke-width="1.5" stroke-linecap="round">
+                <path d="M2 14 C34 11 62 9 88 7" />
+                <path d="M50 10 C56 6 60 4 63 1" />
+                <path d="M88 7 C86 3 90 0 93 2 C95 4 93 7 90 6.5" />
+              </g>
+            </svg>
+            <span>separador bajo h2</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+</div>
+</body>
+</html>

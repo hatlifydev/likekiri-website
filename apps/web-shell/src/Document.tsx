@@ -124,6 +124,8 @@ export function Document({
         <meta property="og:image" content={new URL('/assets/marca/logo.webp', meta.baseUrl).toString()} />
         <link rel="icon" type="image/png" href="/assets/favicon.png" />
         <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+        <link rel="preload" href="/assets/fonts/inter-regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/assets/fonts/inter-semibold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <style dangerouslySetInnerHTML={{ __html: shellCss }} />
       </head>
       <body>
