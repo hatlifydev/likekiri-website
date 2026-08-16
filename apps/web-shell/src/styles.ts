@@ -64,16 +64,19 @@ a:hover { text-decoration: underline; }
   text-align: center; padding: 0.55rem var(--lk-space-5); font-size: var(--lk-type-small-size); font-weight: 600;
 }
 
-/* ——— header: altura fija; el logo sobresale sin empujar ——— */
-header.site { background: var(--lk-color-dark-base); height: 84px; position: relative; z-index: 20; }
+/* ——— header: fijo al hacer scroll, logo centrado con el menú ——— */
+header.site {
+  background: var(--lk-color-dark-base); height: 84px;
+  position: sticky; top: 0; z-index: 20;
+  box-shadow: var(--lk-shadow-2);
+}
 header.site .container {
   display: flex; align-items: center; justify-content: space-between; height: 100%; gap: var(--lk-space-6);
 }
 .brand { position: relative; display: flex; align-items: center; }
 .brand:hover { text-decoration: none; }
-/* overhang: el logo baja levemente sobre el contenido */
 .brand img {
-  height: 78px; display: block; margin: 20px 0 -44px;
+  height: 64px; display: block;
   filter: drop-shadow(0 8px 16px rgba(0,0,0,0.35));
   transition: transform 0.3s ease;
 }
@@ -250,6 +253,24 @@ footer.site .marca-pie img { height: 84px; display: block; margin-bottom: 0.9rem
   letter-spacing: var(--lk-type-display-tracking); color: var(--lk-color-dark-base);
 }
 .pagina-error p { color: var(--lk-color-textMuted); margin-top: var(--lk-space-3); }
+
+/* ——— responsivo ——— */
+@media (max-width: 900px) {
+  /* apilado, el header dejaría poco viewport si siguiera fijo */
+  header.site { position: static; height: auto; padding: var(--lk-space-3) 0; }
+  header.site .container { flex-direction: column; gap: var(--lk-space-3); }
+  nav.main { justify-content: center; row-gap: var(--lk-space-2); }
+  .brand img { height: 52px; }
+}
+@media (max-width: 600px) {
+  .hero { padding: var(--lk-space-12) 0; border-radius: 0 0 var(--lk-radius-xl) var(--lk-radius-xl); }
+  section.bloque { padding: var(--lk-space-10) 0; }
+  .hero .acciones { flex-direction: column; align-items: stretch; }
+  .hero .acciones .boton { text-align: center; }
+  .rama-kiri { width: min(70vw, 280px); }
+  footer.site { border-radius: var(--lk-radius-xl) var(--lk-radius-xl) 0 0; }
+  footer.site .container { flex-direction: column; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
