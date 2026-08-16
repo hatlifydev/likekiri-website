@@ -214,11 +214,24 @@ section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-wi
 
 /* ——— servicios (Qué hacemos): lista editorial asimétrica, §9.2 ——— */
 .servicios { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--lk-space-6); margin-top: var(--lk-space-6); }
+/* en reposo: aspecto editorial (filete + sin fondo); al hover, el mismo efecto
+   que las tarjetas: elevación, sombra y acento verde. El margen negativo
+   compensa el padding lateral para que el texto quede alineado en reposo. */
 .servicio {
-  padding-top: var(--lk-space-6); border-top: 2px solid var(--lk-color-border);
-  transition: border-color var(--lk-motion-base) var(--lk-motion-ease);
+  position: relative; border-radius: var(--lk-radius-lg);
+  padding: var(--lk-space-6) var(--lk-space-4) var(--lk-space-4);
+  margin: 0 calc(-1 * var(--lk-space-4));
+  transition: background var(--lk-motion-base) var(--lk-motion-ease),
+    transform var(--lk-motion-base) var(--lk-motion-ease),
+    box-shadow var(--lk-motion-base) var(--lk-motion-ease);
 }
-.servicio:hover { border-top-color: var(--lk-color-brand); }
+.servicio::before {
+  content: ''; position: absolute; top: 0; left: var(--lk-space-4); right: var(--lk-space-4);
+  height: 2px; background: var(--lk-color-border);
+  transition: background var(--lk-motion-base) var(--lk-motion-ease);
+}
+.servicio:hover { background: var(--lk-color-surface); transform: translateY(-4px); box-shadow: var(--lk-shadow-2); }
+.servicio:hover::before { background: var(--lk-color-brand); }
 .etiqueta-tec {
   font-family: var(--lk-font-mono); font-size: var(--lk-type-caption-size); font-weight: 600;
   letter-spacing: 0.08em; color: var(--lk-color-brandText);
@@ -227,11 +240,11 @@ section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-wi
 .servicio p { color: var(--lk-color-textSecondary); }
 /* el ítem destacado es la única señal dorada de la sección (§9.4) */
 .servicio.destacado {
-  grid-column: 1 / -1; border-top: none;
-  background: var(--lk-color-accentTint); border-radius: var(--lk-radius-lg); padding: var(--lk-space-6);
-  transition: box-shadow var(--lk-motion-base) var(--lk-motion-ease);
+  grid-column: 1 / -1; margin: 0;
+  background: var(--lk-color-accentTint); padding: var(--lk-space-6);
 }
-.servicio.destacado:hover { box-shadow: var(--lk-shadow-1); }
+.servicio.destacado::before { display: none; }
+.servicio.destacado:hover { background: var(--lk-color-accentTint); transform: translateY(-4px); box-shadow: var(--lk-shadow-2); }
 .servicio.destacado .etiqueta-tec { color: var(--lk-color-accentText); }
 
 /* ——— pipeline (Cómo trabajamos): la única sección numerada, §9.1 ——— */
