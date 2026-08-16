@@ -12,7 +12,7 @@ import { cssVariables } from '@likekiri/tokens';
  * Literales que quedan a propósito, cada grupo se resuelve en su fase:
  * sombras/estados de botón, radio 20px y tamaños menores de tarjetas (Fase 3);
  * grises del footer, blancos puros restantes y radio 14px de islas (Fase 4);
- * texturas rgba, duraciones/easings y separador Kiri bajo h2 (Fase 5).
+ * duraciones/easings y separador Kiri bajo h2 (Fase 5).
  */
 export const shellCss = `
 /* Fuentes self-hosted (apps/web-shell/public/fonts, subset latin+latin-ext):
@@ -125,8 +125,8 @@ nav.main a:hover::after { width: 100%; }
   width: min(46vw, 430px); height: auto; pointer-events: none;
   color: var(--lk-color-dark-brand);
 }
-.rama-kiri .trazo { stroke-opacity: 0.18; }
-.rama-kiri .hoja-acento { stroke: var(--lk-color-accent); stroke-opacity: 0.45; }
+.rama-kiri .trazo { stroke-opacity: 0.18; fill-opacity: 0.18; }
+.rama-kiri .nodo-acento { stroke: var(--lk-color-accent); stroke-opacity: 0.45; }
 .rama-kiri path {
   stroke-dasharray: 1; stroke-dashoffset: 1;
   animation: rama-crece 1.4s var(--lk-motion-ease) 0.2s forwards;
@@ -149,22 +149,10 @@ nav.main a:hover::after { width: 100%; }
 .boton:hover { text-decoration: none; filter: brightness(1.08); transform: translateY(-2px); box-shadow: 0 10px 24px rgba(46,139,87,0.36); }
 .boton.secundario { background: transparent; color: inherit; border-color: currentColor; opacity: 0.9; box-shadow: none; }
 
-/* ——— zonas claras con contraste vertical ——— */
+/* ——— zonas claras: alternancia de fondos planos, sin texturas ——— */
 section.bloque { padding: 4.25rem 0; position: relative; }
-/* líneas verticales tenues como textura de fondo */
-section.bloque::before {
-  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
-  background-image: repeating-linear-gradient(90deg, rgba(18,24,31,0.035) 0 1px, transparent 1px 96px);
-}
 section.bloque > .container { position: relative; z-index: 1; }
-section.bloque.alterno {
-  background:
-    linear-gradient(90deg, rgba(46,139,87,0.05), rgba(217,155,59,0.05)),
-    var(--lk-color-surface);
-}
-section.bloque.alterno::before {
-  background-image: repeating-linear-gradient(90deg, rgba(46,139,87,0.06) 0 2px, transparent 2px 120px);
-}
+section.bloque.alterno { background: var(--lk-color-surfaceSunken); }
 section.bloque h2 {
   font-family: var(--lk-font-display); font-weight: var(--lk-type-h2-weight);
   font-size: var(--lk-type-h2-size); line-height: var(--lk-type-h2-lineHeight);
@@ -179,7 +167,7 @@ section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-wi
 
 .tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.4rem; margin-top: var(--lk-space-6); }
 .tarjeta {
-  background: var(--lk-color-background); border: 1px solid var(--lk-color-border); border-radius: 20px; padding: 1.6rem;
+  background: var(--lk-color-surface); border: 1px solid var(--lk-color-border); border-radius: 20px; padding: 1.6rem;
   box-shadow: 0 2px 10px rgba(18,24,31,0.05);
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   position: relative; overflow: hidden;

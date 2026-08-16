@@ -8,22 +8,19 @@
  * el grupo `color.dark`. Compatibilidad: las claves históricas se conservan
  * siempre (los consumidores dependen de los nombres `--lk-*`), solo se añade.
  *
- * NOTA Fase 1 (plomería): las claves re-apuntadas (`background`, `surface`,
- * `text`, `textMuted`, `border`, `danger`) llevan el valor claro que los
- * shells ya usaban vía override, para no alterar ningún runtime. Los valores
- * definitivos de la paleta cálida del doc (§2.1) se adoptan junto con el
- * rediseño visual (Fases 2–4).
+ * Paleta cálida definitiva (§2.1) adoptada al cierre de la Fase 2. El admin
+ * fija sus propios valores neutros en su :root, por lo que no le afecta.
  */
 export const tokens = {
   color: {
-    // Neutros del tema claro (base actual de ambos shells)
-    background: '#ffffff',
-    surface: '#f4f6f8',
+    // Neutros del tema claro: base cálida, no blanco puro
+    background: '#faf9f6',
+    surface: '#ffffff',
     surfaceSunken: '#f2f0ea',
-    text: '#1d2630',
+    text: '#1c2420',
     textSecondary: '#45514b',
-    textMuted: '#5b6674',
-    border: '#e2e7ec',
+    textMuted: '#5f6b64',
+    border: '#e5e2da',
     borderStrong: '#828b84',
     // Verde de marca: identidad vs. acción (ver §2.2 del doc — el verde puro
     // no alcanza AA como fondo de texto normal; los botones migran a `action`)

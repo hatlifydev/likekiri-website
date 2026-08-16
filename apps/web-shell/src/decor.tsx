@@ -48,10 +48,11 @@ export function FigurasHero(): ReactElement {
 }
 
 /**
- * Motivo de marca: la rama de Kiri (design-system §6, boceto «Rama»).
- * Un trazo continuo con dos bifurcaciones y hojas acorazonadas mínimas;
- * geométrico, sin modulación. pathLength=1 permite el trazado progresivo
- * en CSS puro (stroke-dashoffset), sin JavaScript.
+ * Motivo de marca: la rama-diagrama Kiri (design-system §6 revisado y §9).
+ * Un trazo continuo que se bifurca como diagrama de flujo: nodos circulares
+ * en las uniones (rellenos) y en las puntas (huecos), con un nodo terminal
+ * en dorado como foco. Sin formas orgánicas: crecimiento leído como proceso.
+ * pathLength=1 permite el trazado progresivo en CSS puro, sin JavaScript.
  */
 export function RamaKiri(): ReactElement {
   return (
@@ -60,17 +61,12 @@ export function RamaKiri(): ReactElement {
         <path pathLength={1} d="M14 152 C56 136 88 116 120 94 C142 79 160 71 180 66" />
         <path pathLength={1} d="M86 118 C98 98 106 84 110 60" />
         <path pathLength={1} d="M132 86 C148 93 160 104 166 120" />
-        <path pathLength={1} d="M180 66 C180 66 173 61 174 56 A3.4 3.4 0 0 1 180 54 A3.4 3.4 0 0 1 186 56 C187 61 180 66 180 66 Z" transform="rotate(14 180 66)" />
-        <path pathLength={1} d="M166 120 C166 120 159 115 160 110 A3.4 3.4 0 0 1 166 108 A3.4 3.4 0 0 1 172 110 C173 115 166 120 166 120 Z" transform="rotate(150 166 120)" />
+        <circle cx="86" cy="118" r="2.5" fill="currentColor" stroke="none" />
+        <circle cx="132" cy="86" r="2.5" fill="currentColor" stroke="none" />
+        <circle cx="180" cy="66" r="3.5" />
+        <circle cx="166" cy="120" r="3.5" />
       </g>
-      <path
-        className="hoja-acento"
-        pathLength={1}
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        d="M110 60 C110 60 103 55 104 50 A3.4 3.4 0 0 1 110 48 A3.4 3.4 0 0 1 116 50 C117 55 110 60 110 60 Z"
-        transform="rotate(-12 110 60)"
-      />
+      <circle className="nodo-acento" cx="110" cy="56" r="4.5" strokeWidth="1.5" />
     </svg>
   );
 }
