@@ -140,7 +140,7 @@ nav.main a:hover::after { width: 100%; }
 }
 @keyframes rama-crece { to { stroke-dashoffset: 0; } }
 .hero .eyebrow {
-  font-family: var(--lk-font-mono); font-size: var(--lk-type-caption-size); font-weight: 600;
+  font-family: var(--lk-font-sans); font-size: var(--lk-type-caption-size); font-weight: 600;
   text-transform: uppercase; letter-spacing: 0.14em; color: var(--lk-color-dark-textMuted);
   margin-bottom: var(--lk-space-4);
 }
@@ -158,7 +158,7 @@ nav.main a:hover::after { width: 100%; }
   display: flex; flex-wrap: wrap; gap: var(--lk-space-2) var(--lk-space-8);
 }
 .hero .hechos li {
-  font-family: var(--lk-font-mono); font-size: var(--lk-type-caption-size); font-weight: 600;
+  font-family: var(--lk-font-sans); font-size: var(--lk-type-caption-size); font-weight: 600;
   letter-spacing: 0.08em; text-transform: uppercase; color: var(--lk-color-dark-textMuted);
   display: flex; align-items: center; gap: var(--lk-space-2);
 }
