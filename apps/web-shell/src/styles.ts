@@ -10,9 +10,8 @@ import { cssVariables } from '@likekiri/tokens';
  * Estado (design-system §8): Fase 1 (plomería de tokens) y Fase 2 (tipografía
  * definitiva Source Serif 4 + Inter, hero con rama Kiri, header) aplicadas.
  * Literales que quedan a propósito, cada grupo se resuelve en su fase:
- * sombras/estados de botón, radio 20px y tamaños menores de tarjetas (Fase 3);
  * grises del footer, blancos puros restantes y radio 14px de islas (Fase 4);
- * duraciones/easings y separador Kiri bajo h2 (Fase 5).
+ * duraciones/easings del reveal y separador Kiri bajo h2 (Fase 5).
  */
 export const shellCss = `
 /* Fuentes self-hosted (apps/web-shell/public/fonts, subset latin+latin-ext):
@@ -180,27 +179,29 @@ section.bloque h2::after {
 }
 section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-width: 65ch; margin-bottom: var(--lk-space-8); }
 
-.tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.4rem; margin-top: var(--lk-space-6); }
+.tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--lk-space-6); margin-top: var(--lk-space-6); }
 .tarjeta {
-  background: var(--lk-color-surface); border: 1px solid var(--lk-color-border); border-radius: 20px; padding: 1.6rem;
-  box-shadow: 0 2px 10px rgba(18,24,31,0.05);
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  background: var(--lk-color-surface); border: 1px solid var(--lk-color-border); border-radius: var(--lk-radius-lg); padding: var(--lk-space-6);
+  box-shadow: var(--lk-shadow-1);
+  transition: transform var(--lk-motion-base) var(--lk-motion-ease),
+    box-shadow var(--lk-motion-base) var(--lk-motion-ease),
+    border-color var(--lk-motion-base) var(--lk-motion-ease);
   position: relative; overflow: hidden;
 }
-/* filo superior de color que aparece al pasar el mouse */
+/* filo superior verde al pasar el mouse (un solo acento: sin degradado, §9) */
 .tarjeta::before {
   content: ''; position: absolute; left: 0; top: 0; height: 4px; width: 100%;
-  background: linear-gradient(90deg, var(--lk-color-brand), var(--lk-color-accent));
-  transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease;
+  background: var(--lk-color-brand);
+  transform: scaleX(0); transform-origin: left; transition: transform var(--lk-motion-base) var(--lk-motion-ease);
 }
-.tarjeta:hover { transform: translateY(-6px); box-shadow: 0 16px 32px rgba(18,24,31,0.12); border-color: transparent; }
+.tarjeta:hover { transform: translateY(-4px); box-shadow: var(--lk-shadow-2); border-color: transparent; }
 .tarjeta:hover::before { transform: scaleX(1); }
 .tarjeta h3 {
   font-family: var(--lk-font-display); font-weight: var(--lk-type-h3-weight);
   font-size: var(--lk-type-h3-size); line-height: var(--lk-type-h3-lineHeight);
   letter-spacing: var(--lk-type-h3-tracking); margin-bottom: var(--lk-space-2); color: var(--lk-color-dark-base);
 }
-.tarjeta p { color: var(--lk-color-textMuted); font-size: 0.95rem; }
+.tarjeta p { color: var(--lk-color-textSecondary); font-size: var(--lk-type-body-size); }
 
 .persona .avatar {
   width: 64px; height: 64px; border-radius: 50%;
