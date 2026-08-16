@@ -196,12 +196,50 @@ section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-wi
 }
 .tarjeta:hover { transform: translateY(-4px); box-shadow: var(--lk-shadow-2); border-color: transparent; }
 .tarjeta:hover::before { transform: scaleX(1); }
-.tarjeta h3 {
+.tarjeta h3, .servicio h3, .paso h3 {
   font-family: var(--lk-font-display); font-weight: var(--lk-type-h3-weight);
   font-size: var(--lk-type-h3-size); line-height: var(--lk-type-h3-lineHeight);
   letter-spacing: var(--lk-type-h3-tracking); margin-bottom: var(--lk-space-2); color: var(--lk-color-dark-base);
 }
 .tarjeta p { color: var(--lk-color-textSecondary); font-size: var(--lk-type-body-size); }
+
+/* ——— servicios (Qué hacemos): lista editorial asimétrica, §9.2 ——— */
+.servicios { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--lk-space-6); margin-top: var(--lk-space-6); }
+.servicio { padding-top: var(--lk-space-6); border-top: 2px solid var(--lk-color-border); }
+.etiqueta-tec {
+  font-family: var(--lk-font-mono); font-size: var(--lk-type-caption-size); font-weight: 600;
+  letter-spacing: 0.08em; color: var(--lk-color-brandText);
+}
+.servicio h3 { margin: var(--lk-space-2) 0; }
+.servicio p { color: var(--lk-color-textSecondary); }
+/* el ítem destacado es la única señal dorada de la sección (§9.4) */
+.servicio.destacado {
+  grid-column: 1 / -1; border-top: none;
+  background: var(--lk-color-accentTint); border-radius: var(--lk-radius-lg); padding: var(--lk-space-6);
+}
+.servicio.destacado .etiqueta-tec { color: var(--lk-color-accentText); }
+
+/* ——— pipeline (Cómo trabajamos): la única sección numerada, §9.1 ——— */
+.pipeline { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--lk-space-6); margin-top: var(--lk-space-8); }
+.paso { position: relative; }
+/* segmento conector entre nodos, misma familia de trazo que la rama Kiri */
+.paso::after {
+  content: ''; position: absolute; top: 14px; left: 44px; right: calc(-1 * var(--lk-space-6));
+  height: 2px; background: var(--lk-color-border);
+}
+.paso:last-child::after { display: none; }
+.paso .nodo {
+  position: relative; z-index: 1; width: 28px; height: 28px; border-radius: 50%;
+  border: 1.5px solid var(--lk-color-brand); background: var(--lk-color-surface);
+  color: var(--lk-color-brandText); font-family: var(--lk-font-mono);
+  font-size: var(--lk-type-caption-size); font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+}
+/* el proceso termina en acompañamiento: nodo final en dorado, la señal única */
+.paso:last-child .nodo { border-color: var(--lk-color-accent); color: var(--lk-color-accentText); }
+.paso h3 { margin-top: var(--lk-space-4); }
+.paso p { color: var(--lk-color-textSecondary); }
+.acciones.al-final { margin-top: var(--lk-space-10); }
 
 .persona .avatar {
   width: 64px; height: 64px; border-radius: 50%;
@@ -265,6 +303,13 @@ footer.site .marca-pie img { height: 84px; display: block; margin-bottom: 0.9rem
   header.site .container { flex-direction: column; gap: var(--lk-space-3); }
   nav.main { justify-content: center; row-gap: var(--lk-space-2); }
   .brand img { height: 52px; }
+  .servicios { grid-template-columns: 1fr; }
+  /* pipeline vertical: nodo a la izquierda, línea conectora hacia abajo */
+  .pipeline { grid-template-columns: 1fr; }
+  .paso { padding-left: var(--lk-space-10); }
+  .paso .nodo { position: absolute; left: 0; top: 0; }
+  .paso h3 { margin-top: 0; }
+  .paso::after { left: 13px; top: 34px; bottom: calc(-1 * var(--lk-space-6)); width: 2px; height: auto; right: auto; }
 }
 @media (max-width: 600px) {
   .hero { padding: var(--lk-space-12) 0; border-radius: 0 0 var(--lk-radius-xl) var(--lk-radius-xl); }

@@ -28,11 +28,27 @@ export function Home({ t }: PageContext): ReactElement {
         <div className="container">
           <h2>{h.s1Titulo}</h2>
           <p className="intro">{h.s1Intro}</p>
-          <div className="tarjetas">
-            <div className="tarjeta reveal"><h3>{h.s1BatchT}</h3><p>{h.s1BatchD}</p></div>
-            <div className="tarjeta reveal"><h3>{h.s1RpaT}</h3><p>{h.s1RpaD}</p></div>
-            <div className="tarjeta reveal"><h3>{h.s1IaT}</h3><p>{h.s1IaD}</p></div>
-            <div className="tarjeta reveal"><h3>{h.s1RagT}</h3><p>{h.s1RagD}</p></div>
+          <div className="servicios">
+            <article className="servicio reveal">
+              <span className="etiqueta-tec">{h.s1BatchTag}</span>
+              <h3>{h.s1BatchT}</h3>
+              <p>{h.s1BatchD}</p>
+            </article>
+            <article className="servicio reveal">
+              <span className="etiqueta-tec">{h.s1RpaTag}</span>
+              <h3>{h.s1RpaT}</h3>
+              <p>{h.s1RpaD}</p>
+            </article>
+            <article className="servicio reveal">
+              <span className="etiqueta-tec">{h.s1IaTag}</span>
+              <h3>{h.s1IaT}</h3>
+              <p>{h.s1IaD}</p>
+            </article>
+            <article className="servicio destacado reveal">
+              <span className="etiqueta-tec">{h.s1RagTag}</span>
+              <h3>{h.s1RagT}</h3>
+              <p>{h.s1RagD}</p>
+            </article>
           </div>
         </div>
       </section>
@@ -63,13 +79,29 @@ export function Home({ t }: PageContext): ReactElement {
       <section className="bloque">
         <div className="container">
           <h2>{h.s4Titulo}</h2>
-          <div className="tarjetas">
-            <div className="tarjeta reveal"><h3>{h.s4DiagT}</h3><p>{h.s4DiagD}</p></div>
-            <div className="tarjeta reveal"><h3>{h.s4PilotoT}</h3><p>{h.s4PilotoD}</p></div>
-            <div className="tarjeta reveal"><h3>{h.s4DespliegueT}</h3><p>{h.s4DespliegueD}</p></div>
-            <div className="tarjeta reveal"><h3>{h.s4AcompT}</h3><p>{h.s4AcompD}</p></div>
-          </div>
-          <div className="acciones" style={{ marginTop: '2.5rem' }}>
+          <ol className="pipeline">
+            <li className="paso reveal">
+              <span className="nodo" aria-hidden="true">1</span>
+              <h3>{h.s4DiagT}</h3>
+              <p>{h.s4DiagD}</p>
+            </li>
+            <li className="paso reveal">
+              <span className="nodo" aria-hidden="true">2</span>
+              <h3>{h.s4PilotoT}</h3>
+              <p>{h.s4PilotoD}</p>
+            </li>
+            <li className="paso reveal">
+              <span className="nodo" aria-hidden="true">3</span>
+              <h3>{h.s4DespliegueT}</h3>
+              <p>{h.s4DespliegueD}</p>
+            </li>
+            <li className="paso reveal">
+              <span className="nodo" aria-hidden="true">4</span>
+              <h3>{h.s4AcompT}</h3>
+              <p>{h.s4AcompD}</p>
+            </li>
+          </ol>
+          <div className="acciones al-final">
             <a className="boton" href="/contacto">
               {h.ctaAgenda}
             </a>
