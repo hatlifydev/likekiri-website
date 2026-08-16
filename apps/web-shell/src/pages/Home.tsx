@@ -22,6 +22,11 @@ export function Home({ t }: PageContext): ReactElement {
               {h.ctaEmpresas}
             </a>
           </div>
+          <ul className="hechos">
+            <li>{h.heroHecho1}</li>
+            <li>{h.heroHecho2}</li>
+            <li>{h.heroHecho3}</li>
+          </ul>
         </div>
       </section>
 

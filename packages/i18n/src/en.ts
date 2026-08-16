@@ -22,7 +22,10 @@ export const en: Dictionary = {
     heroTitulo: 'We automate the processes that drain your team’s time',
     heroLead:
       'We are a software consultancy specialized in intelligent process automation (IPA). We take the repetitive work done by hand today —copying data, reconciling spreadsheets, reviewing documents, answering the same thing over and over— and turn it into processes that run on their own, with human oversight where it matters.',
-    ctaConversemos: 'Let’s talk',
+    ctaConversemos: 'Book a free intro call',
+    heroHecho1: 'Our own platform in production',
+    heroHecho2: 'Every decision written down as an ADR',
+    heroHecho3: 'Deployed on your infrastructure',
     ctaEmpresas: 'Business solutions',
     s1Titulo: 'What we do, in plain terms',
     s1Intro: 'We don’t sell magic: we combine four well-understood tools and pick the most cost-effective, reliable one that solves your problem.',

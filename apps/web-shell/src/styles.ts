@@ -151,6 +151,22 @@ nav.main a:hover::after { width: 100%; }
 }
 .hero p.lead { margin-top: var(--lk-space-5); font-size: var(--lk-type-lead-size); line-height: var(--lk-type-lead-lineHeight); color: var(--lk-color-dark-textMuted); max-width: 60ch; }
 .hero .acciones { margin-top: var(--lk-space-8); display: flex; gap: var(--lk-space-3); flex-wrap: wrap; }
+/* franja de hechos verificables: prueba temprana sin métricas infladas */
+.hero .hechos {
+  list-style: none; padding: var(--lk-space-6) 0 0; margin-top: var(--lk-space-8);
+  border-top: 1px solid var(--lk-color-dark-border);
+  display: flex; flex-wrap: wrap; gap: var(--lk-space-2) var(--lk-space-8);
+}
+.hero .hechos li {
+  font-family: var(--lk-font-mono); font-size: var(--lk-type-caption-size); font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--lk-color-dark-textMuted);
+  display: flex; align-items: center; gap: var(--lk-space-2);
+}
+/* nodo hueco, la misma familia que la rama-diagrama */
+.hero .hechos li::before {
+  content: ''; width: 7px; height: 7px; border-radius: 50%;
+  border: 1.5px solid var(--lk-color-dark-brand); flex-shrink: 0;
+}
 
 .boton {
   display: inline-block; padding: var(--lk-space-3) var(--lk-space-8); border-radius: var(--lk-radius-pill);
@@ -308,6 +324,23 @@ section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-wi
 .lista-check { list-style: none; padding-left: 0; }
 .lista-check li { padding-left: var(--lk-space-8); position: relative; margin-bottom: var(--lk-space-2); }
 .lista-check li::before { content: '✓'; position: absolute; left: 0; color: var(--lk-color-brand); font-weight: 700; }
+
+/* ——— preguntas frecuentes: acordeón nativo (details), sin JavaScript ——— */
+.faq { max-width: 72ch; margin-top: var(--lk-space-6); }
+.faq details { border-bottom: 1px solid var(--lk-color-border); }
+.faq summary {
+  cursor: pointer; list-style: none;
+  display: flex; justify-content: space-between; align-items: center; gap: var(--lk-space-4);
+  padding: var(--lk-space-4) 0; font-weight: 600; color: var(--lk-color-text);
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
+  content: '+'; font-family: var(--lk-font-mono); font-weight: 400;
+  font-size: var(--lk-type-h3-size); line-height: 1; color: var(--lk-color-brandText);
+  transition: transform var(--lk-motion-base) var(--lk-motion-ease);
+}
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq details p { color: var(--lk-color-textSecondary); padding-bottom: var(--lk-space-4); max-width: 65ch; }
 
 /* ——— revelado al hacer scroll (progresivo: sin JS, se ve igual) ——— */
 .reveal {

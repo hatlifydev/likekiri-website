@@ -24,7 +24,10 @@ export const es = {
     heroTitulo: 'Automatizamos los procesos que le quitan tiempo a tu equipo',
     heroLead:
       'Somos una consultora de desarrollo de software especializada en automatización inteligente de procesos (IPA). Tomamos ese trabajo repetitivo que hoy se hace a mano —copiar datos, cruzar hojas de cálculo, revisar documentos, responder lo mismo una y otra vez— y lo convertimos en procesos que corren solos, con supervisión humana donde importa.',
-    ctaConversemos: 'Conversemos',
+    ctaConversemos: 'Agenda una reunión sin costo',
+    heroHecho1: 'Plataforma propia en producción',
+    heroHecho2: 'Cada decisión documentada como ADR',
+    heroHecho3: 'Despliegue en tu infraestructura',
     ctaEmpresas: 'Soluciones para empresas',
     s1Titulo: 'Qué hacemos, en simple',
     s1Intro: 'No vendemos magia: combinamos cuatro herramientas bien entendidas y elegimos la más económica y confiable que resuelva tu problema.',
