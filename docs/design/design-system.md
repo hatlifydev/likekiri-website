@@ -291,6 +291,15 @@ siéndolo): 320 / 768 / 1024 / 1440.
 
 ## 6. Motivo de marca: la rama de Kiri
 
+> **Revisión (cierre de Fase 2):** las hojas acorazonadas se descartaron por
+> decisión del propietario — leían demasiado orgánicas para una web
+> empresarial. Las terminaciones de la rama son ahora **nodos circulares**:
+> rellenos en las bifurcaciones, huecos en las puntas, y un nodo terminal en
+> dorado como foco. El motivo pasa de "rama con hojas" a **rama-diagrama**,
+> puente directo con el lenguaje de proceso de §9. El resto de las reglas de
+> esta sección (trazo constante, geometría de pocos puntos, familia limitada
+> de ángulos, máximo 3 apariciones) sigue vigente.
+
 *(Descripción para implementar en Fase 2/5; no existe aún.)*
 
 **Concepto.** La paulownia (kiri) es el árbol de crecimiento más rápido conocido y
@@ -364,3 +373,33 @@ antes de continuar.
 
 Fuera de alcance de todas las fases: `apps/core`, `packages/contract`, lógica de
 módulos, y el diseño del admin (solo se verifica que no se rompa).
+
+## 9. Dirección distintiva: el proceso como lenguaje visual
+
+*(Añadido al cierre de Fase 2, tras evaluar que repintar la estructura actual
+—grillas uniformes de tarjetas en todas las secciones— dejaría un sitio
+genérico bien pintado.)*
+
+La identidad visual se deriva del propósito de la empresa: **automatización de
+procesos con ingeniería honesta**. El motivo Kiri revisado (rama-diagrama de
+nodos, §6) es la semilla de un lenguaje que se extiende al layout:
+
+1. **"Cómo trabajamos" como pipeline real.** Es la única sección cuyo contenido
+   es una secuencia verdadera (diagnóstico → piloto → despliegue →
+   acompañamiento): se compone como pipeline con línea conectora continua y
+   nodos numerados —la misma familia de trazo y ángulos de la rama—, no como
+   cuatro tarjetas iguales. La numeración solo aquí: numerar lo que no es
+   secuencia es decoración.
+2. **Romper la grilla uniforme de "Qué hacemos".** Composición asimétrica con
+   etiquetas técnicas en `font.mono` (BATCH · RPA · IA · RAG) como eyebrows y
+   un ítem destacado; tarjetas iguales solo donde los ítems son realmente
+   equivalentes.
+3. **Un acento por sección.** Fuera la barra degradada verde→dorado bajo cada
+   h2 (la reemplaza el separador-rama de §6); las texturas de líneas
+   verticales se eliminaron al adoptar la paleta cálida — la alternancia de
+   fondos planos (`background` / `surfaceSunken`) es el único ritmo del lienzo.
+4. **El dorado como señal, no como decoración:** un solo nodo/detalle dorado
+   por pantalla (el foco), igual que en la rama del hero.
+
+Aplicación: puntos 3 parcial y motivo ya en Fase 2; el resto define el alcance
+de la Fase 4 (recomposición de la Home) y el separador-rama queda en Fase 5.
