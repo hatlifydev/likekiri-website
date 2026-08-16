@@ -139,6 +139,11 @@ nav.main a:hover::after { width: 100%; }
   animation: rama-crece 1.4s var(--lk-motion-ease) 0.2s forwards;
 }
 @keyframes rama-crece { to { stroke-dashoffset: 0; } }
+.hero .eyebrow {
+  font-family: var(--lk-font-mono); font-size: var(--lk-type-caption-size); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.14em; color: var(--lk-color-dark-textMuted);
+  margin-bottom: var(--lk-space-4);
+}
 .hero h1 {
   font-family: var(--lk-font-display); font-weight: var(--lk-type-display-weight);
   font-size: var(--lk-type-display-size); line-height: var(--lk-type-display-lineHeight);
@@ -205,7 +210,7 @@ section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-wi
 }
 .tarjeta:hover { transform: translateY(-4px); box-shadow: var(--lk-shadow-2); border-color: transparent; }
 .tarjeta:hover::before { transform: scaleX(1); }
-.tarjeta h3, .servicio h3, .paso h3 {
+.tarjeta h3, .servicio h3, .paso h3, .ficha-adr h3 {
   font-family: var(--lk-font-display); font-weight: var(--lk-type-h3-weight);
   font-size: var(--lk-type-h3-size); line-height: var(--lk-type-h3-lineHeight);
   letter-spacing: var(--lk-type-h3-tracking); margin-bottom: var(--lk-space-2); color: var(--lk-color-dark-base);
@@ -268,6 +273,21 @@ section.bloque > .container > p.intro { color: var(--lk-color-textMuted); max-wi
 .paso h3 { margin-top: var(--lk-space-4); }
 .paso p { color: var(--lk-color-textSecondary); }
 .acciones.al-final { margin-top: var(--lk-space-10); }
+
+/* ——— fichas ADR (Cómo construimos): documentación real como evidencia ——— */
+.fichas-adr { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--lk-space-6); margin-top: var(--lk-space-6); }
+.ficha-adr {
+  background: var(--lk-color-surface); border: 1px solid var(--lk-color-border); border-radius: var(--lk-radius-lg);
+  padding: var(--lk-space-6); box-shadow: var(--lk-shadow-1);
+  transition: transform var(--lk-motion-base) var(--lk-motion-ease), box-shadow var(--lk-motion-base) var(--lk-motion-ease);
+}
+.ficha-adr:hover { transform: translateY(-4px); box-shadow: var(--lk-shadow-2); }
+/* cabecera tipo expediente: etiqueta mono separada por línea punteada */
+.ficha-adr .etiqueta-tec {
+  display: block; padding-bottom: var(--lk-space-3); margin-bottom: var(--lk-space-4);
+  border-bottom: 1px dashed var(--lk-color-border);
+}
+.ficha-adr p { color: var(--lk-color-textSecondary); }
 
 .persona .avatar {
   width: 64px; height: 64px; border-radius: 50%;
@@ -336,6 +356,7 @@ footer.site .marca-pie img { height: 84px; display: block; margin-bottom: 0.9rem
   nav.main { justify-content: center; row-gap: var(--lk-space-2); }
   .brand img { height: 52px; }
   .servicios { grid-template-columns: 1fr; }
+  .fichas-adr { grid-template-columns: 1fr; }
   /* pipeline vertical: nodo a la izquierda, línea conectora hacia abajo */
   .pipeline { grid-template-columns: 1fr; }
   .paso { padding-left: var(--lk-space-10); }

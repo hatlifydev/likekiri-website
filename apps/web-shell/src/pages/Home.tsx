@@ -11,6 +11,7 @@ export function Home({ t }: PageContext): ReactElement {
         <FigurasHero />
         <RamaKiri />
         <div className="container">
+          <p className="eyebrow">{t.footer.derechos}</p>
           <h1>{h.heroTitulo}</h1>
           <p className="lead">{h.heroLead}</p>
           <div className="acciones">
@@ -101,6 +102,30 @@ export function Home({ t }: PageContext): ReactElement {
               <p>{h.s4AcompD}</p>
             </li>
           </ol>
+        </div>
+      </section>
+
+      <section className="bloque alterno">
+        <div className="container">
+          <h2>{h.s5Titulo}</h2>
+          <p className="intro">{h.s5Intro}</p>
+          <div className="fichas-adr">
+            <article className="ficha-adr reveal">
+              <span className="etiqueta-tec">{h.s5ResilTag}</span>
+              <h3>{h.s5ResilT}</h3>
+              <p>{h.s5ResilD}</p>
+            </article>
+            <article className="ficha-adr reveal">
+              <span className="etiqueta-tec">{h.s5RendTag}</span>
+              <h3>{h.s5RendT}</h3>
+              <p>{h.s5RendD}</p>
+            </article>
+            <article className="ficha-adr reveal">
+              <span className="etiqueta-tec">{h.s5PrivTag}</span>
+              <h3>{h.s5PrivT}</h3>
+              <p>{h.s5PrivD}</p>
+            </article>
+          </div>
           <div className="acciones al-final">
             <a className="boton" href="/contacto">
               {h.ctaAgenda}
